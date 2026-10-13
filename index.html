@@ -8,40 +8,71 @@
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Google Fonts -->
+  <!-- Google Fonts: Bungee (Arcade), Fredoka, Patrick Hand & Special Elite -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&family=Patrick+Hand&family=Special+Elite&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Bungee&family=Fredoka:wght@400;600;700&family=Patrick+Hand&family=Special+Elite&display=swap" rel="stylesheet">
   
-  <!-- Lucide Icons -->
-  <script src="https://unpkg.com/lucide@latest"></script>
+  <!-- Tone.js para síntesis de audio de cocina y arcade -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.49/Tone.js"></script>
 
   <style>
+    :root {
+      --kitchen-wood: #2c1810;
+      --kitchen-amber: #f59e0b;
+      --kitchen-metal: #9ca3af;
+    }
+
     body {
       font-family: 'Fredoka', cursive, sans-serif;
-      background-color: #2b1810;
-      background-image: radial-gradient(#4a2818 1px, transparent 1px);
-      background-size: 24px 24px;
+      background-color: #24140e;
+      background-image: 
+        radial-gradient(#452315 1.5px, transparent 1.5px),
+        linear-gradient(to bottom, #1d0f0a 0%, #29160f 100%);
+      background-size: 24px 24px, 100% 100%;
     }
-    .font-chalk { font-family: 'Patrick Hand', cursive; }
-    .font-ticket { font-family: 'Special Elite', monospace; }
-    .tablecloth-border {
-      background-image: repeating-linear-gradient(45deg, #ef4444 0, #ef4444 15px, #ffffff 15px, #ffffff 30px);
+
+    .font-arcade {
+      font-family: 'Bungee', cursive;
     }
+
+    .font-chalk {
+      font-family: 'Patrick Hand', cursive;
+    }
+    
+    .font-ticket {
+      font-family: 'Special Elite', monospace;
+    }
+
+    /* Cenefa de mantel a cuadros clásico de restaurante */
+    .tablecloth-strip {
+      background-image: repeating-linear-gradient(45deg, #dc2626 0, #dc2626 14px, #ffffff 14px, #ffffff 28px);
+    }
+
+    /* Riel de comandas de acero inoxidable */
     .order-rail {
-      background: linear-gradient(180deg, #9ca3af 0%, #d1d5db 40%, #6b7280 100%);
-      box-shadow: inset 0 2px 4px rgba(255,255,255,0.6), 0 4px 6px rgba(0,0,0,0.4);
+      background: linear-gradient(180deg, #9ca3af 0%, #e5e7eb 35%, #6b7280 70%, #4b5563 100%);
+      box-shadow: inset 0 2px 4px rgba(255,255,255,0.7), 0 6px 12px rgba(0,0,0,0.5);
     }
+    
     .ticket-clip {
-      background: linear-gradient(180deg, #e5e7eb, #9ca3af);
-      box-shadow: 0 2px 4px rgba(0,0,0,0.5);
+      background: linear-gradient(180deg, #f3f4f6, #9ca3af);
+      box-shadow: 0 3px 5px rgba(0,0,0,0.6);
+      border: 1px solid #4b5563;
     }
-    .receipt-ticket {
+
+    /* Ticket de comanda de papel térmico dentado */
+    .order-ticket {
       background: #fffdf5;
       position: relative;
-      filter: drop-shadow(0 6px 6px rgba(0,0,0,0.25));
+      filter: drop-shadow(0 8px 8px rgba(0,0,0,0.35));
+      transition: transform 0.15s ease, filter 0.15s ease;
     }
-    .receipt-ticket::after {
+    .order-ticket:hover {
+      transform: translateY(-4px);
+      filter: drop-shadow(0 12px 14px rgba(0,0,0,0.45));
+    }
+    .order-ticket::after {
       content: "";
       position: absolute;
       bottom: -10px;
@@ -51,298 +82,649 @@
       background: linear-gradient(135deg, transparent 5px, #fffdf5 5px), linear-gradient(225deg, transparent 5px, #fffdf5 5px);
       background-size: 10px 10px;
     }
-    .blackboard {
-      background: #1e293b;
-      box-shadow: inset 0 0 40px rgba(0,0,0,0.8);
+
+    /* Pizarra del Menú con marco de madera rústica */
+    .blackboard-frame {
+      background: #111827;
+      box-shadow: inset 0 0 50px rgba(0,0,0,0.9);
       border: 12px solid #78350f;
+      outline: 3px solid #451a03;
+    }
+
+    /* Botones Arcade 3D */
+    .btn-arcade {
+      box-shadow: 0 5px 0 #78350f;
+      transition: all 0.08s ease;
+    }
+    .btn-arcade:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 7px 0 #78350f;
+    }
+    .btn-arcade:active {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 #78350f;
+    }
+
+    .btn-green-arcade {
+      box-shadow: 0 5px 0 #065f46;
+    }
+    .btn-green-arcade:active {
+      transform: translateY(4px);
+      box-shadow: 0 1px 0 #065f46;
+    }
+
+    /* Animación de hervor y vapor */
+    @keyframes simmerPulse {
+      0%, 100% { transform: translateY(0) scale(1); }
+      50% { transform: translateY(-3px) scale(1.02); }
+    }
+    .animate-simmer {
+      animation: simmerPulse 2.2s infinite ease-in-out;
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #1f120c;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #f59e0b;
+      border-radius: 4px;
     }
   </style>
 </head>
-<body class="text-stone-800 min-h-screen flex flex-col justify-between selection:bg-amber-300">
+<body class="text-stone-900 min-h-screen flex flex-col justify-between selection:bg-amber-400 selection:text-amber-950">
 
-  <!-- ==================== HEADER HUD ==================== -->
-  <header class="bg-amber-500 border-b-4 border-amber-700 shadow-xl sticky top-0 z-40">
-    <div class="tablecloth-border h-2 w-full"></div>
-    <div class="max-w-7xl mx-auto px-4 py-2 flex flex-wrap items-center justify-between gap-3">
+  <!-- ==================== HEADER HUD DEL SERVICIO ==================== -->
+  <header class="bg-gradient-to-r from-amber-600 via-amber-500 to-amber-600 border-b-4 border-amber-900 shadow-2xl sticky top-0 z-40">
+    <div class="tablecloth-strip h-2 w-full"></div>
+    <div class="max-w-7xl mx-auto px-4 py-2.5 flex flex-wrap items-center justify-between gap-3">
       
+      <!-- Logo Arcade y Nivel Actual -->
       <div class="flex items-center gap-3">
-        <div class="bg-amber-100 p-2 rounded-2xl border-2 border-amber-800 shadow-md">
-          <span class="text-3xl">👨‍🍳</span>
+        <div class="bg-amber-100 p-2 rounded-2xl border-2 border-amber-950 shadow-[0_4px_0_#451a03] transform -rotate-2 hover:rotate-0 transition-transform cursor-pointer">
+          <span class="text-3xl filter drop-shadow">👨‍🍳</span>
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="text-xl md:text-2xl font-bold tracking-tight text-amber-950 uppercase">
+            <h1 class="text-xl md:text-2xl font-arcade tracking-tight text-amber-950 drop-shadow-sm uppercase">
               ¡Oído Cocina!
             </h1>
-            <span class="bg-amber-900 text-amber-100 text-xs px-2 py-0.5 rounded-full font-semibold uppercase">
-              Max-Neef
+            <span class="bg-amber-950 text-amber-300 text-[10px] px-2.5 py-0.5 rounded-full font-bold uppercase tracking-wider border border-amber-700 shadow-sm">
+              Max-Neef Arcade
             </span>
           </div>
-          <p class="text-xs text-amber-900 font-semibold flex items-center gap-2">
-            <span id="cloudStatus" class="text-emerald-900 font-bold">☁️ Conectando...</span>
+          <p class="text-xs text-amber-950 font-bold flex items-center gap-2">
+            <span id="cloudStatus" class="inline-flex items-center gap-1 bg-amber-900/20 px-2 py-0.5 rounded-full text-[11px] font-semibold">
+              <span class="w-2 h-2 rounded-full bg-emerald-700 animate-pulse"></span> ☁️ pizza-neef
+            </span>
             <span>•</span>
-            <span id="levelIndicator" class="bg-amber-200 text-amber-900 px-1.5 py-0.2 rounded font-bold">Nivel 1: Pinche</span>
+            <span id="levelIndicator" class="bg-amber-100 text-amber-950 border border-amber-800 px-2 py-0.5 rounded-full font-bold text-[11px]">
+              Fase 1: Pinche de Cocina
+            </span>
           </p>
         </div>
       </div>
 
-      <div class="flex items-center gap-2 md:gap-4 flex-wrap">
-        <!-- Puntos -->
-        <div class="bg-amber-100 border-2 border-amber-800 px-3 py-1 rounded-xl shadow-inner text-center">
-          <div class="text-[10px] uppercase font-bold text-amber-800">Puntos</div>
-          <div id="scoreDisplay" class="text-lg font-bold text-amber-950 leading-none">0 XP</div>
+      <!-- Métricas Arcade: XP, Combo, Precisión, Propina y Timer -->
+      <div class="flex items-center gap-2 md:gap-3 flex-wrap">
+        
+        <!-- Puntos Chef -->
+        <div class="bg-amber-50 border-2 border-amber-950 px-3 py-1 rounded-xl shadow-[0_3px_0_#451a03] text-center min-w-[70px]">
+          <div class="text-[9px] uppercase font-bold text-amber-800">Puntos</div>
+          <div id="scoreDisplay" class="text-base md:text-lg font-arcade text-amber-950 leading-none">0 XP</div>
+        </div>
+
+        <!-- Multiplicador Combo -->
+        <div class="bg-yellow-200 border-2 border-amber-950 px-2.5 py-1 rounded-xl shadow-[0_3px_0_#451a03] text-center min-w-[65px]">
+          <div class="text-[9px] uppercase font-bold text-amber-900">Racha</div>
+          <div id="comboDisplay" class="text-base md:text-lg font-arcade text-red-600 leading-none">x1</div>
         </div>
 
         <!-- 1º Intento -->
-        <div class="bg-amber-100 border-2 border-amber-800 px-3 py-1 rounded-xl shadow-inner text-center">
-          <div class="text-[10px] uppercase font-bold text-amber-800">1º Intento</div>
-          <div id="firstTryDisplay" class="text-lg font-bold text-emerald-900 leading-none">0 / 8</div>
+        <div class="bg-emerald-50 border-2 border-amber-950 px-3 py-1 rounded-xl shadow-[0_3px_0_#451a03] text-center min-w-[75px]" title="Solo los aciertos a la 1ª tienen propina">
+          <div class="text-[9px] uppercase font-bold text-emerald-800">1º Intento</div>
+          <div id="firstTryDisplay" class="text-base md:text-lg font-arcade text-emerald-700 leading-none">0 / 8</div>
         </div>
 
         <!-- Bote Propina -->
-        <div class="bg-emerald-100 border-2 border-emerald-800 px-3 py-1 rounded-xl shadow-inner text-center">
-          <div class="text-[10px] uppercase font-bold text-emerald-800">Propina</div>
-          <div id="tipDisplay" class="text-lg font-bold text-emerald-950 leading-none">0.00 €</div>
+        <div class="bg-emerald-100 border-2 border-amber-950 px-3 py-1 rounded-xl shadow-[0_3px_0_#451a03] text-center min-w-[75px]">
+          <div class="text-[9px] uppercase font-bold text-emerald-900">Propina</div>
+          <div id="tipDisplay" class="text-base md:text-lg font-bold text-emerald-950 leading-none">0.00 €</div>
         </div>
 
-        <!-- Temporizador -->
-        <div class="bg-stone-900 text-amber-400 border-2 border-stone-700 px-3 py-1 rounded-xl flex items-center gap-2 font-mono">
+        <!-- Temporizador de Cocina -->
+        <div class="bg-stone-900 text-amber-400 border-2 border-amber-950 px-3 py-1 rounded-xl shadow-[0_3px_0_#451a03] flex items-center gap-1.5 font-mono">
           <div>
-            <div class="text-[9px] uppercase font-sans font-bold text-stone-400 leading-tight">Servicio</div>
-            <div id="timerDisplay" class="text-lg font-bold leading-none">30:00</div>
+            <div class="text-[8px] uppercase font-sans font-bold text-stone-400 leading-tight">Servicio</div>
+            <div id="timerDisplay" class="text-base font-bold leading-none">30:00</div>
           </div>
-          <button id="toggleTimerBtn" class="text-stone-300 hover:text-white px-1">▶️</button>
+          <button id="toggleTimerBtn" title="Pausar / Iniciar" class="text-amber-300 hover:text-white px-1.5 py-0.5 bg-stone-800 rounded font-bold text-xs border border-stone-700">
+            ▶
+          </button>
         </div>
 
-        <!-- Botón Ver Explicación -->
-        <button onclick="openBriefingModal()" class="bg-amber-700 hover:bg-amber-800 text-white font-bold px-3 py-2 rounded-xl border-2 border-amber-900 text-xs shadow">
-          📖 Reglas
+        <!-- Botón Ver Explicación Teórica -->
+        <button onclick="openBriefingModal()" class="btn-arcade bg-amber-800 hover:bg-amber-900 text-white font-bold px-3 py-1.5 rounded-xl text-xs border-2 border-amber-950 flex items-center gap-1.5 shadow" title="Ver Explicación Teórica">
+          <span>📖</span>
+          <span>Reglas</span>
         </button>
+
       </div>
     </div>
   </header>
 
-  <!-- ==================== CONTENIDO ==================== -->
-  <main class="max-w-7xl mx-auto px-4 py-6 w-full flex-1 flex flex-col gap-6">
+  <!-- ==================== CONTENEDOR PRINCIPAL ==================== -->
+  <main class="max-w-7xl mx-auto px-4 py-5 w-full flex-1 flex flex-col gap-6">
 
-    <!-- SELECTOR DE NIVELES -->
-    <div class="flex items-center justify-between flex-wrap gap-2 bg-stone-900/90 p-3 rounded-2xl border border-amber-600/30">
-      <span class="text-white font-bold text-xs uppercase tracking-wider">Niveles de Brigada:</span>
+    <!-- SELECTOR DE NIVELES (BRIGADAS DE COCINA) -->
+    <div class="bg-stone-900/90 rounded-2xl p-3 border-2 border-amber-700/60 shadow-xl flex items-center justify-between flex-wrap gap-2">
+      <div class="flex items-center gap-2">
+        <span class="text-2xl animate-simmer">🍳</span>
+        <div>
+          <span class="text-white font-arcade text-xs tracking-wider block">Brigadas de la Cocina:</span>
+          <span class="text-[11px] text-amber-400 font-bold">Resuelve cada fase para desbloquear el siguiente reto gastronómico</span>
+        </div>
+      </div>
       <div class="flex items-center gap-2 flex-wrap">
-        <button onclick="switchLevel(1)" id="lvlBtn-1" class="px-3 py-1 rounded-xl text-xs font-bold bg-amber-500 text-stone-950">
-          Nivel 1 (<span id="lvlProg-1">0/2</span>)
+        <button onclick="switchLevel(1)" id="lvlBtn-1" class="btn-arcade px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500 text-stone-950 border-2 border-amber-950">
+          Nivel 1: Pinche (<span id="lvlProg-1">0/2</span>)
         </button>
-        <button onclick="switchLevel(2)" id="lvlBtn-2" class="px-3 py-1 rounded-xl text-xs font-bold bg-stone-800 text-stone-300">
-          Nivel 2 (<span id="lvlProg-2">0/2</span>)
+        <button onclick="switchLevel(2)" id="lvlBtn-2" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-stone-800 text-stone-300 hover:bg-stone-700 border-2 border-stone-700">
+          Nivel 2: Línea (<span id="lvlProg-2">0/2</span>)
         </button>
-        <button onclick="switchLevel(3)" id="lvlBtn-3" class="px-3 py-1 rounded-xl text-xs font-bold bg-stone-800 text-stone-300">
-          Nivel 3 (<span id="lvlProg-3">0/2</span>)
+        <button onclick="switchLevel(3)" id="lvlBtn-3" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-stone-800 text-stone-300 hover:bg-stone-700 border-2 border-stone-700">
+          Nivel 3: Partida (<span id="lvlProg-3">0/2</span>)
         </button>
-        <button onclick="switchLevel(4)" id="lvlBtn-4" class="px-3 py-1 rounded-xl text-xs font-bold bg-stone-800 text-stone-300">
-          Nivel 4 (<span id="lvlProg-4">0/2</span>)
+        <button onclick="switchLevel(4)" id="lvlBtn-4" class="px-3 py-1.5 rounded-xl text-xs font-bold bg-stone-800 text-stone-300 hover:bg-stone-700 border-2 border-stone-700">
+          Nivel 4: Ejecutivo (<span id="lvlProg-4">0/2</span>)
         </button>
       </div>
     </div>
 
-    <!-- RIEL DE COMANDAS -->
+    <!-- SECCIÓN 1: EL RIEL DE COMANDAS (THE TICKET RAIL) -->
     <section>
-      <div class="flex items-center justify-between mb-2 text-amber-200">
-        <h2 class="text-lg font-bold uppercase tracking-wide">🧾 Comandas Pendientes</h2>
-        <span class="text-xs font-chalk text-amber-300">* Haz clic en una comanda para analizarla</span>
+      <div class="flex items-center justify-between mb-3 text-amber-200">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">📋</span>
+          <h2 class="text-lg md:text-xl font-arcade uppercase tracking-wide text-amber-300 drop-shadow">
+            Riel de Comandas por Emplatar
+          </h2>
+        </div>
+        <div class="text-xs font-bold text-amber-200 bg-amber-950/80 px-3 py-1 rounded-full border border-amber-700">
+          * Toca una comanda para analizarla en la Mesa de Pase
+        </div>
       </div>
-      <div class="order-rail rounded-2xl p-4 pt-6 border-2 border-stone-500">
-        <div id="ticketsContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 items-start"></div>
+
+      <!-- Riel metálico con pinzas -->
+      <div class="order-rail rounded-2xl p-4 pt-6 relative border-2 border-stone-700 shadow-2xl">
+        <div id="ticketsContainer" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 items-start">
+          <!-- Inyectado dinámicamente -->
+        </div>
       </div>
     </section>
 
-    <!-- LA PIZARRA DEL MENÚ -->
-    <section class="blackboard rounded-3xl p-6 text-amber-100">
-      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-amber-900/60 pb-3 mb-4">
-        <h2 class="text-2xl font-bold font-chalk text-white">📋 La Gran Pizarra del Menú</h2>
+    <!-- SECCIÓN 2: LA GRAN PIZARRA DEL MENÚ (MATRIZ MAX-NEEF EN VIVO) -->
+    <section class="blackboard-frame rounded-3xl p-6 text-amber-100 relative">
+      <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-stone-800 pb-3 mb-5">
         <div class="flex items-center gap-3">
-          <span class="text-xs font-chalk text-stone-300">Emplatados: <strong id="matrixCount" class="text-amber-400">0 / 8</strong></span>
-          <button onclick="copySummary()" class="bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-3 py-1.5 rounded-lg">
-            Copiar Resumen
+          <div class="bg-amber-600 text-white p-2 rounded-2xl border-2 border-amber-950 text-2xl shadow">
+            🍽️
+          </div>
+          <div>
+            <span class="text-xs uppercase tracking-widest text-amber-400 font-arcade">Auditoría del Restaurante</span>
+            <h2 class="text-xl md:text-2xl font-bold font-chalk text-white">
+              La Gran Pizarra del Menú
+            </h2>
+          </div>
+        </div>
+        <div class="flex items-center gap-3">
+          <span class="text-xs font-chalk text-stone-300 bg-stone-900 px-3 py-1.5 rounded-full border border-stone-700">
+            Total emplatados: <strong id="matrixCount" class="text-amber-400 text-sm">0 / 8</strong>
+          </span>
+          <button onclick="copySummary()" class="btn-arcade bg-amber-600 hover:bg-amber-700 text-white text-xs font-bold px-3 py-1.5 rounded-xl border-2 border-amber-950 flex items-center gap-1.5">
+            <span>📋</span>
+            <span>Copiar Resultados</span>
           </button>
         </div>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3">
-        <div class="bg-stone-900/90 rounded-2xl p-3 border border-emerald-500/40">
-          <div class="text-emerald-400 font-bold text-xs mb-1">🌱 Sinérgicos</div>
-          <div id="col-sinergico" class="space-y-1.5 min-h-[120px] text-xs">
-            <div class="text-stone-500 italic text-center py-4 font-chalk">Sin platos</div>
+      <!-- 5 Columnas de Satisfactores estilo Pizarra de Restaurante -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
+        
+        <!-- Columna 1: Sinérgicos -->
+        <div class="bg-stone-900/95 rounded-2xl p-3.5 border-2 border-emerald-500/50 flex flex-col justify-between shadow-lg">
+          <div>
+            <div class="flex items-center gap-2 text-emerald-400 font-bold text-sm mb-1">
+              <span>🌱</span> Sinérgicos
+            </div>
+            <p class="text-[11px] text-stone-400 leading-tight mb-3">
+              Nutren una necesidad y desatan otras más a la vez.
+            </p>
+            <div id="col-sinergico" class="space-y-2 min-h-[130px] flex flex-col justify-start">
+              <div class="text-[11px] font-chalk text-stone-500 italic text-center py-6">Sin comandas clasificadas</div>
+            </div>
+          </div>
+          <div class="mt-2 text-[10px] text-emerald-400 font-bold text-right border-t border-stone-800 pt-1.5">
+            Efecto multiplicador ✨
           </div>
         </div>
-        <div class="bg-stone-900/90 rounded-2xl p-3 border border-blue-500/40">
-          <div class="text-blue-400 font-bold text-xs mb-1">🎯 Singulares</div>
-          <div id="col-singular" class="space-y-1.5 min-h-[120px] text-xs">
-            <div class="text-stone-500 italic text-center py-4 font-chalk">Sin platos</div>
+
+        <!-- Columna 2: Singulares -->
+        <div class="bg-stone-900/95 rounded-2xl p-3.5 border-2 border-sky-500/50 flex flex-col justify-between shadow-lg">
+          <div>
+            <div class="flex items-center gap-2 text-sky-400 font-bold text-sm mb-1">
+              <span>🎯</span> Singulares
+            </div>
+            <p class="text-[11px] text-stone-400 leading-tight mb-3">
+              Resuelven una sola necesidad puntual sin estorbar.
+            </p>
+            <div id="col-singular" class="space-y-2 min-h-[130px] flex flex-col justify-start">
+              <div class="text-[11px] font-chalk text-stone-500 italic text-center py-6">Sin comandas clasificadas</div>
+            </div>
+          </div>
+          <div class="mt-2 text-[10px] text-sky-400 font-bold text-right border-t border-stone-800 pt-1.5">
+            Efecto puntual 🎯
           </div>
         </div>
-        <div class="bg-stone-900/90 rounded-2xl p-3 border border-amber-500/40">
-          <div class="text-amber-400 font-bold text-xs mb-1">⚠️ Inhibidores</div>
-          <div id="col-inhibidor" class="space-y-1.5 min-h-[120px] text-xs">
-            <div class="text-stone-500 italic text-center py-4 font-chalk">Sin platos</div>
+
+        <!-- Columna 3: Inhibidores -->
+        <div class="bg-stone-900/95 rounded-2xl p-3.5 border-2 border-amber-500/50 flex flex-col justify-between shadow-lg">
+          <div>
+            <div class="flex items-center gap-2 text-amber-400 font-bold text-sm mb-1">
+              <span>⚠️</span> Inhibidores
+            </div>
+            <p class="text-[11px] text-stone-400 leading-tight mb-3">
+              Sobresaturan tanto que bloquean otras necesidades.
+            </p>
+            <div id="col-inhibidor" class="space-y-2 min-h-[130px] flex flex-col justify-start">
+              <div class="text-[11px] font-chalk text-stone-500 italic text-center py-6">Sin comandas clasificadas</div>
+            </div>
+          </div>
+          <div class="mt-2 text-[10px] text-amber-400 font-bold text-right border-t border-stone-800 pt-1.5">
+            Efecto freno / empacho ⚠️
           </div>
         </div>
-        <div class="bg-stone-900/90 rounded-2xl p-3 border border-purple-500/40">
-          <div class="text-purple-400 font-bold text-xs mb-1">🎭 Pseudo</div>
-          <div id="col-pseudo" class="space-y-1.5 min-h-[120px] text-xs">
-            <div class="text-stone-500 italic text-center py-4 font-chalk">Sin platos</div>
+
+        <!-- Columna 4: Pseudo-satisfactores -->
+        <div class="bg-stone-900/95 rounded-2xl p-3.5 border-2 border-purple-500/50 flex flex-col justify-between shadow-lg">
+          <div>
+            <div class="flex items-center gap-2 text-purple-400 font-bold text-sm mb-1">
+              <span>🎭</span> Pseudo
+            </div>
+            <p class="text-[11px] text-stone-400 leading-tight mb-3">
+              Ilusión comercial o postureo; dejan la necesidad vacía.
+            </p>
+            <div id="col-pseudo" class="space-y-2 min-h-[130px] flex flex-col justify-start">
+              <div class="text-[11px] font-chalk text-stone-500 italic text-center py-6">Sin comandas clasificadas</div>
+            </div>
+          </div>
+          <div class="mt-2 text-[10px] text-purple-400 font-bold text-right border-t border-stone-800 pt-1.5">
+            Efecto postureo / engaño 🎭
           </div>
         </div>
-        <div class="bg-stone-900/90 rounded-2xl p-3 border border-rose-500/40">
-          <div class="text-rose-400 font-bold text-xs mb-1">☠️ Destructores</div>
-          <div id="col-destructor" class="space-y-1.5 min-h-[120px] text-xs">
-            <div class="text-stone-500 italic text-center py-4 font-chalk">Sin platos</div>
+
+        <!-- Columna 5: Destructores -->
+        <div class="bg-stone-900/95 rounded-2xl p-3.5 border-2 border-rose-500/50 flex flex-col justify-between shadow-lg">
+          <div>
+            <div class="flex items-center gap-2 text-rose-400 font-bold text-sm mb-1">
+              <span>☠️</span> Destructores
+            </div>
+            <p class="text-[11px] text-stone-400 leading-tight mb-3">
+              Prometen solucionar pero aniquilan la necesidad de raíz.
+            </p>
+            <div id="col-destructor" class="space-y-2 min-h-[130px] flex flex-col justify-start">
+              <div class="text-[11px] font-chalk text-stone-500 italic text-center py-6">Sin comandas clasificadas</div>
+            </div>
+          </div>
+          <div class="mt-2 text-[10px] text-rose-400 font-bold text-right border-t border-stone-800 pt-1.5">
+            Efecto tóxico / nocivo ☠️
           </div>
         </div>
+
       </div>
     </section>
 
   </main>
 
-  <!-- ==================== MODAL 1: BRIEFING INICIAL ==================== -->
+  <!-- ==================== MODAL 1: EXPLICACIÓN TEÓRICA / BRIEFING ==================== -->
   <div id="briefingModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="bg-amber-50 rounded-3xl max-w-2xl w-full border-4 border-amber-800 shadow-2xl p-6 md:p-8 flex flex-col max-h-[92vh] overflow-y-auto">
+    <div class="bg-amber-50 rounded-3xl max-w-2xl w-full border-4 border-amber-900 shadow-2xl p-6 md:p-8 flex flex-col max-h-[92vh] overflow-y-auto">
       
+      <!-- Cabecera -->
       <div class="flex items-center gap-3 border-b-2 border-amber-200 pb-3 mb-3">
-        <span class="text-4xl">👨‍🏫</span>
+        <div class="bg-amber-200 p-2.5 rounded-2xl border-2 border-amber-950 shadow-[0_3px_0_#451a03]">
+          <span class="text-3xl">👨‍🏫</span>
+        </div>
         <div>
-          <span class="text-xs uppercase font-bold text-amber-700 tracking-wider">Briefing de Cocina con Manfred Max-Neef</span>
-          <h3 class="text-2xl font-bold text-amber-950">Reglas del Servicio: Necesidades vs Satisfactores</h3>
+          <span class="text-xs uppercase font-arcade text-amber-800 tracking-wider">Briefing de Cocina con Manfred Max-Neef</span>
+          <h3 class="text-xl md:text-2xl font-bold text-amber-950 leading-tight">
+            Reglas del Servicio: Necesidades vs Satisfactores
+          </h3>
         </div>
       </div>
 
-      <div class="space-y-3 text-stone-700 text-sm leading-relaxed">
-        <p>¡Atención brigada! Antes de encender los fogones, debemos dominar el principio del <strong>Desarrollo a Escala Humana</strong>:</p>
+      <!-- Explicación Didáctica Profunda y Detallada (Sin Spoilers de los Platos) -->
+      <div class="space-y-3.5 text-stone-700 text-sm leading-relaxed">
+        <p>
+          ¡Atención a la comanda, brigada! Antes de encender los fogones, debemos dominar el principio fundamental del <strong>Desarrollo a Escala Humana</strong> formulado por el economista <strong>Manfred Max-Neef</strong>: la sociedad comercial suele confundir por error los <strong>objetos de consumo y la publicidad</strong> con las <strong>verdaderas necesidades humanas</strong>.
+        </p>
 
-        <div class="bg-amber-100/70 p-3.5 rounded-2xl border border-amber-300">
-          <h4 class="font-bold text-amber-950 text-sm mb-1">1. Los Ingredientes del Alma (Las 9 Necesidades)</h4>
-          <p class="text-xs text-stone-700">
-            Son <strong>finitas, pocas y universales</strong>: 
-            <span class="font-bold text-amber-900">Subsistencia, Protección, Afecto, Entendimiento, Participación, Ocio, Creación, Identidad y Libertad.</span>
+        <!-- Bloque 1: Necesidades -->
+        <div class="bg-amber-100/80 p-3.5 rounded-2xl border-2 border-amber-300 shadow-sm">
+          <h4 class="font-bold text-amber-950 text-sm mb-1.5 flex items-center gap-2">
+            <span class="bg-amber-600 text-white rounded-lg w-5 h-5 flex items-center justify-center text-xs font-arcade">1</span>
+            Los 9 Ingredientes del Alma: Las Necesidades Fundamentales
+          </h4>
+          <p class="text-xs text-stone-700 leading-normal mb-2">
+            A diferencia de lo que promete la publicidad, las necesidades humanas son <strong>finitas, pocas, universales y no jerárquicas</strong>. Son las mismas en todas las culturas y épocas históricas:
+          </p>
+          <div class="bg-white p-2 rounded-xl border border-amber-300 text-xs font-bold text-amber-900">
+            🥖 Subsistencia • 🛡️ Protección • ❤️ Afecto • 🧠 Entendimiento • 🤝 Participación • 🎉 Ocio • 🎨 Creación • 🪪 Identidad • 🕊️ Libertad.
+          </div>
+          <p class="text-[11px] text-stone-600 mt-1.5 italic">
+            Ninguna está por encima de otra; no son una pirámide fija, sino un sistema dinámico que sostiene la vida.
           </p>
         </div>
 
-        <div class="bg-emerald-50 p-3.5 rounded-2xl border border-emerald-300">
-          <h4 class="font-bold text-emerald-950 text-sm mb-1">2. Cómo se Preparan (Los 5 Tipos de Satisfactores)</h4>
-          <p class="text-xs text-stone-700 mb-2">Formas culturales de saciarlas:</p>
-          <ul class="text-xs space-y-1 text-stone-800">
-            <li>🌱 <strong>Sinérgicos:</strong> Nutren una necesidad y desatan otras a la vez.</li>
-            <li>🎯 <strong>Singulares:</strong> Resuelven una sola necesidad puntual sin estorbar.</li>
-            <li>⚠️ <strong>Inhibidores:</strong> Sobresaturan tanto que bloquean otras necesidades.</li>
-            <li>🎭 <strong>Pseudo:</strong> Ilusión o postura comercial; dejan la necesidad vacía.</li>
-            <li>☠️ <strong>Destructores:</strong> Prometen solucionar pero aniquilan la necesidad de raíz.</li>
+        <!-- Bloque 2: Satisfactores -->
+        <div class="bg-emerald-50/90 p-3.5 rounded-2xl border-2 border-emerald-300 shadow-sm">
+          <h4 class="font-bold text-emerald-950 text-sm mb-1.5 flex items-center gap-2">
+            <span class="bg-emerald-600 text-white rounded-lg w-5 h-5 flex items-center justify-center text-xs font-arcade">2</span>
+            Cómo se Preparan: Los 5 Tipos de Satisfactores
+          </h4>
+          <p class="text-xs text-stone-700 mb-2 leading-normal">
+            Lo que varía a lo largo de la historia y las modas son los <strong>satisfactores</strong>: las formas, hábitos y prácticas con las que intentamos atender esas 9 necesidades:
+          </p>
+          <ul class="text-xs space-y-1.5 text-stone-800">
+            <li class="p-1.5 bg-white rounded-lg border border-emerald-200">
+              🌱 <strong class="text-emerald-800">Satisfactores Sinérgicos:</strong> Por la forma armónica en que atienden una necesidad, estimulan y multiplican la satisfacción de otras dimensiones al mismo tiempo.
+            </li>
+            <li class="p-1.5 bg-white rounded-lg border border-emerald-200">
+              🎯 <strong class="text-sky-800">Satisfactores Singulares:</strong> Resuelven una sola necesidad puntual de manera técnica o funcional, sin interferir ni potenciar al resto.
+            </li>
+            <li class="p-1.5 bg-white rounded-lg border border-emerald-200">
+              ⚠️ <strong class="text-amber-800">Satisfactores Inhibidores:</strong> Sobresaturan tanto una necesidad concreta que terminan bloqueando y dificultando atender adecuadamente otras dimensiones vitales.
+            </li>
+            <li class="p-1.5 bg-white rounded-lg border border-emerald-200">
+              🎭 <strong class="text-purple-800">Pseudo-satisfactores:</strong> Crean una ilusión comercial o postureo de satisfacción temporal, pero dejan la necesidad de fondo completamente vacía.
+            </li>
+            <li class="p-1.5 bg-white rounded-lg border border-emerald-200">
+              ☠️ <strong class="text-rose-800">Satisfactores Destructores:</strong> Prometen solucionar una necesidad, pero debido a sus efectos nocivos terminan aniquilándola y dañando la salud integral.
+            </li>
           </ul>
         </div>
 
-        <div class="bg-amber-200/60 p-3 rounded-xl border border-amber-400 text-xs text-amber-950">
-          💡 <strong>¡Regla de Propinas!</strong> Si fallas, puedes seguir reintentando, pero solo se gana propina por los aciertos al <strong>1º intento</strong>.
+        <!-- Regla de propinas de la sala -->
+        <div class="bg-amber-200/60 p-3 rounded-2xl border border-amber-400 text-xs text-amber-950 flex items-center gap-2.5">
+          <span class="text-2xl">💰</span>
+          <div>
+            <strong>¡Regla de Propinas de la Sala!</strong> Si te equivocas en una comanda, podrás volver a intentarlo las veces que necesites para aprender, ¡pero los clientes solo dejarán propina (+15.00 €) en las comandas resueltas al <strong>primer intento</strong>!
+          </div>
         </div>
       </div>
 
-      <!-- BOTÓN DIRECTO QUE CIERRA EL MODAL SIEMPRE -->
-      <button onclick="closeBriefingModal()" class="mt-5 w-full bg-amber-600 hover:bg-amber-700 active:scale-95 text-white py-3.5 rounded-2xl font-bold text-lg shadow-xl cursor-pointer">
-        ¡OÍDO COCINA! ABRIR SERVICIO ➔
+      <!-- Botón Comenzar -->
+      <button onclick="closeBriefingModal()" class="btn-arcade mt-5 w-full bg-amber-600 hover:bg-amber-700 text-white py-3.5 rounded-2xl font-arcade text-sm md:text-base border-2 border-amber-950 shadow-lg cursor-pointer flex items-center justify-center gap-2">
+        <span>¡OÍDO COCINA! ABRIR SERVICIO</span>
+        <span>➔</span>
       </button>
 
     </div>
   </div>
 
-  <!-- ==================== MODAL 2: MESA DE PASE ==================== -->
+  <!-- ==================== MODAL 2: MESA DE PASE (PLATING STATION) ==================== -->
   <div id="platingModal" class="fixed inset-0 z-50 bg-black/85 backdrop-blur-sm hidden items-center justify-center p-4">
-    <div class="bg-stone-100 rounded-3xl max-w-2xl w-full border-4 border-amber-700 shadow-2xl p-6 flex flex-col max-h-[95vh] overflow-y-auto">
+    <div class="bg-stone-100 rounded-3xl max-w-3xl w-full border-4 border-amber-900 shadow-2xl p-6 md:p-8 flex flex-col max-h-[95vh] overflow-y-auto">
       
+      <!-- Cabecera de la Comanda -->
       <div class="flex items-start justify-between border-b-2 border-stone-300 pb-3 mb-3">
-        <div>
-          <span id="modalTableNumber" class="text-xs uppercase font-bold text-amber-800 bg-amber-200 px-2 py-0.5 rounded-full">Mesa #</span>
-          <h3 id="modalDishTitle" class="text-xl font-bold text-stone-900 mt-1">Plato</h3>
-          <p id="modalDishDesc" class="text-xs text-stone-600 font-ticket mt-1">Descripción</p>
+        <div class="flex items-center gap-3">
+          <div id="modalDishIcon" class="w-14 h-14 bg-amber-200 border-2 border-amber-950 rounded-2xl flex items-center justify-center text-3xl shadow-[0_3px_0_#451a03]">
+            🍲
+          </div>
+          <div>
+            <span id="modalTableNumber" class="text-[10px] uppercase font-bold text-amber-900 bg-amber-200 border border-amber-400 px-2.5 py-0.5 rounded-full">
+              Mesa #--
+            </span>
+            <h3 id="modalDishTitle" class="text-xl md:text-2xl font-bold text-stone-900 leading-tight mt-0.5">
+              Nombre de la Comanda
+            </h3>
+            <p id="modalDishDesc" class="text-xs text-stone-600 font-ticket mt-0.5">
+              Descripción de los ingredientes y situación.
+            </p>
+          </div>
         </div>
-        <button onclick="closePlatingModal()" class="text-stone-500 hover:text-black font-bold text-xl px-2">✕</button>
+        <button onclick="closePlatingModal()" class="text-stone-400 hover:text-stone-800 font-bold text-2xl px-2">
+          ✕
+        </button>
       </div>
 
-      <div id="retryAlert" class="hidden mb-3 p-2.5 rounded-xl bg-rose-100 border border-rose-400 text-rose-900 text-xs font-semibold">
-        <span id="retryAlertText">Combinación incorrecta. ¡Vuelve a probar!</span>
+      <!-- Mensaje de Feedback / Reintento -->
+      <div id="retryAlert" class="hidden mb-4 p-3 rounded-2xl bg-amber-100 border-2 border-amber-500 text-stone-900 text-xs font-bold flex items-center gap-2.5 shadow-sm">
+        <span class="text-2xl animate-bounce">⚠️</span>
+        <div>
+          <div class="font-arcade text-amber-950 text-[11px]">¡Combinación no acertada!</div>
+          <span id="retryAlertText" class="text-[11px] font-normal text-stone-700">Revisa la pista del Chef y vuelve a elegir sin salir.</span>
+        </div>
       </div>
 
-      <!-- Paso 1 -->
+      <!-- PASO 1: Ingrediente Fundamental (Necesidad) -->
       <div class="mb-4">
-        <label class="block text-xs uppercase font-bold text-stone-700 mb-1.5">Paso 1: Necesidad que busca saciar</label>
-        <div id="needsOptions" class="grid grid-cols-3 gap-2"></div>
+        <label class="block text-xs uppercase font-arcade text-amber-900 tracking-wider mb-2 flex items-center gap-1.5">
+          <span class="bg-amber-600 text-white rounded-lg w-5 h-5 flex items-center justify-center text-[10px] font-arcade">1</span>
+          ¿Qué necesidad busca alimentar principalmente?
+        </label>
+        <div id="needsOptions" class="grid grid-cols-3 sm:grid-cols-3 md:grid-cols-5 gap-2"></div>
       </div>
 
-      <!-- Paso 2 -->
-      <div class="mb-4">
-        <label class="block text-xs uppercase font-bold text-stone-700 mb-1.5">Paso 2: Tipo de Satisfactor</label>
-        <div id="satisfierOptions" class="grid grid-cols-2 sm:grid-cols-5 gap-2"></div>
+      <!-- PASO 2: Tipo de Satisfactor -->
+      <div class="mb-5">
+        <label class="block text-xs uppercase font-arcade text-emerald-900 tracking-wider mb-2 flex items-center gap-1.5">
+          <span class="bg-emerald-600 text-white rounded-lg w-5 h-5 flex items-center justify-center text-[10px] font-arcade">2</span>
+          ¿Cómo actúa este plato en el comensal?
+        </label>
+        <div id="satisfierOptions" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-5 gap-2"></div>
       </div>
 
-      <!-- Pista -->
-      <div class="mb-4 bg-amber-50 p-2.5 rounded-xl border border-amber-200">
-        <button onclick="toggleHint()" class="w-full text-left text-xs font-bold text-amber-900 flex justify-between">
-          <span>💡 Pista del Chef Ejecutivo</span>
+      <!-- Pista del Chef (Desplegable) -->
+      <div class="mb-5 bg-amber-50 p-3 rounded-2xl border-2 border-amber-300">
+        <button onclick="toggleHint()" class="w-full text-left flex items-center justify-between text-xs font-bold text-amber-950 cursor-pointer">
+          <span class="flex items-center gap-1.5">
+            💡 Pista del Chef Ejecutivo
+          </span>
           <span id="hintArrow">▼</span>
         </button>
-        <p id="dishHintText" class="text-xs text-stone-600 mt-1.5 hidden font-ticket"></p>
+        <p id="dishHintText" class="text-xs text-stone-700 mt-2 hidden font-ticket leading-relaxed">
+          Pista secreta sobre el comensal.
+        </p>
       </div>
 
-      <button onclick="submitDishClassification()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-2xl shadow-lg cursor-pointer text-base">
-        🛎️ ¡OÍDO COCINA! SERVIR PLATO
+      <!-- Botón de Servir Plato -->
+      <button onclick="submitDishClassification()" class="btn-green-arcade w-full bg-emerald-500 hover:bg-emerald-600 text-stone-950 font-arcade py-3.5 px-6 rounded-2xl text-sm md:text-base border-2 border-emerald-950 flex items-center justify-center gap-2 cursor-pointer">
+        <span>🛎️ ¡OÍDO COCINA! SERVIR PLATO</span>
+        <span>✨</span>
       </button>
 
     </div>
   </div>
 
-  <!-- ==================== MODAL 3: FIN DE SERVICIO ==================== -->
+  <!-- ==================== MODAL 3: FIN DE SERVICIO Y PROPINAS ==================== -->
   <div id="victoryModal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-md hidden items-center justify-center p-4">
-    <div class="bg-stone-900 rounded-3xl max-w-lg w-full border-4 border-amber-500 shadow-2xl p-6 text-center text-white">
-      <span class="text-5xl block mb-2">🏺</span>
-      <h3 class="text-2xl font-bold text-white">¡Servicio Completado!</h3>
-      <p class="text-xs text-stone-300 mt-1">El Bote de Propinas de la Brigada</p>
+    <div class="bg-stone-900 rounded-3xl max-w-lg w-full border-4 border-amber-500 shadow-2xl p-6 md:p-8 text-center text-white relative">
+      
+      <!-- Icono de Tarro de Propinas -->
+      <div class="w-20 h-20 bg-amber-500/20 rounded-3xl flex items-center justify-center mx-auto mb-3 border-2 border-amber-400 shadow-[0_4px_0_#b45309]">
+        <span class="text-4xl animate-bounce">🏺</span>
+      </div>
 
-      <div class="grid grid-cols-3 gap-2 my-4 bg-stone-800 p-3 rounded-xl border border-stone-700 text-center">
+      <span class="text-xs uppercase font-arcade tracking-widest text-amber-400 bg-amber-950/80 px-3 py-1 rounded-full border border-amber-700">
+        ¡Servicio Completado!
+      </span>
+      <h3 class="text-2xl md:text-3xl font-arcade mt-2 text-white">
+        El Bote de Propinas
+      </h3>
+      <p class="text-xs text-stone-300 mt-1 font-bold">
+        Auditoría culinaria de la brigada según Manfred Max-Neef.
+      </p>
+
+      <!-- Panel de Estadísticas Finales -->
+      <div class="grid grid-cols-3 gap-3 my-5 bg-stone-800/90 p-4 rounded-2xl border-2 border-stone-700 shadow-inner">
         <div>
-          <div class="text-[10px] text-stone-400 font-bold uppercase">Puntos</div>
-          <div id="finalScore" class="text-xl font-bold text-amber-400">0 XP</div>
+          <div class="text-[9px] text-stone-400 uppercase font-bold">Puntuación</div>
+          <div id="finalScore" class="text-xl md:text-2xl font-arcade text-amber-400">0 XP</div>
         </div>
         <div>
-          <div class="text-[10px] text-stone-400 font-bold uppercase">1º Intento</div>
-          <div id="finalFirstTry" class="text-xl font-bold text-emerald-400">0 / 8</div>
+          <div class="text-[9px] text-emerald-400 uppercase font-bold">1º Intento</div>
+          <div id="finalFirstTry" class="text-xl md:text-2xl font-arcade text-emerald-400">0 / 8</div>
         </div>
         <div>
-          <div class="text-[10px] text-stone-400 font-bold uppercase">Propina</div>
-          <div id="finalTips" class="text-xl font-bold text-amber-300">0.00 €</div>
+          <div class="text-[9px] text-amber-300 uppercase font-bold">Propina Total</div>
+          <div id="finalTips" class="text-xl md:text-2xl font-bold text-amber-300">0.00 €</div>
         </div>
       </div>
 
-      <div class="bg-amber-950/70 border border-amber-600/40 p-3 rounded-xl mb-4 text-left">
-        <div class="text-[10px] text-amber-300 uppercase font-bold">Rango</div>
-        <div id="chefRank" class="text-base font-bold text-white mt-0.5">Chef a Escala Humana</div>
-        <p id="rankQuote" class="text-xs text-amber-200/80 font-chalk mt-1 italic"></p>
+      <!-- Rango Otorgado -->
+      <div class="bg-amber-950/70 border-2 border-amber-600/40 p-4 rounded-2xl mb-5 text-left shadow">
+        <div class="text-[9px] text-amber-300 uppercase font-arcade">Rango Otorgado</div>
+        <div id="chefRank" class="text-base md:text-lg font-bold text-white mt-0.5">
+          Chef 3 Estrellas Michelin a Escala Humana
+        </div>
+        <p id="rankQuote" class="text-xs text-amber-200/80 font-chalk mt-1 italic">
+          "Un gran restaurante no llena estómagos, enriquece la vida de su comunidad."
+        </p>
       </div>
 
-      <button onclick="location.reload()" class="w-full bg-amber-500 hover:bg-amber-600 text-stone-950 font-bold py-3 rounded-2xl cursor-pointer">
-        🔄 Reiniciar Servicio
+      <!-- Botón Reiniciar -->
+      <button onclick="resetGame()" class="btn-arcade w-full bg-amber-500 hover:bg-amber-600 text-stone-950 font-arcade py-3.5 rounded-2xl text-xs md:text-sm border-2 border-amber-950 shadow flex items-center justify-center gap-2 cursor-pointer">
+        <span>🔄 Volver a Abrir el Restaurante</span>
       </button>
+
     </div>
   </div>
 
-  <!-- ==================== LÓGICA DE JUEGO ==================== -->
+  <!-- Notification Toast Container -->
+  <div id="toastNotification" class="fixed bottom-5 right-5 z-50 transform translate-y-24 opacity-0 transition-all duration-300 bg-stone-900 border-2 border-amber-500 text-white px-4 py-3 rounded-2xl shadow-2xl flex items-center gap-3">
+    <span id="toastIcon" class="text-2xl">📋</span>
+    <span id="toastText" class="text-xs font-bold text-amber-200">Mensaje de cocina</span>
+  </div>
+
+  <!-- ==================== PIE DE PÁGINA ==================== -->
+  <footer class="bg-stone-950 text-stone-400 text-xs py-3 px-4 border-t-2 border-stone-800 flex flex-wrap items-center justify-between gap-2 font-bold">
+    <div>
+      <span>Taller Culinario Interactivo basado en</span>
+      <strong class="text-amber-400">Desarrollo a Escala Humana (Manfred Max-Neef)</strong>
+    </div>
+    <div class="flex items-center gap-3">
+      <span class="text-stone-500">Firebase: pizza-neef</span>
+      <span class="text-amber-500 font-arcade text-[10px]">Arcade Kitchen Edition v4.0</span>
+    </div>
+  </footer>
+
+  <!-- ==================== SCRIPTS: FIREBASE Y LÓGICA DE JUEGO ==================== -->
   <script>
+    // ==================== BASE DE DATOS DE COMANDAS ====================
     const DISHES_DB = [
-      { id: "d1", level: 1, table: "Mesa 101", title: "Batido de Nutrientes de Oficina", desc: "Bebido en 45 segundos delante de la pantalla de trabajo para no perder tiempo almorzando.", hint: "Cumple la ingesta biológica aislada sin generar sobremesa ni afecto.", correctNeed: "subsistencia", correctSatisfier: "singular" },
-      { id: "d2", level: 1, table: "Mesa 102", title: "Pastillas 'Quema-Grasas'", desc: "Fármacos clandestinos tomados para suprimir el apetito y encajar en un canon estético extremo.", hint: "Prometen cuidar la imagen, pero dañan el metabolismo y arruinan la salud biológica.", correctNeed: "subsistencia", correctSatisfier: "destructor" },
-      { id: "d3", level: 2, table: "Mesa 201", title: "Hamburguesa con Pan de Oro (180€)", desc: "Plato bañado en láminas de oro de 24k exclusivamente para subirlo a redes sociales.", hint: "Promete estatus social, pero es una fachada que no sacia la verdadera identidad.", correctNeed: "identidad", correctSatisfier: "pseudo" },
-      { id: "d4", level: 2, table: "Mesa 202", title: "Atracón 'Hasta Reventar' en Buffet", desc: "Comer 6 platos seguidos por el afán de amortizar el precio, quedando sin poder moverse.", hint: "Se busca ocio/placer, pero la saturación impide disfrutar de cualquier otra actividad.", correctNeed: "ocio", correctSatisfier: "inhibidor" },
-      { id: "d5", level: 3, table: "Mesa 301", title: "Delivery Compulsivo en Soledad", desc: "Pedir comida ultraprocesada a las 02:00 AM para calmar una jornada de aislamiento afectivo.", hint: "Intenta llenar un vacío emocional con azúcar rápido.", correctNeed: "afecto", correctSatisfier: "pseudo" },
-      { id: "d6", level: 3, table: "Mesa 302", title: "Gazpacho del Huerto Comunitario", desc: "Sopa fría preparada con verduras sembradas colectivamente por los vecinos del barrio.", hint: "Los vecinos siembran, cuidan la tierra y comparten la cosecha juntos.", correctNeed: "participacion", correctSatisfier: "sinergico" },
-      { id: "d7", level: 4, table: "Mesa 401", title: "Paella Comunitaria de Domingo", desc: "Cocinar a leña para 20 personas, repartiendo tareas y disfrutando de 3 horas de sobremesa.", hint: "Nutre la subsistencia y a la vez refuerza el afecto, la identidad y el ocio compartido.", correctNeed: "afecto", correctSatisfier: "sinergico" },
-      { id: "d8", level: 4, table: "Mesa 402", title: "Taller Artesanal de Masa Madre", desc: "Aprender a elaborar pan con fermentos naturales respetando los tiempos biológicos del trigo.", hint: "Aprender una técnica manual que otorga autonomía respecto a los ultraprocesados.", correctNeed: "entendimiento", correctSatisfier: "sinergico" }
+      // FASE 1: Pinche de Cocina (Singulares vs Destructores)
+      {
+        id: "d1",
+        level: 1,
+        table: "Mesa 101 - Rápida",
+        dishIcon: "🥤",
+        title: "Batido de Nutrientes de Oficina",
+        desc: "Bebido en 45 segundos delante de la pantalla de trabajo para no perder tiempo almorzando.",
+        hint: "Cumple la ingesta calórica biológica básica de forma aislada, pero no genera sobremesa ni comunidad.",
+        correctNeed: "subsistencia",
+        correctSatisfier: "singular"
+      },
+      {
+        id: "d2",
+        level: 1,
+        table: "Mesa 102 - Dietética",
+        dishIcon: "💊",
+        title: "Pastillas Clandestinas 'Quema-Grasas'",
+        desc: "Fármacos sin receta tomados para suprimir el apetito y encajar en un canon estético extremo.",
+        hint: "Prometen cuidar la imagen o la salud, pero dañan el metabolismo y arruinan la salud biológica.",
+        correctNeed: "subsistencia",
+        correctSatisfier: "destructor"
+      },
+
+      // FASE 2: Cocinero de Línea (La Trampa de los Pseudo e Inhibidores)
+      {
+        id: "d3",
+        level: 2,
+        table: "Mesa 201 - VIP Instagram",
+        dishIcon: "🍔",
+        title: "Hamburguesa con Pan de Oro (180€)",
+        desc: "Plato bañado en láminas de oro de 24k exclusivamente para subir fotos a redes.",
+        hint: "Promete estatus y diferenciación social, pero es una fachada que no sacia la verdadera identidad ni el afecto.",
+        correctNeed: "identidad",
+        correctSatisfier: "pseudo"
+      },
+      {
+        id: "d4",
+        level: 2,
+        table: "Mesa 202 - Buffet Libre",
+        dishIcon: "🍱",
+        title: "Atracón 'Hasta Reventar' en Buffet",
+        desc: "Comer 6 platos seguidos por 'amortizar el precio', quedando imposibilitado para moverse.",
+        hint: "Se busca diversión y desconexión, pero la sobresaturación física anula el resto de la tarde.",
+        correctNeed: "ocio",
+        correctSatisfier: "inhibidor"
+      },
+
+      // FASE 3: Jefe de Partida (Emociones y Comunidad)
+      {
+        id: "d5",
+        level: 3,
+        table: "Mesa 301 - Medianoche",
+        dishIcon: "🍕",
+        title: "Delivery Compulsivo en Soledad",
+        desc: "Pedir dos pizzas y helado a las 02:00 AM para calmar un día de soledad y desconexión emocional.",
+        hint: "Intenta llenar un vacío de calidez humana con dopamina y azúcar rápido.",
+        correctNeed: "afecto",
+        correctSatisfier: "pseudo"
+      },
+      {
+        id: "d6",
+        level: 3,
+        table: "Mesa 302 - Huerto Vecinal",
+        dishIcon: "🥣",
+        title: "Gazpacho del Huerto Comunitario",
+        desc: "Sopa fría preparada con tomates cultivados colectivamente por los vecinos del barrio.",
+        hint: "Los vecinos siembran, cuidan la tierra, comparten recetas y se conocen entre ellos.",
+        correctNeed: "participacion",
+        correctSatisfier: "sinergico"
+      },
+
+      // FASE 4: Chef Ejecutivo (El Gran Banquete y Nuevos Desafíos)
+      {
+        id: "d7",
+        level: 4,
+        table: "Mesa 401 - Gran Banquete",
+        dishIcon: "🥘",
+        title: "Paella Comunitaria con Sobremesa",
+        desc: "Cocinar a leña para 20 personas un domingo, repartiendo tareas y charlando durante 3 horas.",
+        hint: "El acto de comer juntos refuerza el sentido de pertenencia, la subsistencia y el cariño mutuo.",
+        correctNeed: "afecto",
+        correctSatisfier: "sinergico"
+      },
+      {
+        id: "d8",
+        level: 4,
+        table: "Mesa 402 - Obrador",
+        dishIcon: "🥖",
+        title: "Taller Artesanal de Masa Madre",
+        desc: "Aprender a elaborar pan con fermentos naturales respetando los tiempos biológicos del trigo.",
+        hint: "Aprender una técnica manual que otorga autonomía respecto a los ultraprocesados comerciales.",
+        correctNeed: "entendimiento",
+        correctSatisfier: "sinergico"
+      }
     ];
 
+    // Las 9 Necesidades de Manfred Max-Neef
     const HUMAN_NEEDS = [
       { id: "subsistencia", label: "Subsistencia", icon: "🥖" },
       { id: "proteccion", label: "Protección", icon: "🛡️" },
@@ -355,37 +737,111 @@
       { id: "libertad", label: "Libertad", icon: "🕊️" }
     ];
 
+    // Los 5 Tipos de Satisfactores
     const SATISFIERS_TYPES = [
-      { id: "sinergico", label: "Sinérgico", icon: "🌱" },
-      { id: "singular", label: "Singular", icon: "🎯" },
-      { id: "inhibidor", label: "Inhibidor", icon: "⚠️" },
-      { id: "pseudo", label: "Pseudo", icon: "🎭" },
-      { id: "destructor", label: "Destructor", icon: "☠️" }
+      { id: "sinergico", label: "Sinérgico", icon: "🌱", desc: "Multiplica necesidades" },
+      { id: "singular", label: "Singular", icon: "🎯", desc: "Cubre solo una puntual" },
+      { id: "inhibidor", label: "Inhibidor", icon: "⚠️", desc: "Satura y bloquea otras" },
+      { id: "pseudo", label: "Pseudo", icon: "🎭", desc: "Ilusión / Engaño" },
+      { id: "destructor", label: "Destructor", icon: "☠️", desc: "Aniquila la necesidad" }
     ];
 
     let currentLevel = 1;
     let score = 0;
+    let comboStreak = 0;
     let firstTryCount = 0;
-    let currentTips = 0.0;
+    let currentTips = 0.00;
     let activeDish = null;
     let selectedNeed = null;
     let selectedSatisfier = null;
+    
+    // Registro de intentos por cada comanda
     let dishHistory = {};
-
     DISHES_DB.forEach(d => {
       dishHistory[d.id] = { attempts: 0, solved: false, firstTry: false };
     });
 
-    let timeRemaining = 30 * 60;
+    // Temporizador de 30 minutos
+    let timeRemaining = 30 * 60; // 1800 seg
     let timerRunning = false;
     let timerInterval = null;
 
-    // Control de ventanas
+    // Toast helper replacing browser alert
+    function showToast(message, icon = "📢") {
+      const toast = document.getElementById('toastNotification');
+      const text = document.getElementById('toastText');
+      const iconEl = document.getElementById('toastIcon');
+      if (!toast) return;
+      text.innerText = message;
+      iconEl.innerText = icon;
+      toast.classList.remove('translate-y-24', 'opacity-0');
+      setTimeout(() => {
+        toast.classList.add('translate-y-24', 'opacity-0');
+      }, 3200);
+    }
+
+    // ==================== EFECTOS DE SONIDO SINTETIZADOS ====================
+    function playKitchenBell() {
+      try {
+        if (typeof Tone !== 'undefined' && Tone.context.state === 'running') {
+          const bell = new Tone.MetalSynth({
+            frequency: 720,
+            envelope: { attack: 0.001, decay: 0.7, release: 0.1 },
+            harmonicity: 3.1,
+            modulationIndex: 14,
+            resonance: 3500,
+            octaves: 1.5
+          }).toDestination();
+          bell.volume.value = -8;
+          bell.triggerAttackRelease(720, "8n");
+        }
+      } catch(e){}
+    }
+
+    function playSizzleSound() {
+      try {
+        if (typeof Tone !== 'undefined' && Tone.context.state === 'running') {
+          const noise = new Tone.NoiseSynth({
+            noise: { type: "pink" },
+            envelope: { attack: 0.04, decay: 0.2, sustain: 0 }
+          }).toDestination();
+          noise.volume.value = -12;
+          noise.triggerAttackRelease("16n");
+        }
+      } catch(e){}
+    }
+
+    function playSuccessChime() {
+      try {
+        if (typeof Tone !== 'undefined' && Tone.context.state === 'running') {
+          const synth = new Tone.PolySynth(Tone.Synth).toDestination();
+          synth.volume.value = -8;
+          synth.triggerAttackRelease(["C5", "E5", "G5", "C6"], "16n");
+        }
+      } catch(e){}
+    }
+
+    function playErrorBuzzer() {
+      try {
+        if (typeof Tone !== 'undefined' && Tone.context.state === 'running') {
+          const synth = new Tone.Synth().toDestination();
+          synth.volume.value = -8;
+          synth.triggerAttackRelease("Eb3", "8n");
+        }
+      } catch(e){}
+    }
+
     window.closeBriefingModal = function() {
+      if (typeof Tone !== 'undefined') {
+        Tone.start().catch(()=>{});
+      }
+      playKitchenBell();
       const modal = document.getElementById('briefingModal');
       modal.classList.add('hidden');
       modal.classList.remove('flex');
-      if (!timerRunning) startTimer();
+      if (!timerRunning) {
+        startTimer();
+      }
     };
 
     window.openBriefingModal = function() {
@@ -398,42 +854,63 @@
       const modal = document.getElementById('platingModal');
       modal.classList.add('hidden');
       modal.classList.remove('flex');
+      activeDish = null;
+    };
+
+    window.toggleHint = function() {
+      const hint = document.getElementById('dishHintText');
+      const arrow = document.getElementById('hintArrow');
+      hint.classList.toggle('hidden');
+      arrow.innerText = hint.classList.contains('hidden') ? '▼' : '▲';
     };
 
     function renderTickets() {
       const container = document.getElementById('ticketsContainer');
       container.innerHTML = '';
+
       const currentDishes = DISHES_DB.filter(d => d.level === currentLevel);
 
       currentDishes.forEach(dish => {
         const state = dishHistory[dish.id];
-        const card = document.createElement('div');
-        card.className = 'receipt-ticket rounded-t-lg p-4 cursor-pointer select-none border-t-8 border-stone-400 relative';
-        card.onclick = () => openPlatingModal(dish);
+        const ticketEl = document.createElement('div');
+        ticketEl.className = 'order-ticket rounded-t-lg p-4 cursor-pointer select-none border-t-8 border-stone-500 relative';
+        ticketEl.onclick = () => openPlatingModal(dish);
 
-        let badge = '<span class="bg-stone-200 text-stone-700 text-[10px] font-bold px-2 py-0.5 rounded-full">⏳ Pendiente</span>';
+        // Clip de acero
+        const clip = document.createElement('div');
+        clip.className = 'ticket-clip w-9 h-4 rounded mx-auto -mt-6 mb-2';
+        ticketEl.appendChild(clip);
+
+        let statusBadge = '';
         if (state.solved) {
-          badge = state.firstTry 
-            ? '<span class="bg-emerald-100 text-emerald-800 text-[10px] font-bold px-2 py-0.5 rounded-full">⭐ 1º Intento</span>'
-            : `<span class="bg-amber-100 text-amber-800 text-[10px] font-bold px-2 py-0.5 rounded-full">🔄 Resuelto (${state.attempts}º)</span>`;
+          if (state.firstTry) {
+            statusBadge = `<div class="bg-emerald-100 text-emerald-800 border-2 border-emerald-600 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1 shadow-sm mt-2">⭐ EMPLATADO (1º)</div>`;
+          } else {
+            statusBadge = `<div class="bg-amber-100 text-amber-800 border-2 border-amber-600 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1 shadow-sm mt-2">🔄 RESUELTO (${state.attempts}º)</div>`;
+          }
         } else if (state.attempts > 0) {
-          badge = `<span class="bg-rose-100 text-rose-800 text-[10px] font-bold px-2 py-0.5 rounded-full">⚠️ Reintentar (${state.attempts})</span>`;
+          statusBadge = `<div class="bg-rose-100 text-rose-800 border-2 border-rose-500 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1 shadow-sm mt-2">⚠️ REINTENTAR (${state.attempts})</div>`;
+        } else {
+          statusBadge = `<div class="bg-stone-200 text-stone-800 border border-stone-400 text-[10px] font-bold px-2 py-0.5 rounded-full inline-flex items-center gap-1 shadow-sm mt-2">⏳ POR EMPLATAR</div>`;
         }
 
-        card.innerHTML = `
-          <div class="ticket-clip w-8 h-4 rounded mx-auto -mt-6 mb-2 border border-stone-500"></div>
-          <div class="text-[10px] font-mono text-stone-500 flex justify-between">
+        ticketEl.innerHTML += `
+          <div class="text-[10px] font-mono text-stone-500 flex justify-between border-b border-stone-200 pb-1 mb-2">
             <span>${dish.table}</span>
-            <span>#${dish.id.toUpperCase()}</span>
+            <span class="font-bold text-amber-800">TICKET #${dish.id.toUpperCase()}</span>
           </div>
-          <h4 class="font-bold text-stone-900 text-sm mt-1">${dish.title}</h4>
-          <p class="text-xs text-stone-600 font-ticket line-clamp-3 mt-1">${dish.desc}</p>
-          <div class="mt-3 flex items-center justify-between">
-            ${badge}
-            <span class="text-xs text-amber-700 font-bold">Emplatar ➔</span>
+          <div class="flex items-center gap-2 mt-1">
+            <span class="text-3xl p-1.5 rounded-xl bg-amber-100 border border-amber-300 shadow-sm">${dish.dishIcon || '🍲'}</span>
+            <h4 class="font-bold text-stone-900 text-sm leading-tight">${dish.title}</h4>
+          </div>
+          <p class="text-xs text-stone-600 font-ticket line-clamp-3 mt-2 leading-tight">${dish.desc}</p>
+          <div class="mt-3 flex items-center justify-between border-t border-stone-200 pt-2">
+            ${statusBadge}
+            <span class="btn-arcade bg-amber-500 text-stone-950 text-[10px] font-bold px-2.5 py-1 rounded-lg border border-amber-950">Emplatar ➔</span>
           </div>
         `;
-        container.appendChild(card);
+
+        container.appendChild(ticketEl);
       });
 
       updateLevelButtons();
@@ -448,17 +925,21 @@
 
         const btn = document.getElementById(`lvlBtn-${lvl}`);
         if (btn) {
-          btn.className = (lvl === currentLevel)
-            ? "px-3 py-1 rounded-xl text-xs font-bold bg-amber-500 text-stone-950 shadow-md ring-2 ring-amber-300"
-            : "px-3 py-1 rounded-xl text-xs font-bold bg-stone-800 text-stone-300 hover:bg-stone-700";
+          if (lvl === currentLevel) {
+            btn.className = "btn-arcade px-3 py-1.5 rounded-xl text-xs font-bold bg-amber-500 text-stone-950 border-2 border-amber-950 shadow-md ring-2 ring-amber-300";
+          } else {
+            btn.className = "px-3 py-1.5 rounded-xl text-xs font-bold bg-stone-800 text-stone-300 hover:bg-stone-700 border-2 border-stone-700";
+          }
         }
       }
     }
 
     window.switchLevel = function(lvl) {
       currentLevel = lvl;
-      const names = ["", "Nivel 1: Pinche", "Nivel 2: Línea", "Nivel 3: Partida", "Nivel 4: Ejecutivo"];
-      document.getElementById('levelIndicator').innerText = names[lvl];
+      playSizzleSound();
+      const indicator = document.getElementById('levelIndicator');
+      const names = ["", "Fase 1: Pinche de Cocina", "Fase 2: Cocinero de Línea", "Fase 3: Jefe de Partida", "Fase 4: Chef Ejecutivo"];
+      if (indicator) indicator.innerText = names[lvl];
       renderTickets();
     };
 
@@ -467,56 +948,69 @@
       selectedNeed = null;
       selectedSatisfier = null;
 
+      playSizzleSound();
+
       document.getElementById('modalTableNumber').innerText = dish.table;
       document.getElementById('modalDishTitle').innerText = dish.title;
       document.getElementById('modalDishDesc').innerText = dish.desc;
       document.getElementById('dishHintText').innerText = dish.hint;
       document.getElementById('dishHintText').classList.add('hidden');
-      document.getElementById('retryAlert').classList.add('hidden');
+      document.getElementById('hintArrow').innerText = '▼';
+      document.getElementById('modalDishIcon').innerText = dish.dishIcon || '🍲';
 
-      const needsCont = document.getElementById('needsOptions');
-      needsCont.innerHTML = '';
-      HUMAN_NEEDS.forEach(n => {
+      // Ocultar alertas previas de reintento
+      const retryAlert = document.getElementById('retryAlert');
+      retryAlert.classList.add('hidden');
+
+      // Renderizar Opciones de Necesidades
+      const needsContainer = document.getElementById('needsOptions');
+      needsContainer.innerHTML = '';
+      HUMAN_NEEDS.forEach(need => {
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'need-btn p-2 rounded-xl border-2 border-stone-300 bg-white text-xs font-bold flex flex-col items-center gap-1';
-        btn.innerHTML = `<span>${n.icon}</span><span>${n.label}</span>`;
-        btn.onclick = () => {
-          selectedNeed = n.id;
-          document.querySelectorAll('.need-btn').forEach(b => b.className = 'need-btn p-2 rounded-xl border-2 border-stone-300 bg-white text-xs font-bold flex flex-col items-center gap-1');
-          btn.className = 'need-btn p-2 rounded-xl border-2 border-amber-600 bg-amber-100 ring-2 ring-amber-500 text-xs font-bold flex flex-col items-center gap-1';
-        };
-        needsCont.appendChild(btn);
+        btn.className = 'need-btn p-2 rounded-xl border-2 border-stone-300 bg-white hover:border-amber-500 text-xs font-bold text-stone-800 flex flex-col items-center gap-0.5 cursor-pointer shadow-sm transition-all';
+        btn.innerHTML = `<span class="text-xl">${need.icon}</span><span class="text-[11px]">${need.label}</span>`;
+        btn.onclick = () => selectNeed(need.id, btn);
+        needsContainer.appendChild(btn);
       });
 
-      const satCont = document.getElementById('satisfierOptions');
-      satCont.innerHTML = '';
-      SATISFIERS_TYPES.forEach(s => {
+      // Renderizar Opciones de Satisfactores
+      const satisfiersContainer = document.getElementById('satisfierOptions');
+      satisfiersContainer.innerHTML = '';
+      SATISFIERS_TYPES.forEach(sat => {
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'sat-btn p-2 rounded-xl border-2 border-stone-300 bg-white text-xs font-bold flex flex-col items-center gap-1 text-center';
-        btn.innerHTML = `<span>${s.icon}</span><span>${s.label}</span>`;
-        btn.onclick = () => {
-          selectedSatisfier = s.id;
-          document.querySelectorAll('.sat-btn').forEach(b => b.className = 'sat-btn p-2 rounded-xl border-2 border-stone-300 bg-white text-xs font-bold flex flex-col items-center gap-1 text-center');
-          btn.className = 'sat-btn p-2 rounded-xl border-2 border-amber-600 bg-amber-100 ring-2 ring-amber-500 text-xs font-bold flex flex-col items-center gap-1 text-center';
-        };
-        satCont.appendChild(btn);
+        btn.className = 'sat-btn p-2.5 rounded-xl border-2 border-stone-300 bg-white hover:border-amber-500 text-xs font-bold text-stone-800 flex flex-col items-center gap-0.5 text-center cursor-pointer shadow-sm transition-all';
+        btn.innerHTML = `<span class="text-lg">${sat.icon}</span><span class="text-[11px] font-bold text-amber-900">${sat.label}</span><span class="text-[9px] font-normal text-stone-500 leading-tight">${sat.desc}</span>`;
+        btn.onclick = () => selectSatisfier(sat.id, btn);
+        satisfiersContainer.appendChild(btn);
       });
 
-      const modal = document.getElementById('platingModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
+      document.getElementById('platingModal').classList.remove('hidden');
+      document.getElementById('platingModal').classList.add('flex');
     }
 
-    window.toggleHint = function() {
-      const hint = document.getElementById('dishHintText');
-      hint.classList.toggle('hidden');
-    };
+    function selectNeed(needId, buttonEl) {
+      selectedNeed = needId;
+      document.querySelectorAll('.need-btn').forEach(b => {
+        b.className = 'need-btn p-2 rounded-xl border-2 border-stone-300 bg-white hover:border-amber-500 text-xs font-bold text-stone-800 flex flex-col items-center gap-0.5 cursor-pointer shadow-sm transition-all';
+      });
+      buttonEl.className = 'need-btn p-2 rounded-xl border-2 border-amber-600 bg-amber-100 ring-4 ring-amber-400 text-xs font-bold text-amber-950 flex flex-col items-center gap-0.5 shadow-md scale-105';
+      playSizzleSound();
+    }
+
+    function selectSatisfier(satId, buttonEl) {
+      selectedSatisfier = satId;
+      document.querySelectorAll('.sat-btn').forEach(b => {
+        b.className = 'sat-btn p-2.5 rounded-xl border-2 border-stone-300 bg-white hover:border-amber-500 text-xs font-bold text-stone-800 flex flex-col items-center gap-0.5 text-center cursor-pointer shadow-sm transition-all';
+      });
+      buttonEl.className = 'sat-btn p-2.5 rounded-xl border-2 border-emerald-600 bg-emerald-100 ring-4 ring-emerald-400 text-xs font-bold text-emerald-950 flex flex-col items-center gap-0.5 text-center shadow-md scale-105';
+      playSizzleSound();
+    }
 
     window.submitDishClassification = function() {
       if (!selectedNeed || !selectedSatisfier) {
-        alert("Selecciona la necesidad y el tipo de satisfactor.");
+        showToast("¡Chef! Debes elegir tanto la necesidad como el tipo de satisfactor.", "⚠️");
         return;
       }
 
@@ -527,108 +1021,204 @@
       const isCorrect = (selectedNeed === dish.correctNeed && selectedSatisfier === dish.correctSatisfier);
 
       if (isCorrect) {
+        // ACIERTO
         history.solved = true;
+        
         if (history.attempts === 1) {
+          // Acierto al primer intento
           history.firstTry = true;
           firstTryCount++;
-          score += 150;
-          currentTips += 15.00;
+          comboStreak++;
+          const comboBonus = comboStreak > 1 ? comboStreak * 25 : 0;
+          score += 150 + comboBonus;
+          currentTips += 15.00; // Solo primer intento da propina
+          playSuccessChime();
+          showToast(`¡Excelente servicio! +15.00 € de propina (Combo x${comboStreak})`, "🌟");
         } else {
+          // Acierto tras reintentos
           history.firstTry = false;
-          score += 60;
+          comboStreak = 0;
+          score += 60; // Puntos de aprendizaje
+          playKitchenBell();
+          showToast("¡Comanda corregida y aprobada!", "👍");
         }
 
         updateHUD();
-        addToBlackboard(dish, history);
+        addDishToBlackboard(dish, history);
+        
+        // Persistir en Firebase si está disponible
+        if (window.saveDishSolutionToCloud) {
+          window.saveDishSolutionToCloud(dish.id, {
+            dishTitle: dish.title,
+            need: selectedNeed,
+            satisfier: selectedSatisfier,
+            attempts: history.attempts,
+            firstTry: history.firstTry
+          });
+        }
+
+        // Cerrar modal de pase
         closePlatingModal();
         renderTickets();
-        checkProgress();
+        checkGameProgression();
+
       } else {
+        // FALLO: Reset de combo y permitir reintentar sin cerrar el modal
+        comboStreak = 0;
+        updateHUD();
+        playErrorBuzzer();
         const retryAlert = document.getElementById('retryAlert');
-        document.getElementById('retryAlertText').innerText = `⚠️ No es correcto (Intento #${history.attempts}). ¡Prueba otra opción!`;
+        const retryAlertText = document.getElementById('retryAlertText');
+        retryAlertText.innerText = `¡No coincide del todo! (Intento #${history.attempts}). ¡Lee el consejo del Chef y vuelve a probar sin miedo!`;
         retryAlert.classList.remove('hidden');
       }
     };
 
     function updateHUD() {
       document.getElementById('scoreDisplay').innerText = `${score} XP`;
+      document.getElementById('comboDisplay').innerText = `x${Math.max(1, comboStreak)}`;
       document.getElementById('firstTryDisplay').innerText = `${firstTryCount} / ${DISHES_DB.length}`;
       document.getElementById('tipDisplay').innerText = `${currentTips.toFixed(2)} €`;
     }
 
-    function addToBlackboard(dish, history) {
-      const col = document.getElementById(`col-${dish.correctSatisfier}`);
+    function addDishToBlackboard(dish, history) {
+      const colId = `col-${dish.correctSatisfier}`;
+      const col = document.getElementById(colId);
       if (!col) return;
-      if (col.innerHTML.includes('Sin platos')) col.innerHTML = '';
 
-      const div = document.createElement('div');
-      div.className = 'bg-stone-800 text-amber-100 p-2 rounded-xl border border-stone-600 text-xs';
-      div.innerHTML = `
-        <div class="flex justify-between font-bold text-white text-[11px]">
-          <span>${dish.title}</span>
-          <span class="text-[9px] ${history.firstTry ? 'text-emerald-400' : 'text-amber-400'}">
-            ${history.firstTry ? '1º Int (+15€)' : history.attempts + 'º Int (0€)'}
-          </span>
+      // Limpiar texto vacío si existe
+      if (col.innerHTML.includes('Sin comandas clasificadas')) {
+        col.innerHTML = '';
+      }
+
+      const item = document.createElement('div');
+      item.className = 'bg-stone-800 text-white p-2.5 rounded-xl border border-stone-600 text-xs shadow-sm';
+      
+      const badge = history.firstTry 
+        ? `<span class="text-[9px] bg-emerald-600 text-white px-2 py-0.5 rounded-full font-bold border border-stone-900">⭐ 1º INT (+15€)</span>`
+        : `<span class="text-[9px] bg-amber-600 text-white px-2 py-0.5 rounded-full font-bold border border-stone-900">${history.attempts}º INT (0€)</span>`;
+
+      item.innerHTML = `
+        <div class="flex items-center justify-between mb-1">
+          <div class="flex items-center gap-1.5">
+            <span>${dish.dishIcon || '🍲'}</span>
+            <strong class="text-white text-[11px] leading-tight">${dish.title}</strong>
+          </div>
+          ${badge}
         </div>
-        <div class="text-[10px] text-stone-300 font-chalk capitalize">Necesidad: ${dish.correctNeed}</div>
+        <div class="text-[10px] text-stone-300 font-chalk">
+          Necesidad: <span class="text-amber-400 font-bold capitalize">${dish.correctNeed}</span>
+        </div>
       `;
-      col.appendChild(div);
 
+      col.appendChild(item);
+
+      // Actualizar contador general
       const totalSolved = Object.values(dishHistory).filter(h => h.solved).length;
       document.getElementById('matrixCount').innerText = `${totalSolved} / ${DISHES_DB.length}`;
     }
 
-    function checkProgress() {
+    function checkGameProgression() {
+      // Verificar si el nivel actual está completo
       const dishesInLvl = DISHES_DB.filter(d => d.level === currentLevel);
-      const allDone = dishesInLvl.every(d => dishHistory[d.id].solved);
-      if (allDone && currentLevel < 4) {
+      const allSolvedInLvl = dishesInLvl.every(d => dishHistory[d.id].solved);
+
+      if (allSolvedInLvl && currentLevel < 4) {
         setTimeout(() => {
-          if (confirm(`¡Nivel ${currentLevel} listo! ¿Pasar al Nivel ${currentLevel + 1}?`)) {
-            switchLevel(currentLevel + 1);
-          }
-        }, 200);
+          showToast(`¡Fase ${currentLevel} completada! Pasando a la siguiente brigada...`, "🎉");
+          switchLevel(currentLevel + 1);
+        }, 600);
       }
 
-      const totalDone = Object.values(dishHistory).filter(h => h.solved).length;
-      if (totalDone === DISHES_DB.length) {
-        setTimeout(showVictory, 500);
+      // Verificar si TODO el juego ha terminado
+      const totalSolved = Object.values(dishHistory).filter(h => h.solved).length;
+      if (totalSolved === DISHES_DB.length) {
+        setTimeout(showVictoryScreen, 700);
       }
     }
 
-    function showVictory() {
+    function showVictoryScreen() {
+      playSuccessChime();
+
       document.getElementById('finalScore').innerText = `${score} XP`;
       document.getElementById('finalFirstTry').innerText = `${firstTryCount} / ${DISHES_DB.length}`;
       document.getElementById('finalTips').innerText = `${currentTips.toFixed(2)} €`;
 
-      const rank = document.getElementById('chefRank');
-      const quote = document.getElementById('rankQuote');
+      const rankTitleEl = document.getElementById('chefRank');
+      const rankQuoteEl = document.getElementById('rankQuote');
+
       if (firstTryCount === 8) {
-        rank.innerText = "🏆 Chef 3 Estrellas Michelin a Escala Humana";
-        quote.innerText = '"¡Servicio perfecto a la primera! Max-Neef estaría orgulloso."';
+        rankTitleEl.innerText = "🏆 Chef Legendario 3 Estrellas Michelin a Escala Humana";
+        rankQuoteEl.innerText = '"¡Servicio magistral! Identificaste todas las trampas de mercado a la primera sin fallar ni una comanda."';
       } else if (firstTryCount >= 5) {
-        rank.innerText = "⭐ Jefe de Cocina Sostenible";
-        quote.innerText = '"Gran criterio identificando las necesidades reales."';
+        rankTitleEl.innerText = "⭐ Jefe de Cocina Sostenible";
+        rankQuoteEl.innerText = '"Gran criterio gastronómico: distingues con soltura los satisfactores sinérgicos de los meros placebos de consumo."';
       } else {
-        rank.innerText = "👨‍🍳 Cocinero Perseverante";
-        quote.innerText = '"Conseguiste sacar todas las comandas adelante con empeño."';
+        rankTitleEl.innerText = "👨‍🍳 Cocinero Perseverante y Resiliente";
+        rankQuoteEl.innerText = '"Corregiste y sacaste todos los platos adelante con perseverancia. ¡El buen criterio culinario se cocina a fuego lento!"';
       }
 
-      const modal = document.getElementById('victoryModal');
-      modal.classList.remove('hidden');
-      modal.classList.add('flex');
+      // Guardar en Firebase si está disponible
+      if (window.saveGameSummaryToCloud) {
+        window.saveGameSummaryToCloud({
+          finalScore: score,
+          firstTryCount: firstTryCount,
+          totalTips: currentTips,
+          totalDishes: DISHES_DB.length
+        });
+      }
+
+      document.getElementById('victoryModal').classList.remove('hidden');
+      document.getElementById('victoryModal').classList.add('flex');
+    }
+
+    window.resetGame = function() {
+      score = 0;
+      comboStreak = 0;
+      firstTryCount = 0;
+      currentTips = 0.00;
+      currentLevel = 1;
+
+      DISHES_DB.forEach(d => {
+        dishHistory[d.id] = { attempts: 0, solved: false, firstTry: false };
+      });
+
+      // Limpiar pizarra
+      ['sinergico', 'singular', 'inhibidor', 'pseudo', 'destructor'].forEach(sat => {
+        const col = document.getElementById(`col-${sat}`);
+        if (col) {
+          col.innerHTML = '<div class="text-[11px] font-chalk text-stone-500 italic text-center py-6">Sin comandas clasificadas</div>';
+        }
+      });
+
+      document.getElementById('matrixCount').innerText = `0 / ${DISHES_DB.length}`;
+      updateHUD();
+      renderTickets();
+
+      document.getElementById('victoryModal').classList.add('hidden');
+      document.getElementById('victoryModal').classList.remove('flex');
+      showToast("Restaurante reiniciado para un nuevo servicio", "🔄");
+    };
+
+    function updateTimerDisplay() {
+      const mins = Math.floor(timeRemaining / 60);
+      const secs = timeRemaining % 60;
+      document.getElementById('timerDisplay').innerText = 
+        `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
     }
 
     function startTimer() {
       timerRunning = true;
-      document.getElementById('toggleTimerBtn').innerText = '⏸️';
+      document.getElementById('toggleTimerBtn').innerText = '⏸';
       timerInterval = setInterval(() => {
         if (timeRemaining > 0) {
           timeRemaining--;
-          const m = Math.floor(timeRemaining / 60);
-          const s = timeRemaining % 60;
-          document.getElementById('timerDisplay').innerText = `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
+          updateTimerDisplay();
         } else {
           clearInterval(timerInterval);
+          timerRunning = false;
+          document.getElementById('toggleTimerBtn').innerText = '▶';
+          showToast("⏰ ¡TIEMPO DE SERVICIO AGOTADO! Se cierran las cocinas para la auditoría.", "⏰");
         }
       }, 1000);
     }
@@ -637,32 +1227,45 @@
       if (timerRunning) {
         clearInterval(timerInterval);
         timerRunning = false;
-        document.getElementById('toggleTimerBtn').innerText = '▶️';
+        document.getElementById('toggleTimerBtn').innerText = '▶';
       } else {
         startTimer();
       }
     };
 
     window.copySummary = function() {
-      let txt = "AUDITORÍA MAX-NEEF:\n";
+      let text = "📋 AUDITORÍA MAX-NEEF - COCINA DEL CHEF:\n\n";
       DISHES_DB.forEach(d => {
-        const s = dishHistory[d.id];
-        txt += `- ${d.title}: ${d.correctSatisfier.toUpperCase()} (${d.correctNeed}) [${s.firstTry ? '1º Intento' : s.attempts + ' intentos'}]\n`;
+        const state = dishHistory[d.id];
+        const status = state.solved 
+          ? (state.firstTry ? "✅ 1º Intento" : `🔄 Resuelto (${state.attempts}º intento)`)
+          : "⏳ Pendiente";
+        text += `• ${d.title}: ${d.correctSatisfier.toUpperCase()} (${d.correctNeed}) -> ${status}\n`;
       });
-      txt += `\nTotal propinas: ${currentTips.toFixed(2)} €`;
-      navigator.clipboard.writeText(txt).then(() => alert("¡Resumen copiado!"));
+      text += `\nPuntuación: ${score} XP | Propina: ${currentTips.toFixed(2)} €`;
+
+      const temp = document.createElement('textarea');
+      temp.value = text;
+      document.body.appendChild(temp);
+      temp.select();
+      document.execCommand('copy');
+      document.body.removeChild(temp);
+      showToast("¡Resultados copiados al portapapeles con éxito!", "📋");
     };
 
+    // Inicialización al cargar la página
     window.addEventListener('DOMContentLoaded', () => {
       renderTickets();
+      updateHUD();
+      updateTimerDisplay();
     });
   </script>
 
-  <!-- ==================== FIREBASE ASÍNCRONO ==================== -->
+  <!-- ==================== FIREBASE ASÍNCRONO (pizza-neef) ==================== -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js";
     import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js";
-    import { getFirestore } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
+    import { getFirestore, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyAjKeeFfKGJRaobVg8EivynM5ECrAQyDmg",
@@ -676,16 +1279,44 @@
     try {
       const app = initializeApp(firebaseConfig);
       const auth = getAuth(app);
-      signInAnonymously(auth).then(() => {
+      const db = getFirestore(app);
+
+      signInAnonymously(auth).then((userCredential) => {
+        window.currentUser = userCredential.user;
         const status = document.getElementById('cloudStatus');
-        if (status) status.innerText = "☁️ Conectado (pizza-neef)";
-      }).catch(() => {
+        if (status) status.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> ☁️ pizza-neef`;
+      }).catch((e) => {
         const status = document.getElementById('cloudStatus');
-        if (status) status.innerText = "☁️ Modo Local";
+        if (status) status.innerHTML = `<span class="w-2 h-2 rounded-full bg-amber-500"></span> ☁️ Local`;
       });
+
+      // Conexión para guardar platos en la nube
+      window.saveDishSolutionToCloud = async function(dishId, data) {
+        if (!window.currentUser) return;
+        try {
+          const dishRef = doc(db, "cooking_sessions", window.currentUser.uid, "dishes", dishId);
+          await setDoc(dishRef, {
+            ...data,
+            timestamp: serverTimestamp()
+          }, { merge: true });
+           } catch(e) {}
+      };
+
+      // Conexión para guardar resumen final
+      window.saveGameSummaryToCloud = async function(summary) {
+        if (!window.currentUser) return;
+        try {
+          const sessionRef = doc(db, "cooking_sessions", window.currentUser.uid);
+          await setDoc(sessionRef, {
+            ...summary,
+            completedAt: serverTimestamp()
+          }, { merge: true });
+        } catch(e) {}
+      };
     } catch(e) {
-      console.log("Firebase en espera:", e);
+      console.info("Firebase local runtime:", e);
     }
   </script>
+
 </body>
 </html>
