@@ -98,3 +98,898 @@ button:focus-visible, input:focus-visible { outline: 4px solid var(--sky); outli
 }
 .recipe-card h3 { margin: 0; font-family: var(--display); font-size: 1.15rem; text-transform: uppercase; letter-spacing: .06em; color: var(--tomato-dark); }
 .steps-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.steps-list li { display: grid; grid-template-columns: 34px minmax(0,1fr); gap: 10px; align-items: center; }
+.steps-list b.n { width: 34px; height: 34px; border-radius: 50%; background: var(--mustard); border: 3px solid var(--cocoa); display: grid; place-items: center; font-family: var(--display); }
+.setup { display: grid; gap: 14px; margin-block: 16px 20px; }
+.field-label { font-weight: 800; font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 6px; display: block; }
+.seg { display: flex; flex-wrap: wrap; gap: 8px; }
+.seg button {
+  background: var(--paper); border: 3px solid var(--cocoa); border-radius: 12px; padding: 6px 14px;
+  font-weight: 800; box-shadow: 0 3px 0 var(--cocoa);
+}
+.seg button[aria-pressed="true"] { background: var(--cocoa); color: var(--butter); }
+.team-names { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.team-names input {
+  width: 100%; font: 700 1rem var(--body); color: var(--cocoa); background: var(--paper);
+  border: 3px solid var(--cocoa); border-radius: 12px; padding: 8px 10px; border-left-width: 12px;
+}
+.actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+
+/* ---------- Chef ---------- */
+.chef-col { display: grid; gap: 10px; justify-items: center; align-content: start; }
+.chef { width: 190px; max-width: 100%; height: auto; }
+.chef.bounce { animation: bounce .5s; }
+.chef.shake { animation: shake .45s; }
+.bubble {
+  position: relative; background: var(--paper); border: var(--border); border-radius: 18px;
+  padding: 10px 14px; font-family: var(--display); font-weight: 700; font-size: 1.1rem; line-height: 1.2;
+  text-align: center; width: 100%;
+}
+.bubble::before {
+  content: ""; position: absolute; top: -14px; left: 50%; margin-left: -12px;
+  border: 12px solid transparent; border-top: 0; border-bottom: 14px solid var(--cocoa);
+}
+@keyframes bounce { 0%,100%{transform:translateY(0)} 30%{transform:translateY(-16px)} 60%{transform:translateY(0)} 80%{transform:translateY(-6px)} }
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-10px) rotate(-4deg)} 40%{transform:translateX(10px) rotate(4deg)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)} }
+
+/* ---------- Play HUD ---------- */
+.hud {
+  display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: 14px; align-items: center;
+  padding: 12px 20px; border-bottom: var(--border); background: var(--paper);
+}
+.step-badge { font-family: var(--display); font-weight: 800; font-size: 1.05rem; background: var(--cocoa); color: var(--butter); border-radius: 12px; padding: 4px 12px; white-space: nowrap; }
+.timer { height: 22px; border: 3px solid var(--cocoa); border-radius: 999px; background: var(--butter); overflow: hidden; }
+.timer i { display: block; height: 100%; width: 100%; background: var(--mint); transition: width .1s linear, background .3s; }
+.timer.low i { background: var(--tomato); }
+.timer.off { visibility: hidden; }
+.scores { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
+.score-pill {
+  border: 3px solid var(--cocoa); border-radius: 999px; padding: 2px 10px; font-weight: 800; font-size: .9rem;
+  background: var(--paper); font-variant-numeric: tabular-nums; display: flex; gap: 6px; align-items: center;
+}
+.score-pill .dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--cocoa); }
+.score-pill.turn { background: var(--mustard); transform: scale(1.08); }
+
+.play { display: grid; grid-template-columns: 220px minmax(0,1fr); gap: 24px; padding: 20px 24px 26px; }
+.station { display: grid; gap: 16px; min-width: 0; }
+.prompt { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(1.25rem, 2.6vw, 1.7rem); line-height: 1.15; text-wrap: balance; }
+.prompt small { display: block; font-family: var(--body); font-size: .95rem; font-weight: 700; color: var(--muted); }
+.turn-line { font-weight: 800; color: var(--tomato-dark); text-transform: uppercase; letter-spacing: .06em; font-size: .85rem; }
+
+/* Ingredient card */
+.item {
+  background: var(--paper); border: var(--border); border-radius: 18px; box-shadow: var(--pop);
+  padding: 12px 18px; display: grid; grid-template-columns: auto minmax(0,1fr); gap: 14px; align-items: center;
+  max-width: 520px; position: relative; z-index: 2;
+}
+.item .emo { font-size: 3.2rem; line-height: 1; }
+.item .txt { font-family: var(--display); font-weight: 700; font-size: clamp(1.1rem, 2.2vw, 1.4rem); line-height: 1.2; }
+.item.pop { animation: pop .4s; }
+@keyframes pop { 0%{transform:scale(.6);opacity:.2} 70%{transform:scale(1.06)} 100%{transform:scale(1);opacity:1} }
+
+/* Scene: cutting board */
+.scene { position: relative; display: grid; place-items: center; min-height: 200px; }
+.board {
+  width: min(100%, 600px); min-height: 190px; border-radius: 26px; border: var(--border);
+  background:
+    repeating-linear-gradient(90deg, transparent 0 38px, rgba(0,0,0,.05) 38px 41px),
+    linear-gradient(var(--wood), var(--wood));
+  box-shadow: inset 0 -10px 0 var(--wood-dark), var(--pop);
+  display: grid; place-items: center; padding: 22px 70px 30px 22px; position: relative;
+}
+.board::after { content: ""; position: absolute; right: 18px; top: 18px; width: 22px; height: 22px; border-radius: 50%; background: var(--wood-dark); border: 3px solid var(--cocoa); }
+.knife { position: absolute; right: 14px; top: -38px; width: 70px; z-index: 3; transform-origin: 80% 10%; }
+.knife.chop { animation: chop .55s; }
+@keyframes chop { 0%,100%{transform:translate(0,0) rotate(0)} 25%{transform:translate(-160px,70px) rotate(-8deg)} 40%{transform:translate(-150px,40px)} 55%{transform:translate(-120px,70px) rotate(-8deg)} 70%{transform:translate(-110px,40px)} }
+.item.sliced { animation: sliced .55s; }
+@keyframes sliced { 0%,100%{clip-path: inset(0)} 30%{clip-path: polygon(0 0,48% 0,44% 100%,0 100%,0 0,52% 0,100% 0,100% 100%,56% 100%)} }
+
+/* Scene: pan */
+.pan-wrap { position: relative; width: min(100%, 520px); display: grid; place-items: center; padding-block: 10px 6px; }
+.pan {
+  width: min(100%, 360px); aspect-ratio: 1; max-width: 100%; border-radius: 50%;
+  background: radial-gradient(circle at 45% 40%, #55555F 0 40%, var(--steel) 70%);
+  border: 8px solid var(--cocoa); box-shadow: var(--pop), inset 0 0 0 10px #44444C;
+  display: grid; place-items: center; padding: 34px; position: relative; z-index: 1;
+}
+.pan .item { box-shadow: none; max-width: 100%; grid-template-columns: 1fr; text-align: center; justify-items: center; }
+.pan .item .emo { font-size: 2.6rem; }
+.pan .item .txt { font-size: clamp(1rem, 2vw, 1.2rem); }
+.handle { position: absolute; right: -4%; top: 50%; width: 34%; height: 34px; margin-top: -17px; background: var(--cocoa); border-radius: 0 18px 18px 0; z-index: 0; }
+.steam { position: absolute; top: -10px; left: 50%; display: flex; gap: 22px; transform: translateX(-50%); pointer-events: none; z-index: 3; }
+.steam span { width: 10px; height: 36px; border-radius: 10px; background: rgba(255,255,255,.9); border: 2px solid var(--cocoa); opacity: 0; }
+.sizzle .steam span { animation: steam .9s ease-out; }
+.sizzle .steam span:nth-child(2) { animation-delay: .12s; }
+.sizzle .steam span:nth-child(3) { animation-delay: .24s; }
+@keyframes steam { 0%{opacity:0;transform:translateY(20px)} 40%{opacity:1} 100%{opacity:0;transform:translateY(-40px)} }
+.item.flip { animation: flip .7s; }
+@keyframes flip { 0%{transform:translateY(0) rotateX(0)} 50%{transform:translateY(-110px) rotateX(180deg)} 100%{transform:translateY(0) rotateX(360deg)} }
+
+/* Answer buttons */
+.answers { display: grid; gap: 10px; }
+.answers.needs { grid-template-columns: repeat(3, minmax(0,1fr)); }
+.answers.types { grid-template-columns: repeat(5, minmax(0,1fr)); }
+.jar {
+  border: 3px solid var(--cocoa); border-radius: 16px 16px 12px 12px; background: var(--paper);
+  padding: 0 6px 10px; font-weight: 800; font-size: 1rem; box-shadow: 0 4px 0 var(--cocoa);
+  display: grid; gap: 4px; text-align: center; position: relative; min-width: 0;
+}
+.jar::before { content: ""; display: block; height: 12px; margin: 0 -6px 6px; border-bottom: 3px solid var(--cocoa); border-radius: 13px 13px 0 0; background: var(--lid, var(--tomato)); }
+.jar .k { font-size: .7rem; color: var(--muted); font-weight: 800; }
+.jar .lbl { font-family: var(--display); font-size: clamp(.9rem, 1.7vw, 1.1rem); line-height: 1.05; overflow-wrap: anywhere; }
+.jar .hint { font-size: .72rem; font-weight: 700; color: var(--muted); line-height: 1.2; }
+.jar:hover:not(:disabled) { transform: translateY(-3px); }
+.jar:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+.jar:disabled { cursor: default; opacity: .55; }
+.jar.right { opacity: 1; background: #CFF3E2; outline: 4px solid var(--mint); }
+.jar.wrong { opacity: 1; background: #FFD5CC; outline: 4px solid var(--tomato); }
+
+/* ---------- Overlays ---------- */
+.overlay {
+  position: fixed; inset: 0; z-index: 20; display: grid; place-items: center;
+  background: rgba(58,34,22,.55);
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+}
+.card {
+  width: min(100%, 620px); max-height: 100%; overflow: auto; background: var(--butter); border: var(--border);
+  border-radius: 24px; box-shadow: 0 10px 0 var(--cocoa); padding: 22px 24px; display: grid; gap: 12px;
+  animation: pop .35s;
+}
+.card h2 { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(1.7rem, 4vw, 2.4rem); line-height: 1.05; text-wrap: balance; }
+.card h2.ok { color: var(--mint); text-shadow: 2px 2px 0 var(--cocoa); }
+.card h2.ko { color: var(--tomato); text-shadow: 2px 2px 0 var(--cocoa); }
+.card p { margin: 0; line-height: 1.5; }
+.answer-line { font-weight: 800; font-size: 1.1rem; }
+.debate { background: var(--paper); border: 3px dashed var(--cocoa); border-radius: 14px; padding: 10px 14px; }
+.debate b { color: var(--tomato-dark); text-transform: uppercase; font-size: .8rem; letter-spacing: .08em; display: block; }
+.points { font-family: var(--display); font-weight: 800; font-size: 1.3rem; }
+.stars { font-size: 2.6rem; letter-spacing: .1em; line-height: 1; color: var(--mustard); -webkit-text-stroke: 2px var(--cocoa); }
+.stars .off { color: #E8DCC0; }
+
+/* Theory + minigame */
+.theory { width: 100%; display: grid; gap: 12px; }
+.theory .gcards.needs { grid-template-columns: repeat(3, minmax(0,1fr)); }
+.theory .gcards.types { grid-template-columns: repeat(5, minmax(0,1fr)); }
+@media (max-width: 800px) { .theory .gcards.needs, .theory .gcards.types { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); } }
+.theory p { margin: 0; line-height: 1.55; max-width: 70ch; font-size: 1.05rem; }
+.clues { width: min(100%, 640px); display: grid; gap: 10px; }
+.worth { justify-self: start; font-family: var(--display); font-weight: 800; background: var(--mustard); border: 3px solid var(--cocoa); border-radius: 999px; padding: 2px 14px; }
+.clue {
+  display: grid; grid-template-columns: 56px minmax(0,1fr); gap: 14px; align-items: center;
+  background: var(--paper); border: var(--border); border-radius: 16px; padding: 10px 16px; box-shadow: 0 4px 0 var(--cocoa);
+  font-family: var(--display); font-weight: 700; font-size: clamp(1.15rem, 2.6vw, 1.6rem); line-height: 1.15; animation: pop .4s;
+}
+.clue .emo { font-size: 2.6rem; line-height: 1; text-align: center; }
+.clue.locked { background: repeating-linear-gradient(45deg, var(--butter) 0 12px, #F6E6B8 12px 24px); color: var(--muted); box-shadow: none; animation: none; }
+.host { display: flex; flex-wrap: wrap; gap: 10px; }
+.host-btn {
+  font-family: var(--display); font-weight: 800; font-size: 1.05rem; border: 3px solid var(--cocoa); border-radius: 14px;
+  padding: 8px 16px; background: var(--tc, var(--paper)); color: var(--paper); text-shadow: 1px 1px 0 var(--cocoa); box-shadow: 0 4px 0 var(--cocoa);
+}
+.host-btn small { font-size: .8rem; opacity: .85; }
+.host-btn.ghost { background: var(--paper); color: var(--cocoa); text-shadow: none; }
+.host-btn:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
+.host-btn:disabled { opacity: .45; cursor: default; }
+.chip-btn.clock { font-variant-numeric: tabular-nums; }
+.chip-btn.clock.low { background: var(--mustard); }
+.chip-btn.clock.over { background: var(--cocoa); color: var(--butter); animation: shake .5s; }
+
+/* Final */
+.medal {
+  width: 130px; height: 130px; border-radius: 50%; border: 6px solid var(--cocoa); display: grid; place-items: center;
+  font-family: var(--display); font-weight: 800; font-size: 1.3rem; text-align: center; line-height: 1; box-shadow: var(--pop);
+  justify-self: center; background: var(--mcol, var(--mustard));
+}
+.rank { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
+.rank li { display: grid; grid-template-columns: 34px minmax(0,1fr) auto; gap: 10px; align-items: center; background: var(--paper); border: 3px solid var(--cocoa); border-radius: 12px; padding: 6px 12px; font-weight: 800; font-variant-numeric: tabular-nums; }
+.step-stars { display: grid; gap: 4px; }
+.step-stars div { display: flex; justify-content: space-between; gap: 10px; font-weight: 800; flex-wrap: wrap; }
+.step-stars .stars { font-size: 1.4rem; }
+
+/* Guide */
+.guide { display: grid; gap: 18px; }
+.guide h2 { margin: 0; font-family: var(--display); font-size: 1.8rem; }
+.guide h3 { margin: 0 0 8px; font-family: var(--display); font-size: 1.15rem; text-transform: uppercase; letter-spacing: .06em; color: var(--tomato-dark); }
+.gcards { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
+.gcard { background: var(--paper); border: 3px solid var(--cocoa); border-radius: 14px; padding: 10px 12px; border-top: 12px solid var(--lid, var(--cocoa)); }
+.gcard b { font-family: var(--display); font-size: 1.1rem; display: block; }
+.gcard span { font-size: .9rem; line-height: 1.35; display: block; }
+.gcard em { font-size: .82rem; color: var(--muted); font-style: normal; font-weight: 700; display: block; margin-top: 4px; }
+.source { font-size: .85rem; color: var(--muted); }
+
+@media (max-width: 800px) {
+  .intro, .play { grid-template-columns: minmax(0,1fr); }
+  .chef-col { grid-template-columns: 90px minmax(0,1fr); align-items: center; justify-items: stretch; }
+  .chef { width: 90px; }
+  .bubble { font-size: .95rem; text-align: left; }
+  .bubble::before { top: 50%; left: -14px; margin: -12px 0 0; border: 12px solid transparent; border-left: 0; border-right: 14px solid var(--cocoa); }
+  .answers.types { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .hud { grid-template-columns: auto minmax(0,1fr); }
+  .scores { grid-column: 1 / -1; justify-content: flex-start; }
+  .screen { padding: 16px; }
+  .play { padding: 16px; }
+  .board { padding: 18px 56px 24px 16px; }
+}
+@media (max-width: 460px) {
+  .item .emo { font-size: 2.4rem; }
+  .jar .hint { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation: none !important; transition: none !important; }
+}
+</style>
+</head>
+<body>
+
+<main class="console">
+  <header class="marquee">
+    <h1>Cocina con Mamá Max</h1>
+    <div class="tools">
+      <button class="chip-btn clock" id="btnClock" type="button" hidden>⏱ 30:00</button>
+      <button class="chip-btn" id="btnGuide" type="button">Chuleta</button>
+      <button class="chip-btn" id="btnSound" type="button" aria-pressed="true">Sonido: sí</button>
+    </div>
+  </header>
+
+  <!-- INTRO -->
+  <section class="screen" id="scrIntro">
+    <div class="intro">
+      <div class="chef-col">
+        <svg class="chef" data-chef viewBox="0 0 200 230" aria-hidden="true"></svg>
+        <div class="bubble">¡Hola! Hoy cocinamos necesidades humanas.</div>
+      </div>
+      <div>
+        <h2>Necesidades y satisfactores en la mesa</h2>
+        <p>Según Manfred Max-Neef, las necesidades humanas son pocas, finitas y universales. Lo que cambia según la cultura y la época son los <b>satisfactores</b>: las formas en que intentamos cubrirlas. La comida es uno de los satisfactores más ricos que existen.</p>
+        <div class="recipe-card">
+          <h3>Receta del taller</h3>
+          <ol class="steps-list">
+            <li><b class="n">1</b><span><b>Teoría 1.</b> Las 9 necesidades humanas según Max-Neef.</span></li>
+            <li><b class="n">2</b><span><b>Parte 1 · Picar.</b> ¿Qué necesidad intenta satisfacer cada situación? Todos los equipos juegan por turnos.</span></li>
+            <li><b class="n">3</b><span><b>Minijuego · Adivina el plato.</b> Puntos extra a gritos, sin tocar la pantalla.</span></li>
+            <li><b class="n">4</b><span><b>Teoría 2.</b> Los 5 tipos de satisfactores.</span></li>
+            <li><b class="n">5</b><span><b>Parte 2 · Saltear.</b> ¿Qué tipo de satisfactor es? De nuevo, todos los equipos por turnos.</span></li>
+          </ol>
+        </div>
+        <div class="setup">
+          <div>
+            <span class="field-label">Equipos</span>
+            <div class="seg" id="segTeams">
+              <button type="button" data-v="1">1 (toda la clase)</button>
+              <button type="button" data-v="2">2</button>
+              <button type="button" data-v="3">3</button>
+              <button type="button" data-v="4">4</button>
+            </div>
+          </div>
+          <div class="team-names" id="teamNames"></div>
+          <div>
+            <span class="field-label">Duración</span>
+            <div class="seg" id="segLen">
+              <button type="button" data-v="short">Corta (2 preguntas por equipo y parte)</button>
+              <button type="button" data-v="full">Completa (3 por equipo y parte)</button>
+            </div>
+          </div>
+          <div>
+            <span class="field-label">Cronómetro del taller</span>
+            <div class="seg" id="segClock">
+              <button type="button" data-v="20">20 min</button>
+              <button type="button" data-v="30">30 min</button>
+              <button type="button" data-v="40">40 min</button>
+            </div>
+          </div>
+          <div>
+            <span class="field-label">Tiempo por pregunta</span>
+            <div class="seg" id="segTime">
+              <button type="button" data-v="0">Sin límite</button>
+              <button type="button" data-v="30">30 s</button>
+              <button type="button" data-v="20">20 s</button>
+              <button type="button" data-v="12">12 s</button>
+            </div>
+          </div>
+        </div>
+        <div class="actions">
+          <button class="big-btn green" id="btnStart" type="button">¡A cocinar!</button>
+          <button class="big-btn" id="btnGuide2" type="button">Repasar la teoría</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLAY -->
+  <section id="scrPlay" hidden>
+    <div class="hud">
+      <span class="step-badge" id="stepBadge">Paso 1 · Picar</span>
+      <div class="timer" id="timer"><i></i></div>
+      <div class="scores" id="scores"></div>
+    </div>
+    <div class="play">
+      <div class="chef-col">
+        <svg class="chef" data-chef viewBox="0 0 200 230" aria-hidden="true"></svg>
+        <div class="bubble" id="bubble">¡Vamos allá!</div>
+      </div>
+      <div class="station">
+        <div>
+          <div class="turn-line" id="turnLine"></div>
+          <p class="prompt" id="prompt"></p>
+        </div>
+        <div class="scene" id="scene"></div>
+        <div class="answers" id="answers"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- GUIDE -->
+  <section class="screen" id="scrGuide" hidden>
+    <div class="guide">
+      <div class="actions" style="justify-content: space-between">
+        <h2>Chuleta de Max-Neef</h2>
+        <button class="big-btn" id="btnBack" type="button">Volver</button>
+      </div>
+      <div>
+        <h3>9 necesidades axiológicas</h3>
+        <div class="gcards" id="gNeeds"></div>
+      </div>
+      <div>
+        <h3>5 tipos de satisfactores</h3>
+        <div class="gcards" id="gTypes"></div>
+      </div>
+      <p class="source">Basado en Max-Neef, M., Elizalde, A. y Hopenhayn, M. (1986). <i>Desarrollo a escala humana</i>. Los ejemplos gastronómicos son adaptaciones para el taller y varios admiten debate.</p>
+    </div>
+  </section>
+</main>
+
+<div class="overlay" id="overlay" hidden>
+  <div class="card" id="card" role="dialog" aria-modal="true"></div>
+</div>
+
+<script>
+(() => {
+/* ---------------- Contenido ---------------- */
+const NEEDS = [
+  { id: "subsistencia", lbl: "Subsistencia", hint: "salud, alimento", lid: "#E5432A", def: "Mantenerse con vida y con salud: alimentarse, descansar, abrigarse.", ej: "Ej.: un menú del día nutritivo." },
+  { id: "proteccion", lbl: "Protección", hint: "seguridad, cuidado", lid: "#3E9BD6", def: "Sentirse seguro y cuidado; prevenir riesgos.", ej: "Ej.: la seguridad alimentaria." },
+  { id: "afecto", lbl: "Afecto", hint: "amor, amistad", lid: "#F28DB2", def: "Querer y ser querido; vínculos, intimidad, generosidad.", ej: "Ej.: cocinar para alguien." },
+  { id: "entendimiento", lbl: "Entendimiento", hint: "aprender, conocer", lid: "#8C6BD1", def: "Conocer, aprender, tener curiosidad y conciencia crítica.", ej: "Ej.: un curso de cocina." },
+  { id: "participacion", lbl: "Participación", hint: "implicarse, cooperar", lid: "#F7B928", def: "Formar parte, opinar, cooperar y decidir con otros.", ej: "Ej.: una cooperativa de consumo." },
+  { id: "ocio", lbl: "Ocio", hint: "disfrute, juego", lid: "#2FA97F", def: "Descansar, divertirse, jugar, despreocuparse.", ej: "Ej.: un tapeo con amigos." },
+  { id: "creacion", lbl: "Creación", hint: "inventar, imaginar", lid: "#FF8A3D", def: "Inventar, diseñar, componer, dejar huella propia.", ej: "Ej.: crear una receta nueva." },
+  { id: "identidad", lbl: "Identidad", hint: "pertenencia, raíces", lid: "#9B5B34", def: "Saber quién soy y a qué grupo y tradición pertenezco.", ej: "Ej.: el plato típico de tu tierra." },
+  { id: "libertad", lbl: "Libertad", hint: "elegir, autonomía", lid: "#4FC3C9", def: "Elegir por uno mismo, tener autonomía y poder discrepar.", ej: "Ej.: decidir tu propia dieta." }
+];
+const TYPES = [
+  { id: "sinergico", lbl: "Sinérgico", hint: "cubre una y estimula otras", lid: "#2FA97F", def: "Satisface una necesidad y, a la vez, estimula y contribuye a satisfacer otras.", ej: "Ej. de Max-Neef: la lactancia materna." },
+  { id: "singular", lbl: "Singular", hint: "cubre una sola", lid: "#3E9BD6", def: "Satisface una sola necesidad y es neutro respecto a las demás.", ej: "Ej.: un programa de reparto de alimentos." },
+  { id: "inhibidor", lbl: "Inhibidor", hint: "cubre una, frena otras", lid: "#F7B928", def: "Sobresatisface una necesidad y dificulta seriamente la satisfacción de otras.", ej: "Ej.: la TV comercial (ocio que frena entendimiento y creación)." },
+  { id: "pseudo", lbl: "Pseudo-satisfactor", hint: "falsa sensación", lid: "#F28DB2", def: "Genera una falsa sensación de satisfacción; suele venir inducido por publicidad o modas.", ej: "Ej.: las modas, los símbolos de estatus." },
+  { id: "destructor", lbl: "Destructor", hint: "daña esa y otras", lid: "#E5432A", def: "También llamado violador: pretende satisfacer una necesidad, pero la aniquila y daña otras.", ej: "Ej.: el armamentismo como «protección»." }
+];
+const BANK_NEEDS = [
+  { emo: "💊", t: "Alimentarte a base de pastillas saciantes para no engordar", a: "identidad", e: "Detrás suele estar la búsqueda de una imagen aceptada por los demás: es identidad (quién soy, cómo me ven). La paradoja es que pone en riesgo la subsistencia.", d: "¿Es identidad o afecto (sentirse querido y aceptado)?" },
+  { emo: "🥇", t: "Pedir un chuletón cubierto de oro comestible para aparentar", a: "identidad", e: "El oro no aporta sabor ni nutrientes: se paga por el estatus. Lo que se busca es identidad, mostrar a qué grupo perteneces." },
+  { emo: "🍜", t: "Cenar ramen instantáneo a final de mes porque no llega el dinero", a: "subsistencia", e: "Aquí no hay elección ni placer: se trata de llenar el estómago con lo que hay. Es subsistencia." },
+  { emo: "🔎", t: "Leer los alérgenos y la fecha de caducidad antes de comprar", a: "proteccion", e: "Es prevención y cuidado de la salud: protección." },
+  { emo: "💌", t: "Cocinar el plato favorito de tu pareja para hacer las paces", a: "afecto", e: "La comida se usa como gesto de cariño y reconciliación: afecto." },
+  { emo: "🍫", t: "Comerte una tableta de chocolate cuando estás triste", a: "afecto", e: "Se busca consuelo en la comida: lo que falta es afecto.", d: "¿Lo satisface de verdad o solo lo parece? ¿Qué tipo de satisfactor sería?" },
+  { emo: "🎥", t: "Ver tutoriales para aprender a hacer pan de masa madre", a: "entendimiento", e: "Aprender técnicas y entender procesos es entendimiento." },
+  { emo: "🥘", t: "Organizar una paella popular con los vecinos en las fiestas", a: "participacion", e: "Implicarse con otros en algo colectivo es participación.", d: "También hay ocio e identidad. ¿Podría ser sinérgico?" },
+  { emo: "🍕", t: "Quedar con amigos para cenar pizza y jugar a la consola", a: "ocio", e: "El objetivo es pasarlo bien y desconectar: ocio." },
+  { emo: "🧪", t: "Hacer un concurso de cocina con lo que sobra en la nevera", a: "creacion", e: "Inventar algo nuevo con lo que hay es creación." },
+  { emo: "🧳", t: "Un estudiante Erasmus que recorre la ciudad buscando ingredientes de su país", a: "identidad", e: "Lejos de casa, la comida de origen mantiene las raíces: identidad." },
+  { emo: "🥗", t: "Hacerte vegano aunque tu familia no lo apruebe", a: "libertad", e: "Decidir por ti mismo frente a la presión del entorno es libertad.", d: "¿Libertad o identidad? Las dos pueden estar en juego." },
+  { emo: "🍽️", t: "Negarte al menú cerrado de una boda y pedir algo a tu gusto", a: "libertad", e: "Reclamar poder elegir es libertad." },
+  { emo: "🥖", t: "Hacer cola en un comedor social para tener un plato caliente", a: "subsistencia", e: "Cubrir el alimento básico: subsistencia." },
+  { emo: "🩺", t: "Seguir la dieta que te pautó el médico después de un susto", a: "proteccion", e: "Prevenir un riesgo para la salud es protección.", d: "¿No es también subsistencia? Buscad la diferencia entre mantenerse vivo y prevenir." },
+  { emo: "📸", t: "Hacer cola dos horas para probar el dulce viral de TikTok", a: "identidad", e: "Más que el sabor, se busca estar a la moda y pertenecer al grupo: identidad.", d: "¿O es ocio? ¿Y sería un pseudo-satisfactor?" },
+  { emo: "🍷", t: "Apuntarte a un curso de cata de vinos", a: "entendimiento", e: "Aprender a distinguir y valorar es entendimiento." },
+  { emo: "🎂", t: "Diseñar tu propia tarta de cumpleaños con forma de dinosaurio", a: "creacion", e: "Imaginar y dar forma a algo propio es creación." },
+  { emo: "🗳️", t: "Votar el plato del mes en el comedor del instituto", a: "participacion", e: "Opinar y decidir en grupo es participación." }
+];
+const BANK_TYPES = [
+  { emo: "💊", t: "Sustituir las comidas por pastillas para no engordar", a: "destructor", e: "Pretende cubrir la identidad (la imagen), pero destruye la subsistencia y la protección: la salud. Además aísla, porque no se come con nadie." },
+  { emo: "🥇", t: "Ponerle oro a la carne para aparentar", a: "pseudo", e: "Da una sensación de estatus e identidad, pero el oro no aporta ni sabor ni alimento. Es una satisfacción de escaparate.", d: "¿Y si se convierte en una necesidad de aparentar constante? ¿Podría acabar siendo inhibidor?" },
+  { emo: "📸", t: "Ir a restaurantes de moda solo para subir la foto", a: "pseudo", e: "Promete pertenencia e identidad, pero la satisfacción dura lo que dura el «like»." },
+  { emo: "🧸", t: "El menú infantil que viene con juguete de regalo", a: "pseudo", e: "El juguete da una falsa sensación de afecto y ocio; lo que se vende es la marca." },
+  { emo: "🏭", t: "Un bollo industrial anunciado como «casero, como el de la abuela»", a: "pseudo", e: "La publicidad simula la identidad y el afecto que el producto no tiene." },
+  { emo: "🍺", t: "Beber hasta perder el control para «encajar» en el grupo", a: "destructor", e: "Pretende cubrir participación y afecto, pero daña la salud, la protección y el entendimiento." },
+  { emo: "📉", t: "Una dieta milagro de 500 calorías al día antes del verano", a: "destructor", e: "Busca aceptación e identidad y acaba destruyendo la subsistencia y la protección." },
+  { emo: "⚡", t: "Cambiar la cena por bebidas energéticas para estudiar toda la noche", a: "destructor", e: "Promete energía y rendimiento, pero daña la salud, el descanso y, al final, el propio estudio.", d: "¿Pseudo o destructor? Depende de cuánto se abuse. ¡Debatidlo!" },
+  { emo: "📺", t: "Comer cada día con la tele puesta y sin hablar", a: "inhibidor", e: "Sobresatisface el ocio y frena el afecto y el entendimiento: nadie habla en la mesa." },
+  { emo: "📱", t: "Estar con el móvil durante toda la cena con amigos", a: "inhibidor", e: "El entretenimiento individual bloquea el afecto y la participación del grupo." },
+  { emo: "🛵", t: "Pedir comida a domicilio todos los días", a: "inhibidor", e: "Resuelve la subsistencia con comodidad, pero frena la creación, la participación y la autonomía.", d: "¿Y si es algo puntual? El contexto cambia la clasificación." },
+  { emo: "🚫", t: "Prohibir que los niños entren en la cocina «por si se queman»", a: "inhibidor", e: "Sobreprotege y bloquea el entendimiento, la creación y la participación." },
+  { emo: "🥫", t: "Un banco de alimentos que reparte lotes de comida", a: "singular", e: "Cubre la subsistencia y no actúa sobre otras necesidades. Max-Neef pone los programas de reparto de alimentos como ejemplo de satisfactor singular.", d: "¿Cómo podría convertirse en sinérgico?" },
+  { emo: "🥤", t: "La máquina expendedora de la biblioteca", a: "singular", e: "Quita el hambre y poco más: satisface una sola necesidad." },
+  { emo: "🧃", t: "El batido nutricional que dan en el hospital", a: "singular", e: "Cubre la subsistencia del paciente sin buscar nada más." },
+  { emo: "🌱", t: "Un huerto urbano comunitario", a: "sinergico", e: "Da alimento y además estimula la participación, el entendimiento, la creación y el ocio." },
+  { emo: "👨‍👩‍👧", t: "Cocinar en familia el fin de semana", a: "sinergico", e: "Alimenta y a la vez cubre afecto, entendimiento (se aprende), creación e identidad." },
+  { emo: "🍼", t: "La lactancia materna", a: "sinergico", e: "Es el ejemplo clásico de Max-Neef: cubre la subsistencia y estimula protección, afecto e identidad." },
+  { emo: "🤝", t: "Un comedor social donde los usuarios cocinan junto a los voluntarios", a: "sinergico", e: "Además de alimentar, da participación, afecto, entendimiento e identidad." }
+];
+
+const DISHES = [
+  { emo: "🥔", name: "Tortilla de patatas", clues: [["🥔", "Su ingrediente principal crece bajo tierra"], ["🥚", "Lleva huevo, y mucho"], ["🧅", "La eterna pelea: ¿con o sin cebolla?"]], q: "¿Qué necesidad cubre la tortilla «como la hace mi madre»? (Pista: identidad y afecto)" },
+  { emo: "🥘", name: "Paella", clues: [["🍚", "Se hace con arroz"], ["🟡", "Lleva azafrán y el recipiente le da nombre"], ["🍊", "Valencia la defiende como suya"]], q: "Una paella de bote para turistas, ¿qué tipo de satisfactor sería?" },
+  { emo: "🍅", name: "Gazpacho", clues: [["🧊", "Se toma frío"], ["🥒", "Lleva pepino, pimiento y ajo"], ["🍅", "Es rojo y se bebe en vaso en verano"]], q: "¿Cubre solo subsistencia o algo más cuando se hace en casa en verano?" },
+  { emo: "🍫", name: "Churros con chocolate", clues: [["🌅", "Típico al amanecer de Año Nuevo"], ["〰️", "Masa frita y alargada"], ["🍫", "Se moja en algo caliente, espeso y dulce"]], q: "¿Qué necesidades cubre ir a desayunarlos con amigos tras una noche de fiesta?" },
+  { emo: "🐙", name: "Pulpo a la gallega", clues: [["🪵", "Se sirve en plato de madera"], ["🌶️", "Lleva pimentón, sal gorda y aceite"], ["🐙", "El protagonista tiene ocho brazos"]], q: "En una feria del pulpo, ¿predomina el ocio, la participación o la identidad?" },
+  { emo: "🧆", name: "Croquetas", clues: [["🥛", "Por dentro, bechamel"], ["🍞", "Por fuera, rebozado de pan rallado"], ["👵", "Las mejores siempre son las de la abuela"]], q: "Croquetas congeladas «caseras» del súper: ¿satisfactor singular o pseudo-satisfactor?" },
+  { emo: "🍣", name: "Sushi", clues: [["🥢", "Se come con palillos"], ["🐟", "Suele llevar pescado crudo"], ["🍚", "Arroz con vinagre enrollado en alga"]], q: "Comer sushi solo porque está de moda, ¿qué necesidad busca?" }
+];
+
+const STEPS = [
+  { key: "teoria1", theory: "needs" },
+  { key: "picar", label: "Parte 1", name: "Picar", scene: "board", opts: NEEDS, bank: BANK_NEEDS,
+    prompt: "¿Qué necesidad intenta satisfacer esta situación?", sub: "Elige el tarro correcto (teclas 1-9)." },
+  { key: "adivina", game: true },
+  { key: "teoria2", theory: "types" },
+  { key: "saltear", label: "Parte 2", name: "Saltear", scene: "pan", opts: TYPES, bank: BANK_TYPES,
+    prompt: "¿Qué tipo de satisfactor es?", sub: "Dale la vuelta en la sartén con la respuesta correcta (teclas 1-5)." }
+];
+
+const TEAM_DEFAULTS = [
+  { name: "Tomate", col: "#E5432A" },
+  { name: "Albahaca", col: "#2FA97F" },
+  { name: "Limón", col: "#F7B928" },
+  { name: "Arándano", col: "#5B6CD9" }
+];
+
+/* ---------------- Chef ---------------- */
+const CHEF_BASE = `
+  <path d="M40 230 Q42 178 100 176 Q158 178 160 230 Z" fill="#fff" stroke="#3A2216" stroke-width="4"/>
+  <path d="M78 178 L100 206 L122 178 Z" fill="#E5432A" stroke="#3A2216" stroke-width="4" stroke-linejoin="round"/>
+  <path d="M48 120 Q44 70 100 66 Q156 70 152 120 L152 150 Q100 120 48 150 Z" fill="#6B3B22" stroke="#3A2216" stroke-width="4"/>
+  <circle cx="100" cy="125" r="52" fill="#FFD9B8" stroke="#3A2216" stroke-width="4"/>
+  <path d="M52 112 Q70 80 100 82 Q130 80 148 112 Q130 96 100 98 Q70 96 52 112 Z" fill="#6B3B22" stroke="#3A2216" stroke-width="3"/>
+  <circle cx="74" cy="142" r="9" fill="#FF8FA3" opacity=".7"/>
+  <circle cx="126" cy="142" r="9" fill="#FF8FA3" opacity=".7"/>
+  <rect x="58" y="58" width="84" height="26" rx="8" fill="#fff" stroke="#3A2216" stroke-width="4"/>
+  <circle cx="68" cy="46" r="24" fill="#fff" stroke="#3A2216" stroke-width="4"/>
+  <circle cx="132" cy="46" r="24" fill="#fff" stroke="#3A2216" stroke-width="4"/>
+  <circle cx="100" cy="34" r="30" fill="#fff" stroke="#3A2216" stroke-width="4"/>
+  <path d="M60 60 L140 60" stroke="#fff" stroke-width="6"/>
+  <g class="eyes"></g><g class="mouth"></g>`;
+const FACES = {
+  neutral: {
+    eyes: `<ellipse cx="82" cy="122" rx="6" ry="9" fill="#3A2216"/><ellipse cx="118" cy="122" rx="6" ry="9" fill="#3A2216"/><circle cx="84" cy="118" r="2" fill="#fff"/><circle cx="120" cy="118" r="2" fill="#fff"/>`,
+    mouth: `<path d="M88 148 Q100 158 112 148" fill="none" stroke="#3A2216" stroke-width="4" stroke-linecap="round"/>`
+  },
+  happy: {
+    eyes: `<path d="M74 124 Q82 112 90 124" fill="none" stroke="#3A2216" stroke-width="4" stroke-linecap="round"/><path d="M110 124 Q118 112 126 124" fill="none" stroke="#3A2216" stroke-width="4" stroke-linecap="round"/>`,
+    mouth: `<path d="M80 144 Q100 172 120 144 Z" fill="#C2332A" stroke="#3A2216" stroke-width="4" stroke-linejoin="round"/><path d="M90 156 Q100 162 110 156" fill="#FF8FA3"/>`
+  },
+  sad: {
+    eyes: `<path d="M72 112 L90 118" stroke="#3A2216" stroke-width="4" stroke-linecap="round"/><path d="M128 112 L110 118" stroke="#3A2216" stroke-width="4" stroke-linecap="round"/><ellipse cx="82" cy="126" rx="5" ry="7" fill="#3A2216"/><ellipse cx="118" cy="126" rx="5" ry="7" fill="#3A2216"/>`,
+    mouth: `<path d="M86 158 Q100 144 114 158" fill="none" stroke="#3A2216" stroke-width="4" stroke-linecap="round"/>`
+  },
+  wow: {
+    eyes: `<circle cx="82" cy="122" r="8" fill="#3A2216"/><circle cx="118" cy="122" r="8" fill="#3A2216"/><circle cx="85" cy="118" r="3" fill="#fff"/><circle cx="121" cy="118" r="3" fill="#fff"/>`,
+    mouth: `<ellipse cx="100" cy="152" rx="9" ry="11" fill="#C2332A" stroke="#3A2216" stroke-width="4"/>`
+  }
+};
+const chefs = [...document.querySelectorAll("[data-chef]")];
+chefs.forEach(svg => { svg.innerHTML = CHEF_BASE; });
+function chefFace(mood, anim) {
+  chefs.forEach(svg => {
+    svg.querySelector(".eyes").innerHTML = FACES[mood].eyes;
+    svg.querySelector(".mouth").innerHTML = FACES[mood].mouth;
+    if (anim) { svg.classList.remove("bounce", "shake"); void svg.getBoundingClientRect(); svg.classList.add(anim); }
+  });
+}
+chefFace("happy");
+const bubble = document.getElementById("bubble");
+const say = txt => { bubble.textContent = txt; };
+
+/* ---------------- Sonido ---------------- */
+let soundOn = true, actx = null;
+function tone(freq, dur, type = "square", vol = .08, when = 0) {
+  if (!soundOn) return;
+  try {
+    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+    const t = actx.currentTime + when;
+    const o = actx.createOscillator(), g = actx.createGain();
+    o.type = type; o.frequency.setValueAtTime(freq, t);
+    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
+    o.connect(g).connect(actx.destination); o.start(t); o.stop(t + dur);
+  } catch (e) {}
+}
+const sfx = {
+  ok() { tone(660, .12); tone(880, .12, "square", .08, .1); tone(1320, .25, "square", .07, .2); },
+  ko() { tone(220, .25, "sawtooth", .07); tone(160, .35, "sawtooth", .07, .18); },
+  chop() { tone(1200, .04, "triangle", .1); tone(900, .04, "triangle", .1, .14); tone(1100, .04, "triangle", .1, .28); },
+  tick() { tone(1000, .03, "sine", .05); },
+  stir() { tone(300 + Math.random() * 200, .05, "triangle", .06); },
+  fanfare() { [523, 659, 784, 1046].forEach((f, i) => tone(f, .22, "square", .07, i * .14)); }
+};
+document.getElementById("btnSound").addEventListener("click", e => {
+  soundOn = !soundOn;
+  e.currentTarget.textContent = "Sonido: " + (soundOn ? "sí" : "no");
+  e.currentTarget.setAttribute("aria-pressed", String(soundOn));
+});
+
+/* ---------------- Estado ---------------- */
+const cfg = { teams: 2, len: "full", time: 20, clock: 30, names: TEAM_DEFAULTS.map(t => t.name) };
+let S = null;
+const $ = id => document.getElementById(id);
+const pick = arr => arr[Math.floor(Math.random() * arr.length)];
+const shuffle = arr => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+
+function bindSeg(id, key, cast) {
+  const seg = $(id);
+  const paint = () => seg.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(cast(b.dataset.v) === cfg[key])));
+  seg.addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    cfg[key] = cast(b.dataset.v); paint(); if (key === "teams") renderNames();
+  });
+  paint();
+}
+function renderNames() {
+  const box = $("teamNames"); box.innerHTML = "";
+  if (cfg.teams === 1) { box.hidden = true; return; }
+  box.hidden = false;
+  for (let i = 0; i < cfg.teams; i++) {
+    const inp = document.createElement("input");
+    inp.id = "teamName" + i; inp.value = cfg.names[i]; inp.maxLength = 18;
+    inp.setAttribute("aria-label", "Nombre del equipo " + (i + 1));
+    inp.style.borderLeftColor = TEAM_DEFAULTS[i].col;
+    inp.addEventListener("input", () => { cfg.names[i] = inp.value.trim() || TEAM_DEFAULTS[i].name; });
+    box.appendChild(inp);
+  }
+}
+bindSeg("segTeams", "teams", Number);
+bindSeg("segLen", "len", String);
+bindSeg("segTime", "time", Number);
+bindSeg("segClock", "clock", Number);
+renderNames();
+
+/* ---------------- Pantallas ---------------- */
+let lastScreen = "scrIntro";
+function show(id) {
+  ["scrIntro", "scrPlay", "scrGuide"].forEach(s => { $(s).hidden = s !== id; });
+  if (id !== "scrGuide") lastScreen = id;
+}
+function openCard(html, onNext, nextLabel = "Siguiente") {
+  const card = $("card");
+  card.innerHTML = html + (onNext ? `<div class="actions"><button class="big-btn green" id="cardNext" type="button">${nextLabel}</button></div>` : "");
+  $("overlay").hidden = false;
+  if (onNext) { const b = $("cardNext"); b.onclick = () => { closeCard(); onNext(); }; b.focus(); }
+}
+function closeCard() { $("overlay").hidden = true; }
+
+function buildGuide() {
+  const g = (list, box) => { $(box).innerHTML = list.map(x => `<div class="gcard" style="--lid:${x.lid}"><b>${x.lbl}</b><span>${x.def}</span><em>${x.ej}</em></div>`).join(""); };
+  g(NEEDS, "gNeeds"); g(TYPES, "gTypes");
+}
+buildGuide();
+const toGuide = () => { if (S && S.timer && STEPS[S.stepIdx] && STEPS[S.stepIdx].opts) pauseTimer(); show("scrGuide"); };
+$("btnGuide").onclick = toGuide; $("btnGuide2").onclick = toGuide;
+$("btnBack").onclick = () => { show(lastScreen); if (lastScreen === "scrPlay" && S && S.paused) resumeTimer(); };
+
+/* ---------------- Juego ---------------- */
+function start() {
+  const perTeam = cfg.len === "short" ? 2 : 3;
+  const nQ = cfg.teams === 1 ? perTeam * 2 : perTeam * cfg.teams;
+  S = {
+    teams: Array.from({ length: cfg.teams }, (_, i) => ({ name: cfg.teams === 1 ? "La clase" : cfg.names[i], col: TEAM_DEFAULTS[i].col, score: 0 })),
+    turn: 0, stepIdx: -1, qIdx: 0, locked: false, perTeam,
+    stats: {}, timer: null, deadline: 0, remain: 0, paused: false,
+    dishes: shuffle(DISHES).slice(0, cfg.len === "short" ? 2 : 3), g: null
+  };
+  STEPS.forEach(st => {
+    if (!st.opts) return;
+    st.qs = shuffle(st.bank).slice(0, nQ);
+    S.stats[st.key] = { ok: 0, total: st.qs.length };
+  });
+  show("scrPlay");
+  renderScores();
+  startClock();
+  nextStep();
+}
+$("btnStart").onclick = start;
+
+function renderScores() {
+  $("scores").innerHTML = S.teams.map((t, i) =>
+    `<span class="score-pill ${i === S.turn && S.teams.length > 1 ? "turn" : ""}"><span class="dot" style="background:${t.col}"></span>${t.name} · ${t.score}</span>`).join("");
+  const st = STEPS[S.stepIdx];
+  const tl = $("turnLine");
+  if (st && st.theory) tl.textContent = "Bloque de teoría";
+  else if (st && st.game) tl.textContent = "Minijuego · responden todos los equipos a la vez";
+  else tl.textContent = S.teams.length > 1 ? "Turno: equipo " + S.teams[S.turn].name : "Responde toda la clase";
+}
+function nextTurn() { S.turn = (S.turn + 1) % S.teams.length; renderScores(); }
+
+function starsHTML(n) { return `<span class="stars">${"★".repeat(n)}<span class="off">${"★".repeat(3 - n)}</span></span>`; }
+function starsFor(key) { const s = S.stats[key]; const p = s.ok / s.total; return p >= .9 ? 3 : p >= .6 ? 2 : p >= .3 ? 1 : 0; }
+
+function nextStep() {
+  const prev = STEPS[S.stepIdx];
+  S.stepIdx++;
+  if (S.stepIdx >= STEPS.length) return finish();
+  const st = STEPS[S.stepIdx];
+  S.turn = 0; S.locked = false;
+  renderScores();
+  let head = "";
+  if (prev && prev.opts) {
+    head = `<p class="answer-line">${prev.label} terminada: ${S.stats[prev.key].ok}/${S.stats[prev.key].total} aciertos</p>${starsHTML(starsFor(prev.key))}`;
+  }
+  if (st.theory) return showTheory(st, head);
+  if (st.game) {
+    chefFace("wow", "bounce");
+    openCard(`${head}<h2>Minijuego · ¡Adivina el plato!</h2>
+      <p>Nadie toca la pantalla. Van apareciendo pistas de un plato: <b>el primer equipo que lo diga en voz alta</b> (o levante la mano) se lleva los puntos. Cuantas menos pistas necesitéis, más puntos: 150, 100 o 50.</p>
+      <p>Cada pista dura 15 segundos. Quien presenta marca qué equipo ha acertado (teclas 1-${S.teams.length}), pasa de pista (P) o da el plato por perdido (0).</p>`,
+      startGame, "¡Que empiece!");
+    return;
+  }
+  const order = S.teams.map(t => t.name).join(" → ");
+  $("stepBadge").textContent = `${st.label} · ${st.name}`;
+  chefFace("happy", "bounce");
+  openCard(`${head}<h2>${st.label} · ${st.name}</h2><p><b>${st.prompt}</b> ${st.sub}</p>
+    <p>${S.teams.length > 1 ? `Los equipos se turnan en cada pregunta (${order}) y cada uno responde ${S.perTeam} situaciones en esta parte.` : `${st.qs.length} situaciones para toda la clase.`} Si alguien falla, ¡Mamá Max lo explica y seguimos!</p>`,
+    () => { S.qIdx = 0; ask(); }, "¡A cocinar!");
+}
+
+/* Teoría */
+const THEORY = {
+  needs: {
+    badge: "Teoría 1 · Necesidades",
+    title: "Las 9 necesidades humanas",
+    say: "¡Primero la teoría! Luego a cocinar.",
+    text: `<p>Para Max-Neef, las necesidades humanas son <b>pocas, finitas y clasificables</b>, y son <b>las mismas en todas las culturas y épocas</b>. Lo que cambia es la forma de cubrirlas: los <b>satisfactores</b>.</p>
+      <p>Comer cubre la subsistencia, pero <i>cómo</i>, <i>con quién</i> y <i>dónde</i> comemos puede cubrir (o fingir que cubre) muchas otras. Además, una necesidad no cubierta es una carencia y también una potencialidad: nos mueve a actuar.</p>`,
+    list: () => NEEDS, next: "Empezar la parte 1"
+  },
+  types: {
+    badge: "Teoría 2 · Satisfactores",
+    title: "Los 5 tipos de satisfactores",
+    say: "No todo lo que comemos nos sienta igual de bien…",
+    text: `<p>No todos los satisfactores funcionan igual. Max-Neef los ordena según su efecto: desde los que <b>destruyen</b> la necesidad que dicen cubrir hasta los que <b>estimulan varias a la vez</b>.</p>
+      <p>Los cuatro primeros suelen venir impuestos o inducidos desde fuera (publicidad, modas, instituciones). Los sinérgicos suelen nacer de la propia comunidad. Van de peor a mejor:</p>`,
+    list: () => TYPES.slice().reverse(), next: "Empezar la parte 2"
+  }
+};
+function showTheory(st, head) {
+  const T = THEORY[st.theory];
+  stopTimer(); $("timer").classList.add("off");
+  $("stepBadge").textContent = T.badge;
+  chefFace("happy", "bounce"); say(T.say);
+  $("prompt").innerHTML = T.title;
+  $("scene").innerHTML = `<div class="theory">${head ? `<div class="debate">${head}</div>` : ""}${T.text}
+    <div class="gcards ${st.theory}">${T.list().map(x => `<div class="gcard" style="--lid:${x.lid}"><b>${x.lbl}</b><span>${x.def}</span><em>${x.ej}</em></div>`).join("")}</div></div>`;
+  $("answers").className = "answers";
+  $("answers").innerHTML = `<div class="actions"><button class="big-btn green" id="btnTheoryNext" type="button">${T.next}</button></div>`;
+  $("btnTheoryNext").onclick = nextStep;
+}
+
+/* Minijuego: adivina el plato */
+const CLUE_SECS = 15, CLUE_PTS = [150, 100, 50];
+function startGame() { S.g = { i: 0 }; dish(); }
+function dish() {
+  const d = S.dishes[S.g.i];
+  S.g.clue = 0; S.g.done = false;
+  $("stepBadge").textContent = "Minijuego · Adivina el plato";
+  chefFace("wow"); say("¿Qué estoy cocinando? ¡Gritadlo!");
+  $("prompt").innerHTML = `¿Qué plato es? ¡Decidlo en voz alta!<small>Plato ${S.g.i + 1} de ${S.dishes.length} · Sin tocar la pantalla: quien presenta marca al equipo que acierte primero.</small>`;
+  const ans = $("answers");
+  ans.className = "answers";
+  ans.innerHTML = `<div class="host">${S.teams.map((t, i) =>
+      `<button class="host-btn" type="button" data-t="${i}" style="--tc:${t.col}">${S.teams.length > 1 ? `Acierta ${t.name}` : "¡La clase acierta!"} <small>(${i + 1})</small></button>`).join("")}
+    <button class="host-btn ghost" type="button" id="btnClue">Siguiente pista <small>(P)</small></button>
+    <button class="host-btn ghost" type="button" id="btnNobody">Nadie lo sabe <small>(0)</small></button></div>`;
+  ans.querySelectorAll("[data-t]").forEach(b => b.onclick = () => award(+b.dataset.t));
+  $("btnClue").onclick = nextClue;
+  $("btnNobody").onclick = () => award(null);
+  renderClues();
+  clueTimer();
+}
+function renderClues() {
+  const d = S.dishes[S.g.i];
+  $("scene").innerHTML = `<div class="clues">
+    <span class="worth">Ahora vale ${CLUE_PTS[S.g.clue]} puntos</span>
+    ${d.clues.map((c, i) => i <= S.g.clue
+      ? `<div class="clue"><span class="emo" aria-hidden="true">${c[0]}</span><span>${c[1]}</span></div>`
+      : `<div class="clue locked"><span class="emo" aria-hidden="true">?</span><span>Pista ${i + 1}</span></div>`).join("")}</div>`;
+  $("btnClue").disabled = S.g.clue >= d.clues.length - 1;
+}
+function clueTimer() {
+  const el = $("timer"), bar = el.querySelector("i");
+  stopTimer(); el.classList.remove("off", "low");
+  const end = performance.now() + CLUE_SECS * 1000;
+  S.timer = setInterval(() => {
+    const left = end - performance.now();
+    bar.style.width = Math.max(0, left / (CLUE_SECS * 1000) * 100) + "%";
+    el.classList.toggle("low", left < 5000);
+    if (left <= 0) {
+      stopTimer();
+      if (S.g.clue < S.dishes[S.g.i].clues.length - 1) nextClue(); else award(null);
+    }
+  }, 100);
+}
+function nextClue() {
+  if (S.g.done || S.g.clue >= S.dishes[S.g.i].clues.length - 1) return;
+  S.g.clue++; sfx.tick(); tone(700, .1, "triangle", .08);
+  say(pick(["¡Otra pista!", "¡Venga, que es fácil!", "¿Nadie? ¡Mirad bien!"]));
+  renderClues(); clueTimer();
+}
+function award(idx) {
+  if (S.g.done) return;
+  S.g.done = true; stopTimer();
+  const d = S.dishes[S.g.i];
+  const pts = idx === null ? 0 : CLUE_PTS[S.g.clue];
+  if (idx !== null) { S.teams[idx].score += pts; sfx.fanfare(); chefFace("happy", "bounce"); say("¡Exacto!"); }
+  else { sfx.ko(); chefFace("sad", "shake"); say("¡Era fácil!"); }
+  renderScores();
+  const last = S.g.i >= S.dishes.length - 1;
+  openCard(`<h2 class="${idx === null ? "ko" : "ok"}">${d.emo} ${d.name}</h2>
+    <p class="points">${idx === null ? "Nadie se lleva los puntos" : `${S.teams[idx].name}: +${pts} puntos`}</p>`,
+    () => { if (last) nextStep(); else { S.g.i++; dish(); } }, last ? "Seguir con la teoría" : "Siguiente plato");
+}
+
+/* Cronómetro del taller */
+const clock = { left: 0, running: false, last: 0, warned: false, iv: null };
+function fmt(s) { s = Math.max(0, Math.ceil(s)); return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0"); }
+function paintClock() {
+  const b = $("btnClock");
+  b.hidden = false;
+  b.textContent = (clock.left <= 0 ? "¡Tiempo! " : "") + "⏱ " + fmt(clock.left) + (clock.running ? "" : " (pausa)");
+  b.classList.toggle("low", clock.left > 0 && clock.left < 300);
+  b.classList.toggle("over", clock.left <= 0);
+}
+function startClock() {
+  clock.left = cfg.clock * 60; clock.running = true; clock.warned = false; clock.last = performance.now();
+  clearInterval(clock.iv);
+  clock.iv = setInterval(() => {
+    const now = performance.now();
+    if (clock.running) clock.left -= (now - clock.last) / 1000;
+    clock.last = now;
+    if (clock.left <= 0 && !clock.warned) { clock.warned = true; tone(880, .3, "square", .08); tone(660, .4, "square", .08, .3); }
+    paintClock();
+  }, 250);
+  paintClock();
+}
+$("btnClock").onclick = () => { clock.running = !clock.running; clock.last = performance.now(); paintClock(); };
+
+function sceneFor(st, q) {
+  const item = `<div class="item pop" id="item"><span class="emo" aria-hidden="true">${q.emo}</span><span class="txt">${q.t}</span></div>`;
+  if (st.scene === "board") {
+    return `<div class="board">${item}<svg class="knife" id="knife" viewBox="0 0 80 160" aria-hidden="true"><path d="M30 4 Q62 20 58 110 L30 110 Z" fill="#E8EEF2" stroke="#3A2216" stroke-width="4" stroke-linejoin="round"/><rect x="28" y="108" width="26" height="48" rx="8" fill="#3A2216"/><circle cx="41" cy="122" r="3" fill="#F7B928"/><circle cx="41" cy="140" r="3" fill="#F7B928"/></svg></div>`;
+  }
+  if (st.scene === "pan") {
+    return `<div class="pan-wrap" id="panWrap"><div class="steam"><span></span><span></span><span></span></div><div class="pan">${item}</div><div class="handle"></div></div>`;
+  }
+  return item;
+}
+
+function ask() {
+  const st = STEPS[S.stepIdx];
+  const q = st.qs[S.qIdx];
+  S.locked = false;
+  $("prompt").innerHTML = `${st.prompt}<small>Situación ${S.qIdx + 1} de ${st.qs.length} · ${st.sub}</small>`;
+  $("scene").innerHTML = sceneFor(st, q);
+  const ans = $("answers");
+  ans.className = "answers " + (st.scene === "board" ? "needs" : "types");
+    ans.innerHTML = st.opts.map((o, i) =>
+      `<button class="jar" type="button" data-id="${o.id}" style="--lid:${o.lid}"><span class="k">${i + 1}</span><span class="lbl">${o.lbl}</span><span class="hint">${o.hint}</span></button>`).join("");
+    ans.querySelectorAll(".jar").forEach(b => b.onclick = () => answer(b.dataset.id));
+  chefFace("neutral");
+  say(pick(["¿Qué opináis?", "¡Pensadlo bien!", "Mmm… ¿dónde va esto?", "¡Consultad en equipo!"]));
+  startTimer();
+}
+
+/* Timer */
+function startTimer() {
+  const el = $("timer");
+  clearInterval(S.timer); S.timer = null; S.paused = false;
+  if (!cfg.time) { el.classList.add("off"); return; }
+  el.classList.remove("off", "low");
+  S.remain = cfg.time * 1000;
+  runTimer();
+}
+function runTimer() {
+  const el = $("timer"), bar = el.querySelector("i");
+  S.deadline = performance.now() + S.remain;
+  let lastSec = Math.ceil(S.remain / 1000);
+  S.timer = setInterval(() => {
+    const left = S.deadline - performance.now();
+    S.remain = left;
+    bar.style.width = Math.max(0, left / (cfg.time * 1000) * 100) + "%";
+    el.classList.toggle("low", left < 5000);
+    const sec = Math.ceil(left / 1000);
+    if (left < 5000 && sec !== lastSec && sec > 0) sfx.tick();
+    lastSec = sec;
+    if (left <= 0) { stopTimer(); answer(null); }
+  }, 100);
+}
+function stopTimer() { clearInterval(S.timer); S.timer = null; }
+function pauseTimer() { if (S.timer) { stopTimer(); S.paused = true; } }
+function resumeTimer() { if (S.paused && !S.locked) { S.paused = false; runTimer(); } }
+
+function answer(id) {
+  if (S.locked) return;
+  S.locked = true;
+  const secsLeft = S.timer ? Math.max(0, S.remain / 1000) : 0;
+  stopTimer();
+  const st = STEPS[S.stepIdx], q = st.qs[S.qIdx];
+  const ok = id === q.a;
+  const team = S.teams[S.turn];
+  const pts = ok ? 100 + Math.round(secsLeft * 5) : 0;
+  if (ok) { team.score += pts; S.stats[st.key].ok++; }
+
+  document.querySelectorAll("#answers .jar").forEach(b => {
+    b.disabled = true;
+    if (b.dataset.id === q.a) b.classList.add("right");
+    else if (b.dataset.id === id) b.classList.add("wrong");
+  });
+
+  const item = $("item");
+  if (ok) {
+    if (st.scene === "board") { $("knife").classList.add("chop"); item.classList.add("sliced"); sfx.chop(); setTimeout(sfx.ok, 350); }
+    else if (st.scene === "pan") { item.classList.add("flip"); $("panWrap").classList.add("sizzle"); sfx.ok(); }
+    chefFace("happy", "bounce");
+    say(pick(["¡Perfecto!", "¡Qué rico!", "¡Así se hace!", "¡Mejor que yo!"]));
+  } else {
+    sfx.ko();
+    chefFace("sad", "shake");
+    say("¡No pasa nada! Mamá Max lo arregla.");
+  }
+  const right = st.opts.find(o => o.id === q.a);
+  const chosen = st.opts.find(o => o.id === id);
+  setTimeout(() => {
+    openCard(`
+      <h2 class="${ok ? "ok" : "ko"}">${ok ? pick(["¡Perfecto!", "¡Delicioso!", "¡Al punto!"]) : id === null ? "¡Se acabó el tiempo!" : "¡Uy, se quemó!"}</h2>
+      ${S.teams.length > 1 ? `<p class="points">${team.name}: ${ok ? "+" + pts : "+0"} puntos</p>` : ok ? `<p class="points">+${pts} puntos</p>` : ""}
+      <p class="answer-line">${q.emo} ${q.t} → <span style="color:var(--mint)">${right.lbl}</span>${!ok && chosen ? ` <span style="color:var(--tomato)">(no ${chosen.lbl})</span>` : ""}</p>
+      <p>${q.e}</p>
+      ${q.d ? `<div class="debate"><b>Para debatir</b>${q.d}</div>` : ""}`,
+      () => {
+        nextTurn();
+        S.qIdx++;
+        if (S.qIdx >= st.qs.length) nextStep(); else ask();
+      });
+  }, ok ? 800 : 650);
+}
+
+/* Final */
+function finish() {
+  stopTimer();
+  const scored = STEPS.filter(s => s.opts);
+  const ok = scored.reduce((a, s) => a + S.stats[s.key].ok, 0);
+  const total = scored.reduce((a, s) => a + S.stats[s.key].total, 0);
+  const p = ok / total;
+  const medal = p >= .9 ? { t: "¡Mejor que Mamá Max!", m: "ORO", c: "#F7B928" } : p >= .65 ? { t: "¡Muy rico!", m: "PLATA", c: "#D9DEE4" } : { t: "¡Sigue practicando!", m: "BRONCE", c: "#D99A5B" };
+  sfx.fanfare(); chefFace(p >= .65 ? "happy" : "wow", "bounce"); say(medal.t);
+  const rank = S.teams.slice().sort((a, b) => b.score - a.score);
+  openCard(`
+    <div class="medal" style="--mcol:${medal.c}">${medal.m}</div>
+    <h2 style="text-align:center">${medal.t}</h2>
+    <p style="text-align:center" class="answer-line">La clase acertó ${ok} de ${total} situaciones.</p>
+    <div class="step-stars">${scored.map(s => `<div><span>${s.label} · ${s.name}</span>${starsHTML(starsFor(s.key))}</div>`).join("")}</div>
+    ${S.teams.length > 1 ? `<ol class="rank">${rank.map((t, i) => `<li><span>${i + 1}.</span><span style="display:flex;gap:8px;align-items:center"><span class="dot" style="width:14px;height:14px;border-radius:50%;border:2px solid var(--cocoa);background:${t.col}"></span>${t.name}</span><span>${t.score}</span></li>`).join("")}</ol>` : `<p class="points" style="text-align:center">${S.teams[0].score} puntos</p>`}
+    <div class="debate"><b>Cierre del taller</b>Pastillas para no engordar, carne con oro, dulces virales… ¿Por qué creéis que en la gastronomía abundan tanto los pseudo-satisfactores y los destructores? ¿Qué papel tienen la publicidad y las redes sociales?</div>`,
+    () => { show("scrIntro"); chefFace("happy"); }, "Volver al menú");
+}
+
+/* Teclado */
+document.addEventListener("keydown", e => {
+  if (!$("overlay").hidden) {
+    if (e.key === "Enter" && $("cardNext") && document.activeElement !== $("cardNext")) { e.preventDefault(); $("cardNext").click(); }
+    return;
+  }
+  if ($("scrPlay").hidden || !S || S.locked) return;
+  const st = STEPS[S.stepIdx];
+  if (!st) return;
+  const n = parseInt(e.key, 10);
+  if (st.theory) { if (e.key === "Enter") { e.preventDefault(); nextStep(); } return; }
+  if (st.game) {
+    if (!S.g || S.g.done) return;
+    if (n >= 1 && n <= S.teams.length) award(n - 1);
+    else if (e.key === "0") award(null);
+    else if (e.key === "p" || e.key === "P" || e.key === "ArrowRight") nextClue();
+    return;
+  }
+  if (n >= 1 && n <= st.opts.length) answer(st.opts[n - 1].id);
+});
+})();
+</script>
+
+</body>
+</html>
