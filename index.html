@@ -2,994 +2,881 @@
 <html lang="es">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Cocina con Mamá Max</title>
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="The grocery report: análisis de 26 semanas de tickets del súper de una familia, del registro con IA al market basket en Graphext. Proyecto de Rocío García.">
+<script>
+/* Google Analytics 4: un solo ID para todo el proyecto.
+   Cambia solo esta línea por tu ID de medición. */
+window.GA_ID='G-XXXXXXXXXX';
+
+window.dataLayer=window.dataLayer||[];
+function gtag(){dataLayer.push(arguments);}
+(function(){
+  var on=/^G-[A-Z0-9]+$/.test(window.GA_ID)&&window.GA_ID!=='G-XXXXXXXXXX', last=null;
+  if(on){
+    var s=document.createElement('script');s.async=true;
+    s.src='https://www.googletagmanager.com/gtag/js?id='+window.GA_ID;document.head.appendChild(s);
+    gtag('js',new Date());
+    gtag('config',window.GA_ID,{send_page_view:false});
+  }
+  function send(){if(on) gtag.apply(null,arguments);}
+  /* una "página" por pestaña, p. ej. /grocery-report/market-basket */
+  window.rgTrack=function(key,name){
+    if(key===last) return; last=key;
+    var path=location.pathname.replace(/\/(index\.html)?$/,'')+'/'+key;
+    send('event','page_view',{page_title:'the grocery report · '+name,page_location:location.origin+path+location.search,page_path:path});
+  };
+  window.rgEvent=function(name,params){send('event',name,params||{});};
+})();
+</script>
+<title>the grocery report</title>
+<meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;700;800&family=Nunito:wght@500;700;800&display=swap">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Roboto+Mono:wght@400;600&family=IBM+Plex+Mono:wght@600&display=swap">
 <style>
-/* Layout: a gingham tablecloth with one chunky, outlined game console card on top; chef on the left, cooking station on the right. Single committed "kitchen arcade" look. */
-:root {
-  --tomato: #E5432A;
-  --tomato-dark: #B22E19;
-  --mustard: #F7B928;
-  --mint: #2FA97F;
-  --sky: #3E9BD6;
-  --cocoa: #3A2216;
-  --butter: #FFF4D2;
-  --paper: #FFFFFF;
-  --wood: #D99A5B;
-  --wood-dark: #B5733A;
-  --steel: #2E2E36;
-  --muted: #7A5A47;
-  --display: "Baloo 2", "Arial Rounded MT Bold", "Trebuchet MS", system-ui, sans-serif;
-  --body: "Nunito", "Segoe UI", system-ui, sans-serif;
-  --border: 4px solid var(--cocoa);
-  --pop: 0 6px 0 var(--cocoa);
-  color-scheme: light;
+/* Layout: un único ticket térmico largo sobre la mesa de caja; secciones = departamentos del ticket */
+:root{
+  --counter:#d9dad6;      /* mesa de la caja */
+  --counter-dot:#cfd0cb;
+  --paper:#efeeeb;        /* papel térmico */
+  --brand:#3b82f6;        /* solo para la R del logo */
+  --paper-shade:#ecebe6;
+  --paper-edge:#f3f2ee;
+  --ink:#1f1f1d;          /* tinta térmica */
+  --ink-soft:#5d5d58;
+  --ink-faint:#a2a29b;
+  --rule:#b4b4ad;
+  --f-head:"Merriweather",Georgia,serif;
+  --f-body:"Roboto Mono","Courier New",monospace;
+  --f-label:"IBM Plex Mono","Courier New",monospace;
 }
-* { box-sizing: border-box; }
-[hidden] { display: none !important; }
-html, body { min-height: 100%; }
-body {
-  margin: 0;
-  font-family: var(--body);
-  color: var(--cocoa);
-  background-color: #FFFDF8;
-  background-image:
-    linear-gradient(90deg, rgba(229,67,42,.22) 50%, transparent 50%),
-    linear-gradient(rgba(229,67,42,.22) 50%, transparent 50%);
-  background-size: 48px 48px;
-  padding-left: max(16px, env(safe-area-inset-left, 0px));
-  padding-right: max(16px, env(safe-area-inset-right, 0px));
-  padding-block: 20px 40px;
-  font-size: 16px;
-}
-button { font-family: inherit; color: inherit; cursor: pointer; }
-button:focus-visible, input:focus-visible { outline: 4px solid var(--sky); outline-offset: 3px; }
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--counter:#232422;--counter-dot:#2b2c2a;color-scheme:dark}}
+:root[data-theme="dark"]{--counter:#232422;--counter-dot:#2b2c2a;color-scheme:dark}
 
-.console {
-  max-width: 1120px;
-  margin: 0 auto;
-  background: var(--butter);
-  border: var(--border);
-  border-radius: 28px;
-  box-shadow: 0 10px 0 var(--cocoa);
-  overflow: hidden;
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+body{
+  background:var(--counter);
+  background-image:radial-gradient(var(--counter-dot) 1px,transparent 1.2px);
+  background-size:6px 6px;
+  color:var(--ink);
+  font-family:var(--f-body);
+  font-size:15px;line-height:1.6;
+  padding-block:48px 72px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));
+  padding-right:max(16px,env(safe-area-inset-right,0px));
 }
-.marquee {
-  background: var(--tomato);
-  color: var(--paper);
-  border-bottom: var(--border);
-  padding: 10px 20px;
-  display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap;
+.roll{max-width:1000px;margin:0 auto;filter:drop-shadow(0 1px 0 rgba(0,0,0,.06)) drop-shadow(0 10px 18px rgba(0,0,0,.12))}
+.receipt{
+  position:relative;background:var(--paper);
+  padding:56px clamp(20px,6vw,48px) 60px;
+  --tooth:7px;
+  -webkit-mask:linear-gradient(#000 0 0) 0 var(--tooth)/100% calc(100% - 2*var(--tooth)) no-repeat,
+               conic-gradient(from 135deg at 50% 0,#000 90deg,#0000 0) 0 0/calc(2*var(--tooth)) var(--tooth) repeat-x,
+               conic-gradient(from -45deg at 50% 100%,#000 90deg,#0000 0) 0 100%/calc(2*var(--tooth)) var(--tooth) repeat-x;
+          mask:linear-gradient(#000 0 0) 0 var(--tooth)/100% calc(100% - 2*var(--tooth)) no-repeat,
+               conic-gradient(from 135deg at 50% 0,#000 90deg,#0000 0) 0 0/calc(2*var(--tooth)) var(--tooth) repeat-x,
+               conic-gradient(from -45deg at 50% 100%,#000 90deg,#0000 0) 0 100%/calc(2*var(--tooth)) var(--tooth) repeat-x;
 }
-.marquee h1 {
-  margin: 0;
-  font-family: var(--display); font-weight: 800;
-  font-size: clamp(1.5rem, 3.4vw, 2.2rem); line-height: 1;
-  letter-spacing: .01em;
-  text-shadow: 3px 3px 0 var(--cocoa);
-}
-.marquee .tools { display: flex; gap: 8px; }
-.chip-btn {
-  background: var(--paper); border: 3px solid var(--cocoa); border-radius: 999px;
-  padding: 4px 14px; font-weight: 800; font-size: .9rem; box-shadow: 0 3px 0 var(--cocoa); color: var(--cocoa);
-}
-.chip-btn:active { transform: translateY(3px); box-shadow: none; }
+.receipt::before,.receipt::after{content:"";position:absolute;left:14px;right:14px;border-top:3px dotted var(--ink-faint)}
+.receipt::before{top:20px}
+.receipt::after{bottom:20px}
 
-.screen { padding: 24px; }
-.big-btn {
-  font-family: var(--display); font-weight: 800; font-size: 1.4rem;
-  background: var(--mustard); border: var(--border); border-radius: 18px;
-  padding: 10px 28px; box-shadow: var(--pop); transition: transform .08s;
-}
-.big-btn:hover { transform: translateY(-2px); }
-.big-btn:active { transform: translateY(6px); box-shadow: none; }
-.big-btn.green { background: var(--mint); color: var(--paper); text-shadow: 2px 2px 0 var(--cocoa); }
-.big-btn.red { background: var(--tomato); color: var(--paper); text-shadow: 2px 2px 0 var(--cocoa); }
+/* tipografía */
+h1,h2,h3{font-family:var(--f-head);font-weight:700;text-wrap:balance;margin:0;color:var(--ink)}
+h1{font-size:clamp(38px,10vw,58px);line-height:1;letter-spacing:-.02em}
+h2{font-family:var(--f-label);font-weight:600;font-size:14px;letter-spacing:.12em;text-transform:uppercase;line-height:1.4;padding:7px 0;border-top:3px dotted var(--ink);border-bottom:3px dotted var(--ink)}
+h3{font-family:var(--f-label);font-weight:600;font-size:13px;letter-spacing:.1em;text-transform:uppercase;line-height:1.4;margin-top:8px}
+p{margin:0}
+.lbl{font-family:var(--f-label);font-weight:600;font-size:12px;letter-spacing:.2em;text-transform:uppercase;color:var(--ink-soft)}
+.c{text-align:center}
+.soft{color:var(--ink-soft)}
+.num{font-family:var(--f-label);font-weight:600;font-variant-numeric:tabular-nums}
 
-/* ---------- Intro ---------- */
-.intro { display: grid; grid-template-columns: 220px minmax(0,1fr); gap: 28px; align-items: start; }
-.intro h2 { font-family: var(--display); font-size: clamp(1.6rem, 3vw, 2.3rem); margin: 0 0 6px; line-height: 1.1; text-wrap: balance; }
-.intro p { margin: 0 0 14px; max-width: 62ch; line-height: 1.5; }
-.recipe-card {
-  background: var(--paper); border: var(--border); border-radius: 18px; padding: 16px 18px;
-  display: grid; gap: 10px; margin-block: 14px;
-}
-.recipe-card h3 { margin: 0; font-family: var(--display); font-size: 1.15rem; text-transform: uppercase; letter-spacing: .06em; color: var(--tomato-dark); }
-.steps-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-.steps-list li { display: grid; grid-template-columns: 34px minmax(0,1fr); gap: 10px; align-items: center; }
-.steps-list b.n { width: 34px; height: 34px; border-radius: 50%; background: var(--mustard); border: 3px solid var(--cocoa); display: grid; place-items: center; font-family: var(--display); }
-.setup { display: grid; gap: 14px; margin-block: 16px 20px; }
-.field-label { font-weight: 800; font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--muted); margin-bottom: 6px; display: block; }
-.seg { display: flex; flex-wrap: wrap; gap: 8px; }
-.seg button {
-  background: var(--paper); border: 3px solid var(--cocoa); border-radius: 12px; padding: 6px 14px;
-  font-weight: 800; box-shadow: 0 3px 0 var(--cocoa);
-}
-.seg button[aria-pressed="true"] { background: var(--cocoa); color: var(--butter); }
-.team-names { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
-.team-names input {
-  width: 100%; font: 700 1rem var(--body); color: var(--cocoa); background: var(--paper);
-  border: 3px solid var(--cocoa); border-radius: 12px; padding: 8px 10px; border-left-width: 12px;
-}
-.actions { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.stack{display:flex;flex-direction:column;gap:14px}
+section{display:flex;flex-direction:column;gap:16px;padding-block:28px}
+.cut{border:0;border-top:3px dotted var(--ink);margin:0}
+.dots{border:0;border-top:3px dotted var(--ink-faint);margin:4px 0}
 
-/* ---------- Chef ---------- */
-.chef-col { display: grid; gap: 10px; justify-items: center; align-content: start; }
-.chef { width: 190px; max-width: 100%; height: auto; }
-.chef.bounce { animation: bounce .5s; }
-.chef.shake { animation: shake .45s; }
-.bubble {
-  position: relative; background: var(--paper); border: var(--border); border-radius: 18px;
-  padding: 10px 14px; font-family: var(--display); font-weight: 700; font-size: 1.1rem; line-height: 1.2;
-  text-align: center; width: 100%;
-}
-.bubble::before {
-  content: ""; position: absolute; top: -14px; left: 50%; margin-left: -12px;
-  border: 12px solid transparent; border-top: 0; border-bottom: 14px solid var(--cocoa);
-}
-@keyframes bounce { 0%,100%{transform:translateY(0)} 30%{transform:translateY(-16px)} 60%{transform:translateY(0)} 80%{transform:translateY(-6px)} }
-@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-10px) rotate(-4deg)} 40%{transform:translateX(10px) rotate(4deg)} 60%{transform:translateX(-6px)} 80%{transform:translateX(6px)} }
+/* cabecera */
+.head{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;padding-bottom:24px}
+.logo{font-family:var(--f-label);font-weight:600;font-size:30px;line-height:1;letter-spacing:-.02em;color:var(--ink)}
+.logo .r{color:var(--brand)}
+.logo .d{margin-left:-.3em}
+.meta{display:grid;grid-template-columns:1fr auto;gap:2px 16px;font-size:12.5px;width:100%;text-align:left;text-transform:uppercase}
+.meta span:nth-child(even){text-align:right;font-family:var(--f-label);font-weight:600}
 
-/* ---------- Play HUD ---------- */
-.hud {
-  display: grid; grid-template-columns: auto minmax(0,1fr) auto; gap: 14px; align-items: center;
-  padding: 12px 20px; border-bottom: var(--border); background: var(--paper);
-}
-.step-badge { font-family: var(--display); font-weight: 800; font-size: 1.05rem; background: var(--cocoa); color: var(--butter); border-radius: 12px; padding: 4px 12px; white-space: nowrap; }
-.timer { height: 22px; border: 3px solid var(--cocoa); border-radius: 999px; background: var(--butter); overflow: hidden; }
-.timer i { display: block; height: 100%; width: 100%; background: var(--mint); transition: width .1s linear, background .3s; }
-.timer.low i { background: var(--tomato); }
-.timer.off { visibility: hidden; }
-.scores { display: flex; gap: 6px; flex-wrap: wrap; justify-content: flex-end; }
-.score-pill {
-  border: 3px solid var(--cocoa); border-radius: 999px; padding: 2px 10px; font-weight: 800; font-size: .9rem;
-  background: var(--paper); font-variant-numeric: tabular-nums; display: flex; gap: 6px; align-items: center;
-}
-.score-pill .dot { width: 12px; height: 12px; border-radius: 50%; border: 2px solid var(--cocoa); }
-.score-pill.turn { background: var(--mustard); transform: scale(1.08); }
+/* departamento */
+.dept{display:flex;align-items:center;gap:10px;font-family:var(--f-label);font-weight:600;font-size:12px;letter-spacing:.2em;text-transform:uppercase}
+.dept::before,.dept::after{content:"";flex:1;border-top:1px solid var(--ink)}
+.dept b{font-weight:600}
 
-.play { display: grid; grid-template-columns: 220px minmax(0,1fr); gap: 24px; padding: 20px 24px 26px; }
-.station { display: grid; gap: 16px; min-width: 0; }
-.prompt { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(1.25rem, 2.6vw, 1.7rem); line-height: 1.15; text-wrap: balance; }
-.prompt small { display: block; font-family: var(--body); font-size: .95rem; font-weight: 700; color: var(--muted); }
-.turn-line { font-weight: 800; color: var(--tomato-dark); text-transform: uppercase; letter-spacing: .06em; font-size: .85rem; }
+/* líneas de ticket */
+.lines{display:flex;flex-direction:column;gap:6px;font-size:14px}
+.li{display:flex;align-items:baseline;gap:8px}
+.li .n{min-width:0}
+.li .lead{flex:1;border-bottom:1px dotted var(--ink-faint);transform:translateY(-4px);min-width:16px}
+.li .v{font-family:var(--f-label);font-weight:600;white-space:nowrap;font-variant-numeric:tabular-nums}
+.li.sub{padding-left:16px;color:var(--ink-soft);font-size:13px}
+.li.void .n{text-decoration:line-through;color:var(--ink-faint)}
+.total{font-size:17px;font-family:var(--f-label);font-weight:600;display:flex;justify-content:space-between;gap:12px;border-top:3px dotted var(--ink);border-bottom:3px dotted var(--ink);padding:8px 0;text-transform:uppercase}
+.bar{display:grid;grid-template-columns:minmax(0,9.5em) 1fr 3.4em;gap:10px;align-items:center;font-size:13px}
+.bar .t{height:10px;background:repeating-linear-gradient(90deg,var(--ink) 0 3px,transparent 3px 4px)}
+.bar .v{text-align:right;font-family:var(--f-label);font-weight:600}
+.qs{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:8px}
+.qs li{display:grid;grid-template-columns:2.2em 1fr;gap:6px}
+.qs li::before{content:attr(data-q);font-family:var(--f-label);font-weight:600}
+ul.plain{margin:0;padding-left:1.2em;display:flex;flex-direction:column;gap:8px}
+ul.plain li::marker{content:"* "}
 
-/* Ingredient card */
-.item {
-  background: var(--paper); border: var(--border); border-radius: 18px; box-shadow: var(--pop);
-  padding: 12px 18px; display: grid; grid-template-columns: auto minmax(0,1fr); gap: 14px; align-items: center;
-  max-width: 520px; position: relative; z-index: 2;
-}
-.item .emo { font-size: 3.2rem; line-height: 1; }
-.item .txt { font-family: var(--display); font-weight: 700; font-size: clamp(1.1rem, 2.2vw, 1.4rem); line-height: 1.2; }
-.item.pop { animation: pop .4s; }
-@keyframes pop { 0%{transform:scale(.6);opacity:.2} 70%{transform:scale(1.06)} 100%{transform:scale(1);opacity:1} }
+.box{border:1.5px dashed var(--ink);padding:16px 18px;font-size:12.5px;line-height:1.55;display:flex;flex-direction:column;gap:10px;background:var(--paper)}
+.box .lbl{color:var(--ink)}
+.dict{display:flex;flex-direction:column;gap:10px;font-size:13.5px}
+.dict div{display:grid;grid-template-columns:9.5em 1fr;gap:10px}
+.dict dt{font-family:var(--f-label);font-weight:600;text-transform:uppercase;font-size:12.5px}
+.dict dd{margin:0;color:var(--ink-soft)}
+.kv{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--ink);border:1px solid var(--ink)}
+.kv div{background:var(--paper);padding:10px 8px;text-align:center;display:flex;flex-direction:column;gap:2px}
+.kv b{font-family:var(--f-label);font-weight:600;font-size:20px;font-variant-numeric:tabular-nums}
+.kv span{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-soft)}
+.rule{font-size:13px;display:flex;flex-direction:column;gap:2px}
+.rule .r{font-family:var(--f-label);font-weight:600}
+.rule .s{color:var(--ink-soft)}
+.sheet{display:flex;flex-direction:column;gap:6px}
+.sheet .lbl{color:var(--ink)}
+.sheet p{font-size:13.5px;color:var(--ink-soft)}
+.note{font-size:12.5px;color:var(--ink-soft);text-align:center}
 
-/* Scene: cutting board */
-.scene { position: relative; display: grid; place-items: center; min-height: 200px; }
-.board {
-  width: min(100%, 600px); min-height: 190px; border-radius: 26px; border: var(--border);
-  background:
-    repeating-linear-gradient(90deg, transparent 0 38px, rgba(0,0,0,.05) 38px 41px),
-    linear-gradient(var(--wood), var(--wood));
-  box-shadow: inset 0 -10px 0 var(--wood-dark), var(--pop);
-  display: grid; place-items: center; padding: 22px 70px 30px 22px; position: relative;
-}
-.board::after { content: ""; position: absolute; right: 18px; top: 18px; width: 22px; height: 22px; border-radius: 50%; background: var(--wood-dark); border: 3px solid var(--cocoa); }
-.knife { position: absolute; right: 14px; top: -38px; width: 70px; z-index: 3; transform-origin: 80% 10%; }
-.knife.chop { animation: chop .55s; }
-@keyframes chop { 0%,100%{transform:translate(0,0) rotate(0)} 25%{transform:translate(-160px,70px) rotate(-8deg)} 40%{transform:translate(-150px,40px)} 55%{transform:translate(-120px,70px) rotate(-8deg)} 70%{transform:translate(-110px,40px)} }
-.item.sliced { animation: sliced .55s; }
-@keyframes sliced { 0%,100%{clip-path: inset(0)} 30%{clip-path: polygon(0 0,48% 0,44% 100%,0 100%,0 0,52% 0,100% 0,100% 100%,56% 100%)} }
 
-/* Scene: pan */
-.pan-wrap { position: relative; width: min(100%, 520px); display: grid; place-items: center; padding-block: 10px 6px; }
-.pan {
-  width: min(100%, 360px); aspect-ratio: 1; max-width: 100%; border-radius: 50%;
-  background: radial-gradient(circle at 45% 40%, #55555F 0 40%, var(--steel) 70%);
-  border: 8px solid var(--cocoa); box-shadow: var(--pop), inset 0 0 0 10px #44444C;
-  display: grid; place-items: center; padding: 34px; position: relative; z-index: 1;
+/* superficie ancha: dos columnas en pantallas grandes */
+.cols{display:grid;grid-template-columns:minmax(0,1fr);gap:16px;margin-top:28px}
+.col{display:flex;flex-direction:column;gap:16px;min-width:0}
+.col > h3,.col > :first-child{margin-top:0}
+.col > h3:not(:first-child){margin-top:28px}
+.mb-pair{display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+.head .meta{max-width:560px}
+@media (min-width:820px){
+  .receipt{padding-inline:56px}
+  .cols{grid-template-columns:repeat(2,minmax(0,1fr));gap:16px 48px}
+  .col > h3:not(:first-child){margin-top:20px}
+  .mb-pair{grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:24px;align-items:start}
+  .kv{grid-template-columns:repeat(6,1fr)}
+  .dict{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px 40px}
+  .box{display:block;columns:2;column-gap:36px}
+  .box > *{break-inside:avoid;margin-bottom:10px}
+  .box .lbl{display:block;column-span:all;margin-bottom:12px}
+  section > p,.more-wrap > p,.mb > p{max-width:76ch}
+  .rc{flex-basis:88%}
 }
-.pan .item { box-shadow: none; max-width: 100%; grid-template-columns: 1fr; text-align: center; justify-items: center; }
-.pan .item .emo { font-size: 2.6rem; }
-.pan .item .txt { font-size: clamp(1rem, 2vw, 1.2rem); }
-.handle { position: absolute; right: -4%; top: 50%; width: 34%; height: 34px; margin-top: -17px; background: var(--cocoa); border-radius: 0 18px 18px 0; z-index: 0; }
-.steam { position: absolute; top: -10px; left: 50%; display: flex; gap: 22px; transform: translateX(-50%); pointer-events: none; z-index: 3; }
-.steam span { width: 10px; height: 36px; border-radius: 10px; background: rgba(255,255,255,.9); border: 2px solid var(--cocoa); opacity: 0; }
-.sizzle .steam span { animation: steam .9s ease-out; }
-.sizzle .steam span:nth-child(2) { animation-delay: .12s; }
-.sizzle .steam span:nth-child(3) { animation-delay: .24s; }
-@keyframes steam { 0%{opacity:0;transform:translateY(20px)} 40%{opacity:1} 100%{opacity:0;transform:translateY(-40px)} }
-.item.flip { animation: flip .7s; }
-@keyframes flip { 0%{transform:translateY(0) rotateX(0)} 50%{transform:translateY(-110px) rotateX(180deg)} 100%{transform:translateY(0) rotateX(360deg)} }
 
-/* Answer buttons */
-.answers { display: grid; gap: 10px; }
-.answers.needs { grid-template-columns: repeat(3, minmax(0,1fr)); }
-.answers.types { grid-template-columns: repeat(5, minmax(0,1fr)); }
-.jar {
-  border: 3px solid var(--cocoa); border-radius: 16px 16px 12px 12px; background: var(--paper);
-  padding: 0 6px 10px; font-weight: 800; font-size: 1rem; box-shadow: 0 4px 0 var(--cocoa);
-  display: grid; gap: 4px; text-align: center; position: relative; min-width: 0;
-}
-.jar::before { content: ""; display: block; height: 12px; margin: 0 -6px 6px; border-bottom: 3px solid var(--cocoa); border-radius: 13px 13px 0 0; background: var(--lid, var(--tomato)); }
-.jar .k { font-size: .7rem; color: var(--muted); font-weight: 800; }
-.jar .lbl { font-family: var(--display); font-size: clamp(.9rem, 1.7vw, 1.1rem); line-height: 1.05; overflow-wrap: anywhere; }
-.jar .hint { font-size: .72rem; font-weight: 700; color: var(--muted); line-height: 1.2; }
-.jar:hover:not(:disabled) { transform: translateY(-3px); }
-.jar:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
-.jar:disabled { cursor: default; opacity: .55; }
-.jar.right { opacity: 1; background: #CFF3E2; outline: 4px solid var(--mint); }
-.jar.wrong { opacity: 1; background: #FFD5CC; outline: 4px solid var(--tomato); }
 
-/* ---------- Overlays ---------- */
-.overlay {
-  position: fixed; inset: 0; z-index: 20; display: grid; place-items: center;
-  background: rgba(58,34,22,.55);
-  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+/* orden: intro a todo el ancho y bloques en rejilla de dos columnas */
+section{gap:36px}
+.grid2{display:grid;grid-template-columns:minmax(0,1fr);gap:36px}
+.blk{display:flex;flex-direction:column;gap:14px;min-width:0}
+.blk > h3,.car-head{margin:0;padding-bottom:8px;border-bottom:1px dotted var(--ink-faint)}
+.car-head h3{margin:0;padding:0;border:0}
+section .mb,section .car,section .blk{margin-top:0}
+.mb > p{max-width:none}
+.intro p,.blk p,.blk ul.plain li,.mb p,.rc p,.qs li,.box p,.dict dd{text-align:justify;-webkit-hyphens:auto;hyphens:auto}
+.defs .li{font-size:13px}
+.defs b{font-family:var(--f-label);font-weight:600}
+@media (min-width:820px){
+  .grid2{grid-template-columns:repeat(2,minmax(0,1fr));gap:40px 48px}
 }
-.card {
-  width: min(100%, 620px); max-height: 100%; overflow: auto; background: var(--butter); border: var(--border);
-  border-radius: 24px; box-shadow: 0 10px 0 var(--cocoa); padding: 22px 24px; display: grid; gap: 12px;
-  animation: pop .35s;
-}
-.card h2 { margin: 0; font-family: var(--display); font-weight: 800; font-size: clamp(1.7rem, 4vw, 2.4rem); line-height: 1.05; text-wrap: balance; }
-.card h2.ok { color: var(--mint); text-shadow: 2px 2px 0 var(--cocoa); }
-.card h2.ko { color: var(--tomato); text-shadow: 2px 2px 0 var(--cocoa); }
-.card p { margin: 0; line-height: 1.5; }
-.answer-line { font-weight: 800; font-size: 1.1rem; }
-.debate { background: var(--paper); border: 3px dashed var(--cocoa); border-radius: 14px; padding: 10px 14px; }
-.debate b { color: var(--tomato-dark); text-transform: uppercase; font-size: .8rem; letter-spacing: .08em; display: block; }
-.points { font-family: var(--display); font-weight: 800; font-size: 1.3rem; }
-.stars { font-size: 2.6rem; letter-spacing: .1em; line-height: 1; color: var(--mustard); -webkit-text-stroke: 2px var(--cocoa); }
-.stars .off { color: #E8DCC0; }
 
-/* Theory + minigame */
-.theory { width: 100%; display: grid; gap: 12px; }
-.theory .gcards.needs { grid-template-columns: repeat(3, minmax(0,1fr)); }
-.theory .gcards.types { grid-template-columns: repeat(5, minmax(0,1fr)); }
-@media (max-width: 800px) { .theory .gcards.needs, .theory .gcards.types { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); } }
-.theory p { margin: 0; line-height: 1.55; max-width: 70ch; font-size: 1.05rem; }
-.clues { width: min(100%, 640px); display: grid; gap: 10px; }
-.worth { justify-self: start; font-family: var(--display); font-weight: 800; background: var(--mustard); border: 3px solid var(--cocoa); border-radius: 999px; padding: 2px 14px; }
-.clue {
-  display: grid; grid-template-columns: 56px minmax(0,1fr); gap: 14px; align-items: center;
-  background: var(--paper); border: var(--border); border-radius: 16px; padding: 10px 16px; box-shadow: 0 4px 0 var(--cocoa);
-  font-family: var(--display); font-weight: 700; font-size: clamp(1.15rem, 2.6vw, 1.6rem); line-height: 1.15; animation: pop .4s;
-}
-.clue .emo { font-size: 2.6rem; line-height: 1; text-align: center; }
-.clue.locked { background: repeating-linear-gradient(45deg, var(--butter) 0 12px, #F6E6B8 12px 24px); color: var(--muted); box-shadow: none; animation: none; }
-.host { display: flex; flex-wrap: wrap; gap: 10px; }
-.host-btn {
-  font-family: var(--display); font-weight: 800; font-size: 1.05rem; border: 3px solid var(--cocoa); border-radius: 14px;
-  padding: 8px 16px; background: var(--tc, var(--paper)); color: var(--paper); text-shadow: 1px 1px 0 var(--cocoa); box-shadow: 0 4px 0 var(--cocoa);
-}
-.host-btn small { font-size: .8rem; opacity: .85; }
-.host-btn.ghost { background: var(--paper); color: var(--cocoa); text-shadow: none; }
-.host-btn:active:not(:disabled) { transform: translateY(4px); box-shadow: none; }
-.host-btn:disabled { opacity: .45; cursor: default; }
-.chip-btn.clock { font-variant-numeric: tabular-nums; }
-.chip-btn.clock.low { background: var(--mustard); }
-.chip-btn.clock.over { background: var(--cocoa); color: var(--butter); animation: shake .5s; }
+.sheetb p{font-size:13.5px}
+.blk p b,.box p b{font-family:var(--f-label);font-weight:600}
+section > .dept{margin-block:4px -8px}
 
-/* Final */
-.medal {
-  width: 130px; height: 130px; border-radius: 50%; border: 6px solid var(--cocoa); display: grid; place-items: center;
-  font-family: var(--display); font-weight: 800; font-size: 1.3rem; text-align: center; line-height: 1; box-shadow: var(--pop);
-  justify-self: center; background: var(--mcol, var(--mustard));
-}
-.rank { list-style: none; margin: 0; padding: 0; display: grid; gap: 8px; }
-.rank li { display: grid; grid-template-columns: 34px minmax(0,1fr) auto; gap: 10px; align-items: center; background: var(--paper); border: 3px solid var(--cocoa); border-radius: 12px; padding: 6px 12px; font-weight: 800; font-variant-numeric: tabular-nums; }
-.step-stars { display: grid; gap: 4px; }
-.step-stars div { display: flex; justify-content: space-between; gap: 10px; font-weight: 800; flex-wrap: wrap; }
-.step-stars .stars { font-size: 1.4rem; }
+.dash-link{display:flex;justify-content:center}
+.sq.dash-btn{display:inline-flex;align-items:center;gap:8px;text-decoration:none;font-size:13px;padding:12px 18px;background:var(--ink);color:var(--paper)}
+.sq.dash-btn:hover{background:var(--paper);color:var(--ink)}
+.sq.dash-btn:focus-visible{outline:2px dashed var(--ink);outline-offset:3px}
 
-/* Guide */
-.guide { display: grid; gap: 18px; }
-.guide h2 { margin: 0; font-family: var(--display); font-size: 1.8rem; }
-.guide h3 { margin: 0 0 8px; font-family: var(--display); font-size: 1.15rem; text-transform: uppercase; letter-spacing: .06em; color: var(--tomato-dark); }
-.gcards { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 10px; }
-.gcard { background: var(--paper); border: 3px solid var(--cocoa); border-radius: 14px; padding: 10px 12px; border-top: 12px solid var(--lid, var(--cocoa)); }
-.gcard b { font-family: var(--display); font-size: 1.1rem; display: block; }
-.gcard span { font-size: .9rem; line-height: 1.35; display: block; }
-.gcard em { font-size: .82rem; color: var(--muted); font-style: normal; font-weight: 700; display: block; margin-top: 4px; }
-.source { font-size: .85rem; color: var(--muted); }
+.notes{border:1.5px dashed var(--ink);padding:14px 18px;display:flex;flex-direction:column;gap:10px;font-size:13px}
+.notes .lbl{color:var(--ink)}
+.notes ul.plain{gap:6px}
+@media (min-width:820px){.notes ul.plain{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 40px}}
 
-@media (max-width: 800px) {
-  .intro, .play { grid-template-columns: minmax(0,1fr); }
-  .chef-col { grid-template-columns: 90px minmax(0,1fr); align-items: center; justify-items: stretch; }
-  .chef { width: 90px; }
-  .bubble { font-size: .95rem; text-align: left; }
-  .bubble::before { top: 50%; left: -14px; margin: -12px 0 0; border: 12px solid transparent; border-left: 0; border-right: 14px solid var(--cocoa); }
-  .answers.types { grid-template-columns: repeat(2, minmax(0,1fr)); }
-  .hud { grid-template-columns: auto minmax(0,1fr); }
-  .scores { grid-column: 1 / -1; justify-content: flex-start; }
-  .screen { padding: 16px; }
-  .play { padding: 16px; }
-  .board { padding: 18px 56px 24px 16px; }
-}
-@media (max-width: 460px) {
-  .item .emo { font-size: 2.4rem; }
-  .jar .hint { display: none; }
-}
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after { animation: none !important; transition: none !important; }
+.rel{display:grid;grid-template-columns:minmax(0,1fr);gap:12px}
+.rc2{border:1.5px solid var(--ink);padding:14px 16px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.rc2-top{display:flex;justify-content:space-between;align-items:baseline;gap:12px}
+.rc2 .pair{font-family:var(--f-label);font-weight:600;font-size:12.5px;letter-spacing:.04em;min-width:0}
+.rc2 .big{font-family:var(--f-label);font-weight:600;font-size:24px;line-height:1;white-space:nowrap}
+.rc2 .big small{font-size:10px;letter-spacing:.15em;margin-left:4px;color:var(--ink-soft)}
+.rc2 p{font-size:13px;color:var(--ink-soft);text-align:left}
+@media (min-width:560px){.rel{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media (min-width:820px){.rel{grid-template-columns:repeat(3,minmax(0,1fr))}}
+
+/* pie */
+.foot{display:flex;flex-direction:column;align-items:center;gap:14px;text-align:center;padding-top:28px}
+.thanks{font-family:var(--f-label);font-weight:600;font-size:15px;letter-spacing:.12em}
+.barcode{display:flex;height:76px;align-items:stretch;gap:0;max-width:100%}
+.barcode i{display:block;background:var(--ink)}
+.barcode i.g{background:transparent}
+.foot a{color:var(--ink);text-underline-offset:3px}
+.foot a:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+
+/* pestañas */
+.tabs{display:flex;flex-wrap:wrap;justify-content:center;gap:3px;padding-block:18px 2px}
+.tabs + .cut{display:none}
+@media (max-width:540px){.tabs{display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.tab{justify-content:center}}
+.tab{display:inline-flex;align-items:baseline;gap:4px;font-family:var(--f-label);font-weight:600;font-size:9.5px;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-soft);background:transparent;border:1px solid var(--rule);padding:4px 6px;white-space:nowrap;cursor:pointer;border-radius:0;transition:border-color .15s,color .15s}
+.tab .tn{font-size:9px;letter-spacing:.1em;color:var(--ink-faint)}
+.tab:hover{color:var(--ink);border-color:var(--ink-soft)}
+.tab[aria-selected="true"]{color:var(--paper);background:var(--ink);border-color:var(--ink)}
+.tab[aria-selected="true"] .tn{color:var(--paper)}
+.tab:focus-visible{outline:2px dashed var(--ink);outline-offset:2px}
+.pager{display:flex;justify-content:space-between;gap:12px;padding-top:8px;border-top:1px dotted var(--ink-faint)}
+.pager{border-top:0;padding-top:16px;flex-wrap:wrap}
+.pager button,.sq{font-family:var(--f-label);font-weight:600;font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;background:var(--paper);border:1.5px solid var(--ink);color:var(--ink);cursor:pointer;padding:9px 12px;border-radius:0}
+.pager button:hover,.sq:hover{background:var(--ink);color:var(--paper)}
+.sq:focus-visible{outline:2px dashed var(--ink);outline-offset:2px}
+.more-wrap{display:flex;flex-direction:column;gap:16px}
+.more-btn{align-self:center;margin-top:8px}
+
+/* más aire entre bloques */
+section > h2:not(:first-child),section > h3,.more-wrap > h2,.more-wrap > h3,.mb,.car{margin-top:28px}
+.more-wrap > :first-child{margin-top:0}
+.head.compact .head-x{display:none}
+
+/* cajitas de métricas */
+.boxes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.boxes div{border:1.5px solid var(--ink);padding:12px;display:flex;flex-direction:column;gap:6px;font-size:12.5px;line-height:1.5}
+.boxes b{font-family:var(--f-label);font-weight:600;font-size:12px;letter-spacing:.15em;text-transform:uppercase}
+.boxes span{color:var(--ink-soft)}
+
+/* carrusel */
+.car{display:flex;flex-direction:column;gap:12px;min-width:0}
+.car-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:10px}
+.car-head h3{margin:0}
+.car-nav{display:flex;align-items:center;gap:8px}
+.car-nav .sq{padding:6px 11px;font-size:14px;letter-spacing:0}
+.car-n{font-size:12px;min-width:3.6em;text-align:center}
+.car-track{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scrollbar-width:thin;padding-bottom:8px;overscroll-behavior-x:contain}
+.car-track:focus-visible{outline:2px dashed var(--ink);outline-offset:3px}
+.rc{flex:0 0 80%;scroll-snap-align:start;border:1.5px solid var(--ink);background:var(--paper);padding:16px;display:flex;flex-direction:column;gap:8px}
+.rc .pair{font-family:var(--f-label);font-weight:600;font-size:14px}
+.rc .big{font-family:var(--f-label);font-weight:600;font-size:34px;line-height:1}
+.rc .big small{font-size:12px;letter-spacing:.15em;margin-left:6px;color:var(--ink-soft)}
+.rc .chip{align-self:flex-start;border:1px dashed var(--ink);padding:2px 8px;font-size:12px;font-family:var(--f-label);font-weight:600}
+.rc p{font-size:13px;color:var(--ink-soft)}
+
+/* enlaces con logo */
+.social{display:flex;flex-wrap:wrap;justify-content:center;gap:10px}
+.sq.soc{display:inline-flex;align-items:center;gap:8px;text-decoration:none;color:var(--ink)}
+.sq.soc svg{width:16px;height:16px;fill:currentColor;flex:none}
+.sq.soc:hover{color:var(--paper)}
+.sq.soc:focus-visible{outline:2px dashed var(--ink);outline-offset:2px}
+
+/* volver arriba */
+.top{font-size:18px!important;letter-spacing:0!important;width:44px;height:44px;padding:0!important;display:flex;align-items:center;justify-content:center;position:fixed;z-index:25;right:calc(16px + env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));box-shadow:0 4px 0 var(--ink)}
+.pager button:focus-visible{outline:2px dashed var(--ink);outline-offset:2px}
+.pager .next{margin-left:auto}
+
+/* red de co-compra (Graphext) */
+.mb{display:flex;flex-direction:column;gap:16px}
+.mb-frame{border:1.5px solid var(--ink);padding:14px 12px 12px;display:flex;flex-direction:column;gap:8px;min-width:0}
+.mb-head{display:flex;flex-wrap:wrap;gap:8px 16px;justify-content:space-between;align-items:center}
+.mb-head .lbl{color:var(--ink)}
+.mb-ctrl{display:flex;align-items:center;gap:8px;font-family:var(--f-label);font-weight:600;font-size:11px;letter-spacing:.12em;color:var(--ink-soft)}
+.mb-ctrl input{accent-color:var(--ink);width:120px}
+.mb-ctrl output{color:var(--ink);min-width:2.6em;font-variant-numeric:tabular-nums}
+#mbG{width:100%;height:auto;display:block;touch-action:manipulation}
+.mb-edge{stroke:var(--ink-soft);fill:none;transition:opacity .2s}
+.mb-node circle{stroke:var(--paper);stroke-width:1.2;cursor:pointer;transition:opacity .2s}
+.mb{--g1:#3b82f6;--g2:#e8476e;--g3:#d99a2b;--g4:#2f8f6b;--g5:#8a93a3;--g6:#7c5cc4}
+.mb-node.c1 circle{fill:var(--g1)}
+.mb-node.c2 circle{fill:var(--g2)}
+.mb-node.c3 circle{fill:var(--g3)}
+.mb-node.c4 circle{fill:var(--g4)}
+.mb-node.c5 circle{fill:var(--g5)}
+.mb-node.c6 circle{fill:var(--g6)}
+.mb-node text{font-family:var(--f-label);font-weight:600;font-size:8.5px;fill:var(--ink);paint-order:stroke;stroke:var(--paper);stroke-width:3px;stroke-linejoin:round;pointer-events:none;transition:opacity .2s;text-shadow:none}
+.mb-node:focus{outline:none}.mb-node:focus-visible circle{stroke:var(--ink);stroke-width:2.2}
+.mb-dim{opacity:.08}.mb-hide{opacity:0}
+.mb-hint{font-size:12px;color:var(--ink-soft)}
+.mb-legend{display:flex;flex-wrap:wrap;gap:6px}
+.mb-chip{display:inline-flex;align-items:center;gap:7px;border:1px solid var(--ink);background:transparent;padding:5px 8px;font-family:var(--f-label);font-weight:600;font-size:10.5px;color:var(--ink);cursor:pointer;letter-spacing:.04em;border-radius:0}
+.mb-chip svg{width:10px;height:10px;flex:none}
+.mb-chip[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+.mb-chip:focus-visible{outline:2px dashed var(--ink);outline-offset:2px}
+.mb-detail{border-top:3px dotted var(--ink);border-bottom:3px dotted var(--ink);padding:14px 0;display:flex;flex-direction:column;gap:6px}
+.mb-detail .lbl{color:var(--ink)}
+.mb-sub{font-size:12.5px;color:var(--ink-soft)}
+.mb-list{list-style:none;margin:6px 0 0;padding:0;display:flex;flex-direction:column}
+.mb-list li{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:0 12px;padding:8px 0;border-top:1px dotted var(--ink-faint);font-size:13px}
+.mb-list li:first-child{border-top:0}
+.mb-list .p{min-width:0;overflow-wrap:anywhere}
+.mb-list .p b{font-family:var(--f-label);font-weight:600}
+.mb-list .x{font-family:var(--f-label);font-weight:600;font-variant-numeric:tabular-nums;text-align:right}
+.mb-list .m{grid-column:1/-1;color:var(--ink-soft);font-size:11.5px}
+.mb-key{border:1.5px dashed var(--ink);padding:10px 12px;font-size:12.5px;margin-top:6px}
+.mb-key b{font-family:var(--f-label);font-weight:600;font-size:20px;display:block;line-height:1.2}
+.mb-tip{position:fixed;pointer-events:none;background:var(--paper);border:1.5px solid var(--ink);padding:8px 10px;font-family:var(--f-body);font-size:12px;max-width:240px;z-index:20;color:var(--ink)}
+.mb-tip b{font-family:var(--f-label);font-weight:600;display:block}
+@media (prefers-reduced-motion:reduce){.mb *{transition:none!important}}
+
+@media (max-width:460px){
+  .kv{grid-template-columns:repeat(2,1fr)}
+  .dict div{grid-template-columns:1fr;gap:2px}
+  .bar{grid-template-columns:minmax(0,7em) 1fr 3em}
+  .li{flex-wrap:wrap}
+  .li .lead{display:none}
+  .li .v{margin-left:auto}
 }
 </style>
 </head>
 <body>
+<main class="roll" lang="es">
+<article class="receipt">
 
-<main class="console">
-  <header class="marquee">
-    <h1>Cocina con Mamá Max</h1>
-    <div class="tools">
-      <button class="chip-btn clock" id="btnClock" type="button" hidden>⏱ 30:00</button>
-      <button class="chip-btn" id="btnGuide" type="button">Chuleta</button>
-      <button class="chip-btn" id="btnSound" type="button" aria-pressed="true">Sonido: sí</button>
+  <header class="head">
+    <div class="logo" aria-label="RG."><span class="r">R</span>G<span class="d">.</span></div>
+    <h1>the grocery report</h1>
+    <p class="lbl">Rocío García</p>
+    <hr class="dots head-x" style="width:100%">
+    <div class="meta head-x">
+      <span>Periodo</span><span>17/01/26 – 15/07/26</span>
+      <span>Semanas registradas</span><span>26</span>
+      <span>Tickets</span><span>138</span>
+      <span>Líneas de producto</span><span>1.415</span>
+      <span>Herramientas</span><span>Gemini · Sheets · Looker · Graphext</span>
     </div>
   </header>
 
-  <!-- INTRO -->
-  <section class="screen" id="scrIntro">
+  <nav class="tabs" role="tablist" aria-label="Partes del proyecto" id="tabs">
+    <button class="tab" role="tab" id="tab-idea" data-k="idea" aria-controls="p-idea"><span class="tn">01</span>La idea</button>
+    <button class="tab" role="tab" id="tab-datos" data-k="datos" aria-controls="p-datos"><span class="tn">02</span>Los datos</button>
+    <button class="tab" role="tab" id="tab-limpieza" data-k="limpieza" aria-controls="p-limpieza"><span class="tn">03</span>Limpieza</button>
+    <button class="tab" role="tab" id="tab-gasto" data-k="gasto" aria-controls="p-gasto"><span class="tn">04</span>El gasto</button>
+    <button class="tab" role="tab" id="tab-cesta" data-k="cesta" aria-controls="p-cesta"><span class="tn">05</span>La cesta</button>
+    <button class="tab" role="tab" id="tab-resumen" data-k="resumen" aria-controls="p-resumen"><span class="tn">06</span>Resumen</button>
+  </nav>
+
+  <hr class="cut">
+
+  <!-- 1 · La idea -->
+  <section>
+    <h2>Por qué empecé</h2>
     <div class="intro">
-      <div class="chef-col">
-        <svg class="chef" data-chef viewBox="0 0 200 230" aria-hidden="true"></svg>
-        <div class="bubble">¡Hola! Hoy cocinamos necesidades humanas.</div>
+      <p>Soy estudiante de Gastronomía y, poco a poco, me estoy introduciendo de manera autodidacta en el análisis de datos. Por ello, he decidido analizar las compras de supermercado de una familia.</p>
+      <p>Este proyecto nace realmente por diversión: me encanta planificar los menús semanales, hacer la lista de la compra y seleccionar los ingredientes en el súper. Después de las navidades (periodo de muchos gastos), me entró la curiosidad de ver cuánto gasta una familia en el súper y cuántas veces y cada cuánto tiempo compra un producto, y así empezó the grocery report.</p>
+      <p>Durante 26 semanas (del 17 de enero al 15 de julio de 2026) se han registrado todos los tickets de todas las compras hechas únicamente en supermercados y en la frutería para poder analizar todos sus datos.</p>
+    </div>
+    <div class="grid2">
+      <div class="blk">
+        <h3>Lo que quería resolver</h3>
+        <p>En una familia, la compra del súper es uno de los gastos más frecuentes, pero casi nunca se analiza: se sabe más o menos cuánto se gasta al mes, pero no en qué, dónde ni cada cuánto. Los tickets se tiran y, con ellos, toda la información que contienen.</p>
+        <p>Con este proyecto quiero responder a estas preguntas:</p>
+        <ol class="qs">
+          <li data-q="01">¿Cuánto gasta una familia en el súper cada semana y cómo varía ese gasto?</li>
+          <li data-q="02">¿Qué días y en qué supermercados hace la compra y dónde se concentra el gasto?</li>
+          <li data-q="03">¿En qué categorías y productos se va la mayor parte del dinero y qué productos se compran más veces?</li>
+          <li data-q="04">¿Qué productos se compran juntos en una misma cesta?</li>
+        </ol>
       </div>
-      <div>
-        <h2>Necesidades y satisfactores en la mesa</h2>
-        <p>Según Manfred Max-Neef, las necesidades humanas son pocas, finitas y universales. Lo que cambia según la cultura y la época son los <b>satisfactores</b>: las formas en que intentamos cubrirlas. La comida es uno de los satisfactores más ricos que existen.</p>
-        <div class="recipe-card">
-          <h3>Receta del taller</h3>
-          <ol class="steps-list">
-            <li><b class="n">1</b><span><b>Teoría 1.</b> Las 9 necesidades humanas según Max-Neef.</span></li>
-            <li><b class="n">2</b><span><b>Parte 1 · Picar.</b> ¿Qué necesidad intenta satisfacer cada situación? Todos los equipos juegan por turnos.</span></li>
-            <li><b class="n">3</b><span><b>Minijuego · Adivina el plato.</b> Puntos extra a gritos, sin tocar la pantalla.</span></li>
-            <li><b class="n">4</b><span><b>Teoría 2.</b> Los 5 tipos de satisfactores.</span></li>
-            <li><b class="n">5</b><span><b>Parte 2 · Saltear.</b> ¿Qué tipo de satisfactor es? De nuevo, todos los equipos por turnos.</span></li>
-          </ol>
-        </div>
-        <div class="setup">
-          <div>
-            <span class="field-label">Equipos</span>
-            <div class="seg" id="segTeams">
-              <button type="button" data-v="1">1 (toda la clase)</button>
-              <button type="button" data-v="2">2</button>
-              <button type="button" data-v="3">3</button>
-              <button type="button" data-v="4">4</button>
-            </div>
-          </div>
-          <div class="team-names" id="teamNames"></div>
-          <div>
-            <span class="field-label">Duración</span>
-            <div class="seg" id="segLen">
-              <button type="button" data-v="short">Corta (2 preguntas por equipo y parte)</button>
-              <button type="button" data-v="full">Completa (3 por equipo y parte)</button>
-            </div>
-          </div>
-          <div>
-            <span class="field-label">Cronómetro del taller</span>
-            <div class="seg" id="segClock">
-              <button type="button" data-v="20">20 min</button>
-              <button type="button" data-v="30">30 min</button>
-              <button type="button" data-v="40">40 min</button>
-            </div>
-          </div>
-          <div>
-            <span class="field-label">Tiempo por pregunta</span>
-            <div class="seg" id="segTime">
-              <button type="button" data-v="0">Sin límite</button>
-              <button type="button" data-v="30">30 s</button>
-              <button type="button" data-v="20">20 s</button>
-              <button type="button" data-v="12">12 s</button>
-            </div>
-          </div>
-        </div>
-        <div class="actions">
-          <button class="big-btn green" id="btnStart" type="button">¡A cocinar!</button>
-          <button class="big-btn" id="btnGuide2" type="button">Repasar la teoría</button>
+      <div class="blk">
+        <h3>Lo que quería conseguir</h3>
+        <p>Mi objetivo principal con este proyecto es lograr analizar el gasto y las tendencias de compra de una familia. Este análisis me permite demostrar cómo los datos pueden optimizar decisiones cotidianas, transformando simples tickets de supermercado en información valiosa para la planificación de la economía familiar.</p>
+        <p>Para este proyecto se hará un dashboard lo más completo posible con Data Studio (Looker) y un análisis de la cesta, analizando los productos comprados conjuntamente en Graphext.</p>
+        <div class="lines">
+          <div class="li"><span class="n">Lectura de tickets</span><span class="lead"></span><span class="v">GEMINI</span></div>
+          <div class="li"><span class="n">Base de datos</span><span class="lead"></span><span class="v">GOOGLE SHEETS</span></div>
+          <div class="li"><span class="n">Dashboard</span><span class="lead"></span><span class="v">LOOKER STUDIO</span></div>
+          <div class="li"><span class="n">Análisis de la cesta</span><span class="lead"></span><span class="v">GRAPHEXT</span></div>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- PLAY -->
-  <section id="scrPlay" hidden>
-    <div class="hud">
-      <span class="step-badge" id="stepBadge">Paso 1 · Picar</span>
-      <div class="timer" id="timer"><i></i></div>
-      <div class="scores" id="scores"></div>
+  <hr class="cut">
+
+  <!-- 2 · Los datos -->
+  <section>
+    <h2>Cómo se registraron los tickets</h2>
+    <div class="intro">
+      <p>Con ayuda de Gemini, el registro de datos de los tickets del supermercado se ha hecho más rápido y menos manual. Esta parte se podría haber hecho con alguna app de automatización como n8n, para que cada ticket se clasificase solo en la hoja de cálculo nada más recibirlo. Pero como no había una gran cantidad de tickets (unos cinco o seis por semana), no compensaba automatizarlo, así que solo se ha utilizado Gemini, que ya era suficiente.</p>
+      <p>Para ello se ha creado un prompt para un Gem para que sea experto en analizar el ticket y clasificarlo en las distintas columnas. Durante el proyecto he ido añadiendo más cosas al primer prompt. Al principio no tenía ni el id de compra ni de producto o las subcategorías, esta última la añadí en junio. El prompt que aparece a continuación es el prompt base: el id de compra, el id de producto y la subcategoría se le pidieron más tarde, a medida que el proyecto lo fue necesitando.</p>
     </div>
-    <div class="play">
-      <div class="chef-col">
-        <svg class="chef" data-chef viewBox="0 0 200 230" aria-hidden="true"></svg>
-        <div class="bubble" id="bubble">¡Vamos allá!</div>
+    <div class="blk">
+      <h3>El prompt del Gem</h3>
+      <div class="box" role="note" aria-label="Prompt del Gem">
+        <p>Eres un experto en extracción de datos y clasificación de compras domésticas. Tu tarea es procesar imágenes o PDFs de tickets de supermercado y convertirlos en una tabla estructurada lista para copiar y pegar en Google Sheets.</p>
+        <p><b>Instrucciones de procesamiento:</b></p>
+        <p>Analiza el ticket línea por línea, identificando cada producto individual. Por cada producto añade una fila que tenga los siguientes datos:</p>
+        <p>Identifica el establecimiento comparándolo con esta lista: BM, MERCADONA, SUPERCOR, PRIMAPRIX, FRUTERIA, CARREFOUR, AHORRAMAS, BONAREA, SANCHEZ ROMERO. Si no está en la lista, indica el nombre que aparezca.</p>
+        <p>Extrae la fecha, el mes y el día de la semana (Lunes, Martes, etc.) a partir de la cabecera del ticket.</p>
+        <p>Categorización: clasifica cada producto estrictamente en una de estas categorías: ACEITE, BEBIDAS, BOLSA PLASTICO, CARNE, CHARCUTERIA, CONGELADOS, CONSERVAS, DESPENSA, DULCES/GALLETAS, ESPECIAS, ENCURTIDOS, FRUTA, FRUTOS SECOS, HIGIENE PERSONAL, HUEVOS, INFUSIONES, LECHE, LEGUMBRES, LIMPIEZA HOGAR, LACTEOS, PANADERIA, PASTA/ARROZ, PESCADO, PLATOS PREPARADOS/CONGELADOS, QUESO, SALSAS, SNACKS, VERDURA, YOGUR.</p>
+        <p><b>Reglas de formato:</b><br>
+        – Semana: te proporcionaré el número de semana antes o durante la subida. Si no, deja la celda vacía.<br>
+        – Cantidad: usa el formato 0,00 (con coma para decimales y sin la unidad o kg).<br>
+        – Precios: usa siempre el formato 0,00 (con coma para decimales y sin el signo de €).<br>
+        – Salida: devuelve únicamente una tabla de Markdown para que se pueda copiar fácilmente en Google Sheets. Escribe todo en mayúsculas y sin tildes (por ejemplo, SABADO o LACTEOS).</p>
       </div>
-      <div class="station">
-        <div>
-          <div class="turn-line" id="turnLine"></div>
-          <p class="prompt" id="prompt"></p>
+      <p>Además se le añadirá el Excel vacío con las columnas ya asignadas para que copie los datos por orden de columnas.</p>
+    </div>
+    <div class="blk">
+      <h3>Diccionario de datos</h3>
+      <dl class="dict">
+        <div><dt>Fecha</dt><dd>Día, mes y año exacto en el que se realizó la compra.</dd></div>
+        <div><dt>Mes</dt><dd>Mes en el que se realizó la compra. Al hacer el estudio en algunos meses incompletos, esta métrica no nos será del todo útil para su comparación.</dd></div>
+        <div><dt>Semana</dt><dd>Número asociado a cada semana de compra. Este número no indica el número de semana en el año sino que la semana 1 es la primera en la que se registraron tickets. La semana siempre empieza el sábado, que es cuando una familia suele hacer la compra grande semanal.</dd></div>
+        <div><dt>Día de la semana</dt><dd>Día de la semana en la que se realizó la compra.</dd></div>
+        <div><dt>Supermercado</dt><dd>Especifica el establecimiento donde se realiza la compra.</dd></div>
+        <div><dt>Nombre del producto</dt><dd>Nombre del producto tal cual está escrito en el ticket.</dd></div>
+        <div><dt>Cantidad</dt><dd>Número de unidades o kilos comprados de un mismo producto, según si se vende por unidad o al peso (por ejemplo, la fruta o la verdura a granel).</dd></div>
+        <div><dt>Precio unitario</dt><dd>Coste de referencia por unidad o por kilo del producto comprado.</dd></div>
+        <div><dt>Precio total</dt><dd>Gasto final pagado por ese producto teniendo en cuenta el precio unitario y la cantidad comprada.</dd></div>
+        <div><dt>Categoría</dt><dd>Agrupa los productos en bloques más grandes según el tipo de producto.</dd></div>
+        <div><dt>Subcategoría</dt><dd>Clasifica las categorías en bloques más pequeños.</dd></div>
+      </dl>
+    </div>
+  </section>
+
+  <hr class="cut">
+
+  <!-- 3 · Limpieza -->
+  <section>
+    <h2>Limpiar los datos</h2>
+    <div class="intro">
+      <p>Mientras se iban registrando los productos había que ir corrigiendo algunos datos que se estaban registrando mal o que la IA no era capaz de categorizar bien.</p>
+    </div>
+    <div class="grid2">
+      <div class="blk">
+        <h3>Errores y duplicados</h3>
+        <p>Al principio se registraron algunos datos con tildes, como los días de la semana, categorías, incluso algunos productos. Para evitar el duplicado por tildes cambié tanto las fórmulas de la hoja de cálculo como el prompt del ticket. También tuve que eliminar dobles espacios o puntos.</p>
+        <p>Uno de los errores que encontré cuando hacía limpieza fue un producto que empezaba por «+» y que me daba error al no llevar una fórmula. Otro de los errores fue un duplicado de un producto, pero que estaba escrito de dos maneras distintas.</p>
+        <p>Por último, al añadir la columna subcategoría e ir revisando línea por línea he corregido algunos errores como productos mal escritos o mal categorizados.</p>
+      </div>
+      <div class="blk">
+        <h3>Cómo los solucioné</h3>
+        <p>Para solucionar el error del «+», Google Sheets interpretaba el nombre del producto (+PROTEINAS MOUSSE CH) como una fórmula, así que quité el símbolo y lo dejé como texto normal (PROTEINAS MOUSSE CH). En el caso del duplicado, la IA había leído «1L» como «IL» en algunos tickets, así que unifiqué los dos nombres en LECHE DESN. PROT 1L para que contase como un único producto.</p>
+        <div class="lines" aria-label="Correcciones">
+          <div class="li void"><span class="n">+PROTEINAS MOUSSE CH</span><span class="lead"></span><span class="v">ANULADO</span></div>
+          <div class="li"><span class="n">PROTEINAS MOUSSE CH</span><span class="lead"></span><span class="v">CORREGIDO</span></div>
+          <div class="li void"><span class="n">LECHE DESN. PROT IL</span><span class="lead"></span><span class="v">ANULADO</span></div>
+          <div class="li"><span class="n">LECHE DESN. PROT 1L</span><span class="lead"></span><span class="v">UNIFICADO</span></div>
         </div>
-        <div class="scene" id="scene"></div>
-        <div class="answers" id="answers"></div>
+      </div>
+      <div class="blk">
+        <h3>Otros ajustes</h3>
+        <p>Otros ajustes que hice durante la limpieza:</p>
+        <ul class="plain">
+          <li>Las bolsas de plástico se dejaron como una categoría propia (BOLSA PLASTICO) para ver también cuánto se gasta en ellas, aunque no sean un producto de alimentación.</li>
+          <li>Los productos que se venden al peso se registraron con su cantidad en kg y su precio por kilo, para que el precio total cuadrase con el ticket.</li>
+          <li>Unifiqué los nombres de los supermercados, los días de la semana y las categorías en mayúsculas y sin tildes, para que Looker y Graphext no los contasen como valores distintos.</li>
+        </ul>
+      </div>
+      <div class="blk">
+        <h3>Registro final</h3>
+        <p>Tras la limpieza, la base de datos final tiene 1.415 líneas de producto que corresponden a 138 compras (tickets) en 11 establecimientos distintos.</p>
+        <div class="total"><span>Base de datos final</span><span class="num">1.415 líneas</span></div>
+        <div class="lines">
+          <div class="li"><span class="n">Compras (tickets)</span><span class="lead"></span><span class="v">138</span></div>
+          <div class="li"><span class="n">Establecimientos</span><span class="lead"></span><span class="v">11</span></div>
+        </div>
       </div>
     </div>
   </section>
 
-  <!-- GUIDE -->
-  <section class="screen" id="scrGuide" hidden>
-    <div class="guide">
-      <div class="actions" style="justify-content: space-between">
-        <h2>Chuleta de Max-Neef</h2>
-        <button class="big-btn" id="btnBack" type="button">Volver</button>
+  <hr class="cut">
+
+  <!-- 4 · El gasto -->
+  <section>
+    <h2>Qué dicen los tickets</h2>
+    <div class="intro">
+      <p>Para el dashboard he utilizado Data Studio (Looker), ya que ya estaba algo familiarizada con ella y se alimentaba directamente de la hoja de cálculo donde estaban los datos. He dividido el dashboard en 4 hojas distintas. En la versión pública del dashboard no he dado la opción de filtrar, para no dañar la confidencialidad de los productos que compra una familia, pero a nivel personal sí que puedo filtrar los datos.</p>
+    </div>
+    <div class="dash-link">
+      <a class="sq dash-btn" href="https://datastudio.google.com/reporting/b060cc37-f8a4-4ca5-a5ae-49895b201e35" target="_blank" rel="noopener">Ver el dashboard en Looker Studio ↗</a>
+    </div>
+    <div class="notes" role="note" aria-label="Notas para leer el dashboard">
+      <span class="lbl">Antes de abrirlo</span>
+      <ul class="plain">
+        <li>La semana 11 es la de menos gasto porque coincide con Semana Santa.</li>
+        <li>Enero y julio están incompletos (del 17 de enero al 15 de julio): mejor comparar por semanas que por meses.</li>
+        <li>La semana 1 es la primera registrada, no la del año, y cada semana empieza en sábado.</li>
+        <li>Solo incluye compras en supermercados y en la frutería.</li>
+        <li>Las categorías las asignó la IA y están revisadas, pero puede quedar algún producto mal clasificado.</li>
+        <li>La versión pública no tiene filtros, para mantener la confidencialidad de lo que compra una familia.</li>
+      </ul>
+    </div>
+    <div class="dept"><b>El dashboard · 4 hojas</b></div>
+    <div class="grid2">
+      <div class="blk sheetb">
+        <h3>[1] Resumen</h3>
+        <p>Esta hoja contiene Stat Cards que resumen el Gasto Total, el Número de Semanas, Ticket Medio por Semana, Número de compras totales, Número de Supermercados donde se ha hecho la compra y Número total de productos comprados.</p>
+        <p><b>Gasto total por semana:</b> dinero total gastado en cada una de las semanas. El pico más bajo, en la semana 11, corresponde a las vacaciones de Semana Santa.</p>
+        <p><b>Número de compras por día de la semana:</b> cuenta el número de compras hechas por cada día de la semana. El día con mayor número de compras es el sábado, cuando una familia se planifica para hacer la compra semanal grande. En cambio, el domingo es el día con menos compras, ya que es el día siguiente a la compra grande y, además, muchos de los supermercados están cerrados.</p>
+        <p><b>Gasto total por semana y día de la semana:</b> mapa de calor que muestra el gasto total por día de la semana en cada una de las 26 semanas registradas. Se ve que los días de la semana con más gasto son los sábados, y cuando no lo son se reparte el gasto entre varios días de la semana.</p>
       </div>
-      <div>
-        <h3>9 necesidades axiológicas</h3>
-        <div class="gcards" id="gNeeds"></div>
+      <div class="blk sheetb">
+        <h3>[2] Supermercados</h3>
+        <p><b>Compras por supermercado:</b> reparto (%) del número de compras de una familia entre los distintos supermercados. No es una cuota de mercado real, sino cómo se distribuyen las compras de una sola familia.</p>
+        <p><b>Número de compras por día de semana y supermercado:</b> barras apiladas al 100 % que muestran, para cada día de la semana, en qué supermercados se han hecho las compras.</p>
+        <p><b>Gasto total por subcategoría y supermercado:</b> barras apiladas al 100 % con el gasto en cada subcategoría por supermercado. Ordenado de mayor a menor gasto. Esta gráfica es muy útil para saber la distribución de supermercados donde se compra cada subcategoría.</p>
       </div>
-      <div>
-        <h3>5 tipos de satisfactores</h3>
-        <div class="gcards" id="gTypes"></div>
+      <div class="blk sheetb">
+        <h3>[3] Categorías y subcategorías</h3>
+        <p><b>50 subcategorías más compradas:</b> mapa de árbol (treemap) con las 50 subcategorías que aparecen en más líneas de ticket, es decir, las que más veces se compran, ordenadas de mayor a menor. Cuanto más grande y oscuro es el recuadro, más veces se ha comprado.</p>
+        <p><b>Dispersión del gasto por categoría:</b> gráfico de burbujas en el que cada burbuja es una categoría. El eje X muestra la cantidad comprada, el eje Y el precio unitario y el tamaño de la burbuja el gasto total. Sirve para ver qué categorías se compran mucho pero son baratas y cuáles se compran poco pero son caras.</p>
+        <p><b>Nº subcategorías por categoría:</b> tabla informativa del número total de subcategorías por cada categoría.</p>
+        <p><b>Gasto total por categoría (top 10):</b> 10 categorías con mayor gasto, ordenado de mayor a menor.</p>
       </div>
-      <p class="source">Basado en Max-Neef, M., Elizalde, A. y Hopenhayn, M. (1986). <i>Desarrollo a escala humana</i>. Los ejemplos gastronómicos son adaptaciones para el taller y varios admiten debate.</p>
+      <div class="blk sheetb">
+        <h3>[4] Producto</h3>
+        <p><b>Productos más caros y más baratos por unidad y cantidad comprada:</b> son dos gráficos combinados. En el primero, las barras muestran los 10 productos con el precio unitario más alto y la línea la cantidad que se ha comprado de cada uno en las 26 semanas. El segundo hace lo mismo con los 10 productos más baratos.</p>
+        <p><b>Cantidad de productos distintos por semana:</b> cantidad de productos distintos comprados cada semana.</p>
+        <p><b>Cantidad de los productos con mayor gasto:</b> gráfico de líneas con los 10 productos en los que más se ha gastado durante las 26 semanas. Una línea muestra el gasto total de cada producto y la otra el número de veces que se ha comprado.</p>
+        <p><b>Productos más comprados:</b> mapa de árbol (treemap) de los 40 productos que más veces se han comprado (número de líneas de ticket), de mayor a menor.</p>
+      </div>
     </div>
   </section>
+
+  <hr class="cut">
+
+  <!-- 5 · La cesta -->
+  <section>
+    <h2>Qué va en la misma cesta</h2>
+    <div class="intro">
+      <p>Además del dashboard, he querido ver qué productos se compran juntos, es decir, qué productos suelen aparecer en la misma cesta. Para ello he hecho un análisis de la cesta de la compra (market basket analysis) en Graphext.</p>
+    </div>
+    <div class="grid2">
+      <div class="blk">
+        <h3>Preparación de los datos</h3>
+        <p>Cada compra (id_compra) es una cesta y cada línea del ticket es un producto dentro de esa cesta. Como hay muchos productos distintos y la mayoría se compran pocas veces, el análisis lo he hecho a nivel de subcategoría (por ejemplo, QUESO o PAN) y de categoría, ya que a nivel de producto casi no salían combinaciones que se repitieran. En total hay 138 cestas, con una media de 9 subcategorías distintas por cesta; 16 de ellas son compras de una sola subcategoría (por ejemplo, ir solo a por pan).</p>
+        <div class="lines">
+          <div class="li"><span class="n">Cestas</span><span class="lead"></span><span class="v">138</span></div>
+          <div class="li"><span class="n">Subcategorías por cesta</span><span class="lead"></span><span class="v">9 de media</span></div>
+          <div class="li"><span class="n">Cestas de una sola subcategoría</span><span class="lead"></span><span class="v">16</span></div>
+        </div>
+      </div>
+      <div class="blk">
+        <h3>Métricas</h3>
+        <p>Para medir cómo de fuerte es la relación entre dos productos A y B se usan tres métricas:</p>
+        <div class="lines defs">
+          <div class="li"><span class="n"><b>SOPORTE</b> · porcentaje de cestas en las que aparecen A y B juntos. Indica lo frecuente que es la combinación.</span></div>
+          <div class="li"><span class="n"><b>CONFIANZA</b> · de las cestas que tienen A, en qué porcentaje aparece también B. Es la probabilidad de comprar B si ya se ha comprado A.</span></div>
+          <div class="li"><span class="n"><b>LIFT</b> · compara la confianza con lo que se esperaría por casualidad. Un lift mayor que 1 indica que A y B se compran juntos más de lo normal; si es 1, no hay relación.</span></div>
+        </div>
+        <p>Solo he tenido en cuenta las combinaciones que aparecen en al menos 5 cestas, para no sacar conclusiones de casos aislados.</p>
+      </div>
+    </div>
+    <div class="mb blk" id="mb">
+      <h3>La red de productos</h3>
+      <p>Para verlo producto a producto exporté la red de reglas de Graphext, con los 123 tickets que tienen id de compra. Cada punto es un producto y cada línea une dos productos que aparecen en el mismo ticket más de lo que tocaría por azar (lift &gt; 1). Los colores son las 6 comunidades que detecta la red.</p>
+
+      <div class="mb-pair">
+      <div class="mb-frame">
+        <div class="mb-head">
+          <span class="lbl">Red de productos</span>
+          <label class="mb-ctrl" for="mbLift">LIFT MÍN.
+            <input id="mbLift" type="range" min="1" max="7" step="0.5" value="1">
+            <output id="mbLiftOut" for="mbLift">1,0</output>
+          </label>
+        </div>
+        <svg id="mbG" viewBox="0 0 520 540" role="img" aria-label="Red de 66 productos conectados por 435 parejas de co-compra"></svg>
+        <p class="mb-hint">Pasa el ratón o toca un producto para ver con qué se compra. El tamaño indica en cuántos tickets aparece.</p>
+      </div>
+
+      <div class="mb-detail" aria-live="polite">
+        <span class="lbl" id="mbEyebrow">Parejas más fuertes</span>
+        <h3 id="mbTitle">Lo que casi siempre va en la misma cesta</h3>
+        <p class="mb-sub" id="mbSub"></p>
+        <ul class="mb-list" id="mbList"></ul>
+        <div class="mb-key" id="mbKey"></div>
+      </div>
+      </div>
+      <p class="note">Fuera de la red quedan una pareja aislada (cebolla tubo + clementina) y 499 productos sin reglas con soporte suficiente.</p>
+    </div>
+
+
+
+
+    <div class="grid2">
+      <div class="blk">
+        <h3>Resultados por subcategoría</h3>
+        <p>Las combinaciones más frecuentes giran en torno al queso, que es lo que más se repite en las cestas:</p>
+        <div class="lines">
+          <div class="li"><span class="n">QUESO + PAN</span><span class="lead"></span><span class="v">19 % · lift 1,4</span></div>
+          <div class="li sub"><span class="n">confianza 57 %</span></div>
+          <div class="li"><span class="n">QUESO + ACEITUNAS</span><span class="lead"></span><span class="v">16 % · lift 2,3</span></div>
+          <div class="li"><span class="n">QUESO + PATATAS</span><span class="lead"></span><span class="v">15 % · lift 2,5</span></div>
+          <div class="li"><span class="n">QUESO + VERDURA CONG.</span><span class="lead"></span><span class="v">14 % · lift 2,6</span></div>
+          <div class="li"><span class="n">PAN + JAMON SERRANO</span><span class="lead"></span><span class="v">14 % · lift 1,4</span></div>
+        </div>
+        <p>También hay reglas con una confianza del 100 %: siempre que se compran garbanzos se compra también verdura congelada, pescado congelado y queso, y siempre que se compra pechuga de pavo se compra jamón serrano. Son reglas basadas en pocas cestas (8), pero muestran que hay compras que se repiten siempre de la misma manera.</p>
+      </div>
+      <div class="blk">
+        <h3>Resultados por categoría</h3>
+        <p>A nivel de categoría, los lácteos (54 % de las cestas), la charcutería (44 %) y la panadería (42 %) son la base de casi todas las compras. Las combinaciones más frecuentes son lácteos + charcutería (33 % de las cestas) y panadería + charcutería (28 %).</p>
+        <div class="lines">
+          <div class="li"><span class="n">LACTEOS</span><span class="lead"></span><span class="v">54 % cestas</span></div>
+          <div class="li"><span class="n">CHARCUTERIA</span><span class="lead"></span><span class="v">44 % cestas</span></div>
+          <div class="li"><span class="n">PANADERIA</span><span class="lead"></span><span class="v">42 % cestas</span></div>
+          <div class="li"><span class="n">LACTEOS + CHARCUTERIA</span><span class="lead"></span><span class="v">33 %</span></div>
+          <div class="li"><span class="n">PANADERIA + CHARCUTERIA</span><span class="lead"></span><span class="v">28 %</span></div>
+          <div class="li"><span class="n">PESCADO → CARNE</span><span class="lead"></span><span class="v">93 % · lift 2,7</span></div>
+        </div>
+        <p>Las relaciones más fuertes aparecen en la compra grande: cuando se compra pescado, el 93 % de las veces también se compra carne (lift 2,7), y el pescado se relaciona con legumbres, despensa, salsas, pasta/arroz y encurtidos (lift entre 3,1 y 3,7). Esto confirma que el pescado se compra sobre todo en la compra grande del sábado, junto con el resto de productos para planificar los menús de la semana.</p>
+      </div>
+    </div>
+    <div class="blk">
+      <h3>Conclusiones del market basket</h3>
+      <ul class="plain">
+        <li>Hay dos tipos de cesta: la compra grande, con muchas categorías relacionadas entre sí (carne, pescado, despensa, salsas…), y las compras pequeñas de reposición (pan, queso, leche, jamón).</li>
+        <li>Muchas de las relaciones más fuertes se explican por recetas concretas (calamar + setas + noodles, ternera + verdura congelada), lo que demuestra que una familia hace la compra a partir del menú semanal.</li>
+        <li>Estas combinaciones se podrían usar para hacer la lista de la compra más rápido o, si fuese un supermercado, para colocar productos juntos o plantear promociones.</li>
+      </ul>
+    </div>
+  </section>
+
+  <hr class="cut">
+
+  <!-- 6 · Resumen -->
+  <section>
+    <h2>En resumen</h2>
+    <div class="intro">
+      <p>Con the grocery report he conseguido transformar algo tan cotidiano como los tickets del súper en información útil para la economía familiar.</p>
+    </div>
+    <div class="blk">
+      <h3>Principales conclusiones</h3>
+      <ul class="plain">
+        <li>Una familia gasta de media unos 153 € a la semana en el súper, con un gasto bastante estable salvo en semanas especiales como Semana Santa.</li>
+        <li>La compra se organiza alrededor de una compra grande el sábado, que concentra más de la mitad del gasto, y de pequeñas compras de reposición entre semana.</li>
+        <li>Mercadona es el supermercado principal y, junto con BM, se lleva más del 80 % del gasto. El resto de establecimientos se usan para compras puntuales o productos concretos, como la fruta y la verdura en la frutería.</li>
+        <li>La carne, los lácteos y el pescado son donde más dinero se va, mientras que el pan, el queso y la leche son lo que más veces se compra.</li>
+        <li>El market basket muestra que la compra se planifica a partir del menú semanal: muchos productos se compran juntos porque forman parte de la misma receta.</li>
+      </ul>
+    </div>
+    <div class="grid2">
+      <div class="blk">
+        <h3>Limitaciones</h3>
+        <ul class="plain">
+          <li>Los datos son de una sola familia y de 26 semanas, por lo que los resultados no se pueden generalizar.</li>
+          <li>Enero y julio están incompletos, así que la comparación por meses no es del todo fiable.</li>
+          <li>La categorización la hacía la IA y, aunque la he revisado, puede haber algún producto mal clasificado.</li>
+          <li>Solo se han registrado las compras en supermercados y en la frutería, por lo que no está todo el gasto en alimentación de una familia (por ejemplo, comidas fuera o pedidos a domicilio).</li>
+        </ul>
+      </div>
+      <div class="blk">
+        <h3>Próximos pasos</h3>
+        <ul class="plain">
+          <li>Seguir registrando tickets para tener un año completo y poder ver la estacionalidad.</li>
+          <li>Automatizar el registro de los tickets si el volumen aumenta, por ejemplo con n8n a partir de los tickets digitales.</li>
+          <li>Comparar el precio de los productos más comprados entre supermercados para ver dónde compensa comprar cada uno.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="blk">
+      <div class="total"><span>Total analizado</span><span class="num">3.973,00 €</span></div>
+      <div class="lines">
+        <div class="li"><span class="n">Nº artículos</span><span class="lead"></span><span class="v">1.415</span></div>
+        <div class="li"><span class="n">Forma de pago</span><span class="lead"></span><span class="v">DATOS</span></div>
+      </div>
+    </div>
+  </section>
+
+  <hr class="cut">
+
+  <footer class="foot">
+    <p class="thanks">GRACIAS POR LEER</p>
+    <div class="barcode" id="barcode" aria-hidden="true"></div>
+    <p class="num" style="font-size:12px;letter-spacing:.3em">0138 1415 2026</p>
+    <div class="social">
+      <a class="sq soc" href="https://github.com/rociogarciadmgz" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12"/></svg>GitHub</a>
+      <a class="sq soc" href="https://www.linkedin.com/in/rociogarciadmgz" target="_blank" rel="noopener"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z"/></svg>LinkedIn</a>
+    </div>
+  </footer>
+
+</article>
 </main>
-
-<div class="overlay" id="overlay" hidden>
-  <div class="card" id="card" role="dialog" aria-modal="true"></div>
-</div>
+<button type="button" class="sq top" id="toTop" aria-label="Volver arriba">↑</button>
 
 <script>
-(() => {
-/* ---------------- Contenido ---------------- */
-const NEEDS = [
-  { id: "subsistencia", lbl: "Subsistencia", hint: "salud, alimento", lid: "#E5432A", def: "Mantenerse con vida y con salud: alimentarse, descansar, abrigarse.", ej: "Ej.: un menú del día nutritivo." },
-  { id: "proteccion", lbl: "Protección", hint: "seguridad, cuidado", lid: "#3E9BD6", def: "Sentirse seguro y cuidado; prevenir riesgos.", ej: "Ej.: la seguridad alimentaria." },
-  { id: "afecto", lbl: "Afecto", hint: "amor, amistad", lid: "#F28DB2", def: "Querer y ser querido; vínculos, intimidad, generosidad.", ej: "Ej.: cocinar para alguien." },
-  { id: "entendimiento", lbl: "Entendimiento", hint: "aprender, conocer", lid: "#8C6BD1", def: "Conocer, aprender, tener curiosidad y conciencia crítica.", ej: "Ej.: un curso de cocina." },
-  { id: "participacion", lbl: "Participación", hint: "implicarse, cooperar", lid: "#F7B928", def: "Formar parte, opinar, cooperar y decidir con otros.", ej: "Ej.: una cooperativa de consumo." },
-  { id: "ocio", lbl: "Ocio", hint: "disfrute, juego", lid: "#2FA97F", def: "Descansar, divertirse, jugar, despreocuparse.", ej: "Ej.: un tapeo con amigos." },
-  { id: "creacion", lbl: "Creación", hint: "inventar, imaginar", lid: "#FF8A3D", def: "Inventar, diseñar, componer, dejar huella propia.", ej: "Ej.: crear una receta nueva." },
-  { id: "identidad", lbl: "Identidad", hint: "pertenencia, raíces", lid: "#9B5B34", def: "Saber quién soy y a qué grupo y tradición pertenezco.", ej: "Ej.: el plato típico de tu tierra." },
-  { id: "libertad", lbl: "Libertad", hint: "elegir, autonomía", lid: "#4FC3C9", def: "Elegir por uno mismo, tener autonomía y poder discrepar.", ej: "Ej.: decidir tu propia dieta." }
-];
-const TYPES = [
-  { id: "sinergico", lbl: "Sinérgico", hint: "cubre una y estimula otras", lid: "#2FA97F", def: "Satisface una necesidad y, a la vez, estimula y contribuye a satisfacer otras.", ej: "Ej. de Max-Neef: la lactancia materna." },
-  { id: "singular", lbl: "Singular", hint: "cubre una sola", lid: "#3E9BD6", def: "Satisface una sola necesidad y es neutro respecto a las demás.", ej: "Ej.: un programa de reparto de alimentos." },
-  { id: "inhibidor", lbl: "Inhibidor", hint: "cubre una, frena otras", lid: "#F7B928", def: "Sobresatisface una necesidad y dificulta seriamente la satisfacción de otras.", ej: "Ej.: la TV comercial (ocio que frena entendimiento y creación)." },
-  { id: "pseudo", lbl: "Pseudo-satisfactor", hint: "falsa sensación", lid: "#F28DB2", def: "Genera una falsa sensación de satisfacción; suele venir inducido por publicidad o modas.", ej: "Ej.: las modas, los símbolos de estatus." },
-  { id: "destructor", lbl: "Destructor", hint: "daña esa y otras", lid: "#E5432A", def: "También llamado violador: pretende satisfacer una necesidad, pero la aniquila y daña otras.", ej: "Ej.: el armamentismo como «protección»." }
-];
-const BANK_NEEDS = [
-  { emo: "💊", t: "Alimentarte a base de pastillas saciantes para no engordar", a: "identidad", e: "Detrás suele estar la búsqueda de una imagen aceptada por los demás: es identidad (quién soy, cómo me ven). La paradoja es que pone en riesgo la subsistencia.", d: "¿Es identidad o afecto (sentirse querido y aceptado)?" },
-  { emo: "🥇", t: "Pedir un chuletón cubierto de oro comestible para aparentar", a: "identidad", e: "El oro no aporta sabor ni nutrientes: se paga por el estatus. Lo que se busca es identidad, mostrar a qué grupo perteneces." },
-  { emo: "🍜", t: "Cenar ramen instantáneo a final de mes porque no llega el dinero", a: "subsistencia", e: "Aquí no hay elección ni placer: se trata de llenar el estómago con lo que hay. Es subsistencia." },
-  { emo: "🔎", t: "Leer los alérgenos y la fecha de caducidad antes de comprar", a: "proteccion", e: "Es prevención y cuidado de la salud: protección." },
-  { emo: "💌", t: "Cocinar el plato favorito de tu pareja para hacer las paces", a: "afecto", e: "La comida se usa como gesto de cariño y reconciliación: afecto." },
-  { emo: "🍫", t: "Comerte una tableta de chocolate cuando estás triste", a: "afecto", e: "Se busca consuelo en la comida: lo que falta es afecto.", d: "¿Lo satisface de verdad o solo lo parece? ¿Qué tipo de satisfactor sería?" },
-  { emo: "🎥", t: "Ver tutoriales para aprender a hacer pan de masa madre", a: "entendimiento", e: "Aprender técnicas y entender procesos es entendimiento." },
-  { emo: "🥘", t: "Organizar una paella popular con los vecinos en las fiestas", a: "participacion", e: "Implicarse con otros en algo colectivo es participación.", d: "También hay ocio e identidad. ¿Podría ser sinérgico?" },
-  { emo: "🍕", t: "Quedar con amigos para cenar pizza y jugar a la consola", a: "ocio", e: "El objetivo es pasarlo bien y desconectar: ocio." },
-  { emo: "🧪", t: "Hacer un concurso de cocina con lo que sobra en la nevera", a: "creacion", e: "Inventar algo nuevo con lo que hay es creación." },
-  { emo: "🧳", t: "Un estudiante Erasmus que recorre la ciudad buscando ingredientes de su país", a: "identidad", e: "Lejos de casa, la comida de origen mantiene las raíces: identidad." },
-  { emo: "🥗", t: "Hacerte vegano aunque tu familia no lo apruebe", a: "libertad", e: "Decidir por ti mismo frente a la presión del entorno es libertad.", d: "¿Libertad o identidad? Las dos pueden estar en juego." },
-  { emo: "🍽️", t: "Negarte al menú cerrado de una boda y pedir algo a tu gusto", a: "libertad", e: "Reclamar poder elegir es libertad." },
-  { emo: "🥖", t: "Hacer cola en un comedor social para tener un plato caliente", a: "subsistencia", e: "Cubrir el alimento básico: subsistencia." },
-  { emo: "🩺", t: "Seguir la dieta que te pautó el médico después de un susto", a: "proteccion", e: "Prevenir un riesgo para la salud es protección.", d: "¿No es también subsistencia? Buscad la diferencia entre mantenerse vivo y prevenir." },
-  { emo: "📸", t: "Hacer cola dos horas para probar el dulce viral de TikTok", a: "identidad", e: "Más que el sabor, se busca estar a la moda y pertenecer al grupo: identidad.", d: "¿O es ocio? ¿Y sería un pseudo-satisfactor?" },
-  { emo: "🍷", t: "Apuntarte a un curso de cata de vinos", a: "entendimiento", e: "Aprender a distinguir y valorar es entendimiento." },
-  { emo: "🎂", t: "Diseñar tu propia tarta de cumpleaños con forma de dinosaurio", a: "creacion", e: "Imaginar y dar forma a algo propio es creación." },
-  { emo: "🗳️", t: "Votar el plato del mes en el comedor del instituto", a: "participacion", e: "Opinar y decidir en grupo es participación." }
-];
-const BANK_TYPES = [
-  { emo: "💊", t: "Sustituir las comidas por pastillas para no engordar", a: "destructor", e: "Pretende cubrir la identidad (la imagen), pero destruye la subsistencia y la protección: la salud. Además aísla, porque no se come con nadie." },
-  { emo: "🥇", t: "Ponerle oro a la carne para aparentar", a: "pseudo", e: "Da una sensación de estatus e identidad, pero el oro no aporta ni sabor ni alimento. Es una satisfacción de escaparate.", d: "¿Y si se convierte en una necesidad de aparentar constante? ¿Podría acabar siendo inhibidor?" },
-  { emo: "📸", t: "Ir a restaurantes de moda solo para subir la foto", a: "pseudo", e: "Promete pertenencia e identidad, pero la satisfacción dura lo que dura el «like»." },
-  { emo: "🧸", t: "El menú infantil que viene con juguete de regalo", a: "pseudo", e: "El juguete da una falsa sensación de afecto y ocio; lo que se vende es la marca." },
-  { emo: "🏭", t: "Un bollo industrial anunciado como «casero, como el de la abuela»", a: "pseudo", e: "La publicidad simula la identidad y el afecto que el producto no tiene." },
-  { emo: "🍺", t: "Beber hasta perder el control para «encajar» en el grupo", a: "destructor", e: "Pretende cubrir participación y afecto, pero daña la salud, la protección y el entendimiento." },
-  { emo: "📉", t: "Una dieta milagro de 500 calorías al día antes del verano", a: "destructor", e: "Busca aceptación e identidad y acaba destruyendo la subsistencia y la protección." },
-  { emo: "⚡", t: "Cambiar la cena por bebidas energéticas para estudiar toda la noche", a: "destructor", e: "Promete energía y rendimiento, pero daña la salud, el descanso y, al final, el propio estudio.", d: "¿Pseudo o destructor? Depende de cuánto se abuse. ¡Debatidlo!" },
-  { emo: "📺", t: "Comer cada día con la tele puesta y sin hablar", a: "inhibidor", e: "Sobresatisface el ocio y frena el afecto y el entendimiento: nadie habla en la mesa." },
-  { emo: "📱", t: "Estar con el móvil durante toda la cena con amigos", a: "inhibidor", e: "El entretenimiento individual bloquea el afecto y la participación del grupo." },
-  { emo: "🛵", t: "Pedir comida a domicilio todos los días", a: "inhibidor", e: "Resuelve la subsistencia con comodidad, pero frena la creación, la participación y la autonomía.", d: "¿Y si es algo puntual? El contexto cambia la clasificación." },
-  { emo: "🚫", t: "Prohibir que los niños entren en la cocina «por si se queman»", a: "inhibidor", e: "Sobreprotege y bloquea el entendimiento, la creación y la participación." },
-  { emo: "🥫", t: "Un banco de alimentos que reparte lotes de comida", a: "singular", e: "Cubre la subsistencia y no actúa sobre otras necesidades. Max-Neef pone los programas de reparto de alimentos como ejemplo de satisfactor singular.", d: "¿Cómo podría convertirse en sinérgico?" },
-  { emo: "🥤", t: "La máquina expendedora de la biblioteca", a: "singular", e: "Quita el hambre y poco más: satisface una sola necesidad." },
-  { emo: "🧃", t: "El batido nutricional que dan en el hospital", a: "singular", e: "Cubre la subsistencia del paciente sin buscar nada más." },
-  { emo: "🌱", t: "Un huerto urbano comunitario", a: "sinergico", e: "Da alimento y además estimula la participación, el entendimiento, la creación y el ocio." },
-  { emo: "👨‍👩‍👧", t: "Cocinar en familia el fin de semana", a: "sinergico", e: "Alimenta y a la vez cubre afecto, entendimiento (se aprende), creación e identidad." },
-  { emo: "🍼", t: "La lactancia materna", a: "sinergico", e: "Es el ejemplo clásico de Max-Neef: cubre la subsistencia y estimula protección, afecto e identidad." },
-  { emo: "🤝", t: "Un comedor social donde los usuarios cocinan junto a los voluntarios", a: "sinergico", e: "Además de alimentar, da participación, afecto, entendimiento e identidad." }
-];
-
-const DISHES = [
-  { emo: "🥔", name: "Tortilla de patatas", clues: [["🥔", "Su ingrediente principal crece bajo tierra"], ["🥚", "Lleva huevo, y mucho"], ["🧅", "La eterna pelea: ¿con o sin cebolla?"]], q: "¿Qué necesidad cubre la tortilla «como la hace mi madre»? (Pista: identidad y afecto)" },
-  { emo: "🥘", name: "Paella", clues: [["🍚", "Se hace con arroz"], ["🟡", "Lleva azafrán y el recipiente le da nombre"], ["🍊", "Valencia la defiende como suya"]], q: "Una paella de bote para turistas, ¿qué tipo de satisfactor sería?" },
-  { emo: "🍅", name: "Gazpacho", clues: [["🧊", "Se toma frío"], ["🥒", "Lleva pepino, pimiento y ajo"], ["🍅", "Es rojo y se bebe en vaso en verano"]], q: "¿Cubre solo subsistencia o algo más cuando se hace en casa en verano?" },
-  { emo: "🍫", name: "Churros con chocolate", clues: [["🌅", "Típico al amanecer de Año Nuevo"], ["〰️", "Masa frita y alargada"], ["🍫", "Se moja en algo caliente, espeso y dulce"]], q: "¿Qué necesidades cubre ir a desayunarlos con amigos tras una noche de fiesta?" },
-  { emo: "🐙", name: "Pulpo a la gallega", clues: [["🪵", "Se sirve en plato de madera"], ["🌶️", "Lleva pimentón, sal gorda y aceite"], ["🐙", "El protagonista tiene ocho brazos"]], q: "En una feria del pulpo, ¿predomina el ocio, la participación o la identidad?" },
-  { emo: "🧆", name: "Croquetas", clues: [["🥛", "Por dentro, bechamel"], ["🍞", "Por fuera, rebozado de pan rallado"], ["👵", "Las mejores siempre son las de la abuela"]], q: "Croquetas congeladas «caseras» del súper: ¿satisfactor singular o pseudo-satisfactor?" },
-  { emo: "🍣", name: "Sushi", clues: [["🥢", "Se come con palillos"], ["🐟", "Suele llevar pescado crudo"], ["🍚", "Arroz con vinagre enrollado en alga"]], q: "Comer sushi solo porque está de moda, ¿qué necesidad busca?" }
-];
-
-const STEPS = [
-  { key: "teoria1", theory: "needs" },
-  { key: "picar", label: "Parte 1", name: "Picar", scene: "board", opts: NEEDS, bank: BANK_NEEDS,
-    prompt: "¿Qué necesidad intenta satisfacer esta situación?", sub: "Elige el tarro correcto (teclas 1-9)." },
-  { key: "adivina", game: true },
-  { key: "teoria2", theory: "types" },
-  { key: "saltear", label: "Parte 2", name: "Saltear", scene: "pan", opts: TYPES, bank: BANK_TYPES,
-    prompt: "¿Qué tipo de satisfactor es?", sub: "Dale la vuelta en la sartén con la respuesta correcta (teclas 1-5)." }
-];
-
-const TEAM_DEFAULTS = [
-  { name: "Tomate", col: "#E5432A" },
-  { name: "Albahaca", col: "#2FA97F" },
-  { name: "Limón", col: "#F7B928" },
-  { name: "Arándano", col: "#5B6CD9" }
-];
-
-/* ---------------- Chef ---------------- */
-const CHEF_BASE = `
-  <path d="M40 230 Q42 178 100 176 Q158 178 160 230 Z" fill="#fff" stroke="#3A2216" stroke-width="4"/>
-  <path d="M78 178 L100 206 L122 178 Z" fill="#E5432A" stroke="#3A2216" stroke-width="4" stroke-linejoin="round"/>
-  <path d="M48 120 Q44 70 100 66 Q156 70 152 120 L152 150 Q100 120 48 150 Z" fill="#6B3B22" stroke="#3A2216" stroke-width="4"/>
-  <circle cx="100" cy="125" r="52" fill="#FFD9B8" stroke="#3A2216" stroke-width="4"/>
-  <path d="M52 112 Q70 80 100 82 Q130 80 148 112 Q130 96 100 98 Q70 96 52 112 Z" fill="#6B3B22" stroke="#3A2216" stroke-width="3"/>
-  <circle cx="74" cy="142" r="9" fill="#FF8FA3" opacity=".7"/>
-  <circle cx="126" cy="142" r="9" fill="#FF8FA3" opacity=".7"/>
-  <rect x="58" y="58" width="84" height="26" rx="8" fill="#fff" stroke="#3A2216" stroke-width="4"/>
-  <circle cx="68" cy="46" r="24" fill="#fff" stroke="#3A2216" stroke-width="4"/>
-  <circle cx="132" cy="46" r="24" fill="#fff" stroke="#3A2216" stroke-width="4"/>
-  <circle cx="100" cy="34" r="30" fill="#fff" stroke="#3A2216" stroke-width="4"/>
-  <path d="M60 60 L140 60" stroke="#fff" stroke-width="6"/>
-  <g class="eyes"></g><g class="mouth"></g>`;
-const FACES = {
-  neutral: {
-    eyes: `<ellipse cx="82" cy="122" rx="6" ry="9" fill="#3A2216"/><ellipse cx="118" cy="122" rx="6" ry="9" fill="#3A2216"/><circle cx="84" cy="118" r="2" fill="#fff"/><circle cx="120" cy="118" r="2" fill="#fff"/>`,
-    mouth: `<path d="M88 148 Q100 158 112 148" fill="none" stroke="#3A2216" stroke-width="4" stroke-linecap="round"/>`
-  },
-  happy: {
-    eyes: `<path d="M74 124 Q82 112 90 124" fill="none" stroke="#3A2216" stroke-width="4" stroke-linecap="round"/><path d="M110 124 Q118 112 126 124" fill="none" stroke="#3A2216" stroke-width="4" stroke-linecap="round"/>`,
-    mouth: `<path d="M80 144 Q100 172 120 144 Z" fill="#C2332A" stroke="#3A2216" stroke-width="4" stroke-linejoin="round"/><path d="M90 156 Q100 162 110 156" fill="#FF8FA3"/>`
-  },
-  sad: {
-    eyes: `<path d="M72 112 L90 118" stroke="#3A2216" stroke-width="4" stroke-linecap="round"/><path d="M128 112 L110 118" stroke="#3A2216" stroke-width="4" stroke-linecap="round"/><ellipse cx="82" cy="126" rx="5" ry="7" fill="#3A2216"/><ellipse cx="118" cy="126" rx="5" ry="7" fill="#3A2216"/>`,
-    mouth: `<path d="M86 158 Q100 144 114 158" fill="none" stroke="#3A2216" stroke-width="4" stroke-linecap="round"/>`
-  },
-  wow: {
-    eyes: `<circle cx="82" cy="122" r="8" fill="#3A2216"/><circle cx="118" cy="122" r="8" fill="#3A2216"/><circle cx="85" cy="118" r="3" fill="#fff"/><circle cx="121" cy="118" r="3" fill="#fff"/>`,
-    mouth: `<ellipse cx="100" cy="152" rx="9" ry="11" fill="#C2332A" stroke="#3A2216" stroke-width="4"/>`
-  }
-};
-const chefs = [...document.querySelectorAll("[data-chef]")];
-chefs.forEach(svg => { svg.innerHTML = CHEF_BASE; });
-function chefFace(mood, anim) {
-  chefs.forEach(svg => {
-    svg.querySelector(".eyes").innerHTML = FACES[mood].eyes;
-    svg.querySelector(".mouth").innerHTML = FACES[mood].mouth;
-    if (anim) { svg.classList.remove("bounce", "shake"); void svg.getBoundingClientRect(); svg.classList.add(anim); }
-  });
-}
-chefFace("happy");
-const bubble = document.getElementById("bubble");
-const say = txt => { bubble.textContent = txt; };
-
-/* ---------------- Sonido ---------------- */
-let soundOn = true, actx = null;
-function tone(freq, dur, type = "square", vol = .08, when = 0) {
-  if (!soundOn) return;
-  try {
-    actx = actx || new (window.AudioContext || window.webkitAudioContext)();
-    const t = actx.currentTime + when;
-    const o = actx.createOscillator(), g = actx.createGain();
-    o.type = type; o.frequency.setValueAtTime(freq, t);
-    g.gain.setValueAtTime(vol, t); g.gain.exponentialRampToValueAtTime(.0001, t + dur);
-    o.connect(g).connect(actx.destination); o.start(t); o.stop(t + dur);
-  } catch (e) {}
-}
-const sfx = {
-  ok() { tone(660, .12); tone(880, .12, "square", .08, .1); tone(1320, .25, "square", .07, .2); },
-  ko() { tone(220, .25, "sawtooth", .07); tone(160, .35, "sawtooth", .07, .18); },
-  chop() { tone(1200, .04, "triangle", .1); tone(900, .04, "triangle", .1, .14); tone(1100, .04, "triangle", .1, .28); },
-  tick() { tone(1000, .03, "sine", .05); },
-  stir() { tone(300 + Math.random() * 200, .05, "triangle", .06); },
-  fanfare() { [523, 659, 784, 1046].forEach((f, i) => tone(f, .22, "square", .07, i * .14)); }
-};
-document.getElementById("btnSound").addEventListener("click", e => {
-  soundOn = !soundOn;
-  e.currentTarget.textContent = "Sonido: " + (soundOn ? "sí" : "no");
-  e.currentTarget.setAttribute("aria-pressed", String(soundOn));
-});
-
-/* ---------------- Estado ---------------- */
-const cfg = { teams: 2, len: "full", time: 20, clock: 30, names: TEAM_DEFAULTS.map(t => t.name) };
-let S = null;
-const $ = id => document.getElementById(id);
-const pick = arr => arr[Math.floor(Math.random() * arr.length)];
-const shuffle = arr => { const a = arr.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
-
-function bindSeg(id, key, cast) {
-  const seg = $(id);
-  const paint = () => seg.querySelectorAll("button").forEach(b => b.setAttribute("aria-pressed", String(cast(b.dataset.v) === cfg[key])));
-  seg.addEventListener("click", e => {
-    const b = e.target.closest("button"); if (!b) return;
-    cfg[key] = cast(b.dataset.v); paint(); if (key === "teams") renderNames();
-  });
-  paint();
-}
-function renderNames() {
-  const box = $("teamNames"); box.innerHTML = "";
-  if (cfg.teams === 1) { box.hidden = true; return; }
-  box.hidden = false;
-  for (let i = 0; i < cfg.teams; i++) {
-    const inp = document.createElement("input");
-    inp.id = "teamName" + i; inp.value = cfg.names[i]; inp.maxLength = 18;
-    inp.setAttribute("aria-label", "Nombre del equipo " + (i + 1));
-    inp.style.borderLeftColor = TEAM_DEFAULTS[i].col;
-    inp.addEventListener("input", () => { cfg.names[i] = inp.value.trim() || TEAM_DEFAULTS[i].name; });
-    box.appendChild(inp);
-  }
-}
-bindSeg("segTeams", "teams", Number);
-bindSeg("segLen", "len", String);
-bindSeg("segTime", "time", Number);
-bindSeg("segClock", "clock", Number);
-renderNames();
-
-/* ---------------- Pantallas ---------------- */
-let lastScreen = "scrIntro";
-function show(id) {
-  ["scrIntro", "scrPlay", "scrGuide"].forEach(s => { $(s).hidden = s !== id; });
-  if (id !== "scrGuide") lastScreen = id;
-}
-function openCard(html, onNext, nextLabel = "Siguiente") {
-  const card = $("card");
-  card.innerHTML = html + (onNext ? `<div class="actions"><button class="big-btn green" id="cardNext" type="button">${nextLabel}</button></div>` : "");
-  $("overlay").hidden = false;
-  if (onNext) { const b = $("cardNext"); b.onclick = () => { closeCard(); onNext(); }; b.focus(); }
-}
-function closeCard() { $("overlay").hidden = true; }
-
-function buildGuide() {
-  const g = (list, box) => { $(box).innerHTML = list.map(x => `<div class="gcard" style="--lid:${x.lid}"><b>${x.lbl}</b><span>${x.def}</span><em>${x.ej}</em></div>`).join(""); };
-  g(NEEDS, "gNeeds"); g(TYPES, "gTypes");
-}
-buildGuide();
-const toGuide = () => { if (S && S.timer && STEPS[S.stepIdx] && STEPS[S.stepIdx].opts) pauseTimer(); show("scrGuide"); };
-$("btnGuide").onclick = toGuide; $("btnGuide2").onclick = toGuide;
-$("btnBack").onclick = () => { show(lastScreen); if (lastScreen === "scrPlay" && S && S.paused) resumeTimer(); };
-
-/* ---------------- Juego ---------------- */
-function start() {
-  const perTeam = cfg.len === "short" ? 2 : 3;
-  const nQ = cfg.teams === 1 ? perTeam * 2 : perTeam * cfg.teams;
-  S = {
-    teams: Array.from({ length: cfg.teams }, (_, i) => ({ name: cfg.teams === 1 ? "La clase" : cfg.names[i], col: TEAM_DEFAULTS[i].col, score: 0 })),
-    turn: 0, stepIdx: -1, qIdx: 0, locked: false, perTeam,
-    stats: {}, timer: null, deadline: 0, remain: 0, paused: false,
-    dishes: shuffle(DISHES).slice(0, cfg.len === "short" ? 2 : 3), g: null
-  };
-  STEPS.forEach(st => {
-    if (!st.opts) return;
-    st.qs = shuffle(st.bank).slice(0, nQ);
-    S.stats[st.key] = { ok: 0, total: st.qs.length };
-  });
-  show("scrPlay");
-  renderScores();
-  startClock();
-  nextStep();
-}
-$("btnStart").onclick = start;
-
-function renderScores() {
-  $("scores").innerHTML = S.teams.map((t, i) =>
-    `<span class="score-pill ${i === S.turn && S.teams.length > 1 ? "turn" : ""}"><span class="dot" style="background:${t.col}"></span>${t.name} · ${t.score}</span>`).join("");
-  const st = STEPS[S.stepIdx];
-  const tl = $("turnLine");
-  if (st && st.theory) tl.textContent = "Bloque de teoría";
-  else if (st && st.game) tl.textContent = "Minijuego · responden todos los equipos a la vez";
-  else tl.textContent = S.teams.length > 1 ? "Turno: equipo " + S.teams[S.turn].name : "Responde toda la clase";
-}
-function nextTurn() { S.turn = (S.turn + 1) % S.teams.length; renderScores(); }
-
-function starsHTML(n) { return `<span class="stars">${"★".repeat(n)}<span class="off">${"★".repeat(3 - n)}</span></span>`; }
-function starsFor(key) { const s = S.stats[key]; const p = s.ok / s.total; return p >= .9 ? 3 : p >= .6 ? 2 : p >= .3 ? 1 : 0; }
-
-function nextStep() {
-  const prev = STEPS[S.stepIdx];
-  S.stepIdx++;
-  if (S.stepIdx >= STEPS.length) return finish();
-  const st = STEPS[S.stepIdx];
-  S.turn = 0; S.locked = false;
-  renderScores();
-  let head = "";
-  if (prev && prev.opts) {
-    head = `<p class="answer-line">${prev.label} terminada: ${S.stats[prev.key].ok}/${S.stats[prev.key].total} aciertos</p>${starsHTML(starsFor(prev.key))}`;
-  }
-  if (st.theory) return showTheory(st, head);
-  if (st.game) {
-    chefFace("wow", "bounce");
-    openCard(`${head}<h2>Minijuego · ¡Adivina el plato!</h2>
-      <p>Nadie toca la pantalla. Van apareciendo pistas de un plato: <b>el primer equipo que lo diga en voz alta</b> (o levante la mano) se lleva los puntos. Cuantas menos pistas necesitéis, más puntos: 150, 100 o 50.</p>
-      <p>Cada pista dura 15 segundos. Quien presenta marca qué equipo ha acertado (teclas 1-${S.teams.length}), pasa de pista (P) o da el plato por perdido (0).</p>`,
-      startGame, "¡Que empiece!");
-    return;
-  }
-  const order = S.teams.map(t => t.name).join(" → ");
-  $("stepBadge").textContent = `${st.label} · ${st.name}`;
-  chefFace("happy", "bounce");
-  openCard(`${head}<h2>${st.label} · ${st.name}</h2><p><b>${st.prompt}</b> ${st.sub}</p>
-    <p>${S.teams.length > 1 ? `Los equipos se turnan en cada pregunta (${order}) y cada uno responde ${S.perTeam} situaciones en esta parte.` : `${st.qs.length} situaciones para toda la clase.`} Si alguien falla, ¡Mamá Max lo explica y seguimos!</p>`,
-    () => { S.qIdx = 0; ask(); }, "¡A cocinar!");
-}
-
-/* Teoría */
-const THEORY = {
-  needs: {
-    badge: "Teoría 1 · Necesidades",
-    title: "Las 9 necesidades humanas",
-    say: "¡Primero la teoría! Luego a cocinar.",
-    text: `<p>Para Max-Neef, las necesidades humanas son <b>pocas, finitas y clasificables</b>, y son <b>las mismas en todas las culturas y épocas</b>. Lo que cambia es la forma de cubrirlas: los <b>satisfactores</b>.</p>
-      <p>Comer cubre la subsistencia, pero <i>cómo</i>, <i>con quién</i> y <i>dónde</i> comemos puede cubrir (o fingir que cubre) muchas otras. Además, una necesidad no cubierta es una carencia y también una potencialidad: nos mueve a actuar.</p>`,
-    list: () => NEEDS, next: "Empezar la parte 1"
-  },
-  types: {
-    badge: "Teoría 2 · Satisfactores",
-    title: "Los 5 tipos de satisfactores",
-    say: "No todo lo que comemos nos sienta igual de bien…",
-    text: `<p>No todos los satisfactores funcionan igual. Max-Neef los ordena según su efecto: desde los que <b>destruyen</b> la necesidad que dicen cubrir hasta los que <b>estimulan varias a la vez</b>.</p>
-      <p>Los cuatro primeros suelen venir impuestos o inducidos desde fuera (publicidad, modas, instituciones). Los sinérgicos suelen nacer de la propia comunidad. Van de peor a mejor:</p>`,
-    list: () => TYPES.slice().reverse(), next: "Empezar la parte 2"
-  }
-};
-function showTheory(st, head) {
-  const T = THEORY[st.theory];
-  stopTimer(); $("timer").classList.add("off");
-  $("stepBadge").textContent = T.badge;
-  chefFace("happy", "bounce"); say(T.say);
-  $("prompt").innerHTML = T.title;
-  $("scene").innerHTML = `<div class="theory">${head ? `<div class="debate">${head}</div>` : ""}${T.text}
-    <div class="gcards ${st.theory}">${T.list().map(x => `<div class="gcard" style="--lid:${x.lid}"><b>${x.lbl}</b><span>${x.def}</span><em>${x.ej}</em></div>`).join("")}</div></div>`;
-  $("answers").className = "answers";
-  $("answers").innerHTML = `<div class="actions"><button class="big-btn green" id="btnTheoryNext" type="button">${T.next}</button></div>`;
-  $("btnTheoryNext").onclick = nextStep;
-}
-
-/* Minijuego: adivina el plato */
-const CLUE_SECS = 15, CLUE_PTS = [150, 100, 50];
-function startGame() { S.g = { i: 0 }; dish(); }
-function dish() {
-  const d = S.dishes[S.g.i];
-  S.g.clue = 0; S.g.done = false;
-  $("stepBadge").textContent = "Minijuego · Adivina el plato";
-  chefFace("wow"); say("¿Qué estoy cocinando? ¡Gritadlo!");
-  $("prompt").innerHTML = `¿Qué plato es? ¡Decidlo en voz alta!<small>Plato ${S.g.i + 1} de ${S.dishes.length} · Sin tocar la pantalla: quien presenta marca al equipo que acierte primero.</small>`;
-  const ans = $("answers");
-  ans.className = "answers";
-  ans.innerHTML = `<div class="host">${S.teams.map((t, i) =>
-      `<button class="host-btn" type="button" data-t="${i}" style="--tc:${t.col}">${S.teams.length > 1 ? `Acierta ${t.name}` : "¡La clase acierta!"} <small>(${i + 1})</small></button>`).join("")}
-    <button class="host-btn ghost" type="button" id="btnClue">Siguiente pista <small>(P)</small></button>
-    <button class="host-btn ghost" type="button" id="btnNobody">Nadie lo sabe <small>(0)</small></button></div>`;
-  ans.querySelectorAll("[data-t]").forEach(b => b.onclick = () => award(+b.dataset.t));
-  $("btnClue").onclick = nextClue;
-  $("btnNobody").onclick = () => award(null);
-  renderClues();
-  clueTimer();
-}
-function renderClues() {
-  const d = S.dishes[S.g.i];
-  $("scene").innerHTML = `<div class="clues">
-    <span class="worth">Ahora vale ${CLUE_PTS[S.g.clue]} puntos</span>
-    ${d.clues.map((c, i) => i <= S.g.clue
-      ? `<div class="clue"><span class="emo" aria-hidden="true">${c[0]}</span><span>${c[1]}</span></div>`
-      : `<div class="clue locked"><span class="emo" aria-hidden="true">?</span><span>Pista ${i + 1}</span></div>`).join("")}</div>`;
-  $("btnClue").disabled = S.g.clue >= d.clues.length - 1;
-}
-function clueTimer() {
-  const el = $("timer"), bar = el.querySelector("i");
-  stopTimer(); el.classList.remove("off", "low");
-  const end = performance.now() + CLUE_SECS * 1000;
-  S.timer = setInterval(() => {
-    const left = end - performance.now();
-    bar.style.width = Math.max(0, left / (CLUE_SECS * 1000) * 100) + "%";
-    el.classList.toggle("low", left < 5000);
-    if (left <= 0) {
-      stopTimer();
-      if (S.g.clue < S.dishes[S.g.i].clues.length - 1) nextClue(); else award(null);
+(function(){
+  var keys=['idea','datos','limpieza','gasto','cesta','resumen'];
+  var names=['La idea','Los datos','Limpieza','El gasto','La cesta','Resumen'];
+  var secs=[].slice.call(document.querySelectorAll('.receipt > section'));
+  var tabs=[].slice.call(document.querySelectorAll('.tab'));
+  // quitar los cortes entre secciones: solo queda uno arriba y otro antes del pie
+  secs.forEach(function(s,i){
+    var n=s.nextElementSibling; if(i<secs.length-1 && n && n.matches('hr.cut')) n.remove();
+    s.id='p-'+keys[i]; s.setAttribute('role','tabpanel'); s.setAttribute('aria-labelledby','tab-'+keys[i]);
+    // "Ver más": a partir del elemento marcado con data-more, el contenido queda plegado
+    var cut=s.querySelector(':scope > [data-more]');
+    if(cut){
+      var w=document.createElement('div'); w.className='more-wrap'; w.hidden=true; w.id='more-'+keys[i];
+      s.insertBefore(w,cut);
+      while(w.nextSibling) w.appendChild(w.nextSibling);
+      var mb=document.createElement('button'); mb.type='button'; mb.className='sq more-btn';
+      mb.setAttribute('aria-expanded','false'); mb.setAttribute('aria-controls',w.id); mb.textContent='Ver más ↓';
+      mb.onclick=function(){var open=w.hidden; w.hidden=!open; mb.setAttribute('aria-expanded',String(open)); mb.textContent=open?'Ver menos ↑':'Ver más ↓'; if(open){s.insertBefore(mb,null)} else {s.insertBefore(mb,w); mb.scrollIntoView({block:'center'})} if(window.mbRelabel) window.mbRelabel();};
+      s.insertBefore(mb,w);
     }
-  }, 100);
-}
-function nextClue() {
-  if (S.g.done || S.g.clue >= S.dishes[S.g.i].clues.length - 1) return;
-  S.g.clue++; sfx.tick(); tone(700, .1, "triangle", .08);
-  say(pick(["¡Otra pista!", "¡Venga, que es fácil!", "¿Nadie? ¡Mirad bien!"]));
-  renderClues(); clueTimer();
-}
-function award(idx) {
-  if (S.g.done) return;
-  S.g.done = true; stopTimer();
-  const d = S.dishes[S.g.i];
-  const pts = idx === null ? 0 : CLUE_PTS[S.g.clue];
-  if (idx !== null) { S.teams[idx].score += pts; sfx.fanfare(); chefFace("happy", "bounce"); say("¡Exacto!"); }
-  else { sfx.ko(); chefFace("sad", "shake"); say("¡Era fácil!"); }
-  renderScores();
-  const last = S.g.i >= S.dishes.length - 1;
-  openCard(`<h2 class="${idx === null ? "ko" : "ok"}">${d.emo} ${d.name}</h2>
-    <p class="points">${idx === null ? "Nadie se lleva los puntos" : `${S.teams[idx].name}: +${pts} puntos`}</p>`,
-    () => { if (last) nextStep(); else { S.g.i++; dish(); } }, last ? "Seguir con la teoría" : "Siguiente plato");
-}
-
-/* Cronómetro del taller */
-const clock = { left: 0, running: false, last: 0, warned: false, iv: null };
-function fmt(s) { s = Math.max(0, Math.ceil(s)); return String(Math.floor(s / 60)).padStart(2, "0") + ":" + String(s % 60).padStart(2, "0"); }
-function paintClock() {
-  const b = $("btnClock");
-  b.hidden = false;
-  b.textContent = (clock.left <= 0 ? "¡Tiempo! " : "") + "⏱ " + fmt(clock.left) + (clock.running ? "" : " (pausa)");
-  b.classList.toggle("low", clock.left > 0 && clock.left < 300);
-  b.classList.toggle("over", clock.left <= 0);
-}
-function startClock() {
-  clock.left = cfg.clock * 60; clock.running = true; clock.warned = false; clock.last = performance.now();
-  clearInterval(clock.iv);
-  clock.iv = setInterval(() => {
-    const now = performance.now();
-    if (clock.running) clock.left -= (now - clock.last) / 1000;
-    clock.last = now;
-    if (clock.left <= 0 && !clock.warned) { clock.warned = true; tone(880, .3, "square", .08); tone(660, .4, "square", .08, .3); }
-    paintClock();
-  }, 250);
-  paintClock();
-}
-$("btnClock").onclick = () => { clock.running = !clock.running; clock.last = performance.now(); paintClock(); };
-
-function sceneFor(st, q) {
-  const item = `<div class="item pop" id="item"><span class="emo" aria-hidden="true">${q.emo}</span><span class="txt">${q.t}</span></div>`;
-  if (st.scene === "board") {
-    return `<div class="board">${item}<svg class="knife" id="knife" viewBox="0 0 80 160" aria-hidden="true"><path d="M30 4 Q62 20 58 110 L30 110 Z" fill="#E8EEF2" stroke="#3A2216" stroke-width="4" stroke-linejoin="round"/><rect x="28" y="108" width="26" height="48" rx="8" fill="#3A2216"/><circle cx="41" cy="122" r="3" fill="#F7B928"/><circle cx="41" cy="140" r="3" fill="#F7B928"/></svg></div>`;
+    var p=document.createElement('div'); p.className='pager';
+    if(i>0){var b=document.createElement('button');b.type='button';b.textContent='← '+names[i-1];b.onclick=function(){go(keys[i-1],true)};p.appendChild(b);}
+    if(i<secs.length-1){var f=document.createElement('button');f.type='button';f.className='next';f.textContent=names[i+1]+' →';f.onclick=function(){go(keys[i+1],true)};p.appendChild(f);}
+    s.appendChild(p);
+  });
+  function go(k,scroll){
+    var i=keys.indexOf(k); if(i<0) i=0;
+    secs.forEach(function(s,j){s.hidden=j!==i});
+    document.querySelector('.head').classList.toggle('compact',i>0);
+    tabs.forEach(function(t,j){t.setAttribute('aria-selected',j===i?'true':'false');t.tabIndex=j===i?0:-1});
+    try{ if(location.hash.slice(1)!==keys[i]) history.replaceState(null,'','#'+keys[i]); }catch(e){}
+    if(window.rgTrack) window.rgTrack(keys[i],names[i]);
+    if(scroll){var nav=document.getElementById('tabs'); if(nav.getBoundingClientRect().top<0) nav.scrollIntoView({block:'start'});}
   }
-  if (st.scene === "pan") {
-    return `<div class="pan-wrap" id="panWrap"><div class="steam"><span></span><span></span><span></span></div><div class="pan">${item}</div><div class="handle"></div></div>`;
-  }
-  return item;
-}
+  tabs.forEach(function(t,j){
+    t.addEventListener('click',function(){go(t.dataset.k,false)});
+    t.addEventListener('keydown',function(e){
+      var d=e.key==='ArrowRight'?1:e.key==='ArrowLeft'?-1:0; if(!d) return;
+      var n=(j+d+tabs.length)%tabs.length; tabs[n].focus(); go(keys[n],false);
+    });
+  });
+  window.addEventListener('hashchange',function(){go(location.hash.slice(1),false)});
+  go(location.hash.slice(1),false);
 
-function ask() {
-  const st = STEPS[S.stepIdx];
-  const q = st.qs[S.qIdx];
-  S.locked = false;
-  $("prompt").innerHTML = `${st.prompt}<small>Situación ${S.qIdx + 1} de ${st.qs.length} · ${st.sub}</small>`;
-  $("scene").innerHTML = sceneFor(st, q);
-  const ans = $("answers");
-  ans.className = "answers " + (st.scene === "board" ? "needs" : "types");
-    ans.innerHTML = st.opts.map((o, i) =>
-      `<button class="jar" type="button" data-id="${o.id}" style="--lid:${o.lid}"><span class="k">${i + 1}</span><span class="lbl">${o.lbl}</span><span class="hint">${o.hint}</span></button>`).join("");
-    ans.querySelectorAll(".jar").forEach(b => b.onclick = () => answer(b.dataset.id));
-  chefFace("neutral");
-  say(pick(["¿Qué opináis?", "¡Pensadlo bien!", "Mmm… ¿dónde va esto?", "¡Consultad en equipo!"]));
-  startTimer();
-}
-
-/* Timer */
-function startTimer() {
-  const el = $("timer");
-  clearInterval(S.timer); S.timer = null; S.paused = false;
-  if (!cfg.time) { el.classList.add("off"); return; }
-  el.classList.remove("off", "low");
-  S.remain = cfg.time * 1000;
-  runTimer();
-}
-function runTimer() {
-  const el = $("timer"), bar = el.querySelector("i");
-  S.deadline = performance.now() + S.remain;
-  let lastSec = Math.ceil(S.remain / 1000);
-  S.timer = setInterval(() => {
-    const left = S.deadline - performance.now();
-    S.remain = left;
-    bar.style.width = Math.max(0, left / (cfg.time * 1000) * 100) + "%";
-    el.classList.toggle("low", left < 5000);
-    const sec = Math.ceil(left / 1000);
-    if (left < 5000 && sec !== lastSec && sec > 0) sfx.tick();
-    lastSec = sec;
-    if (left <= 0) { stopTimer(); answer(null); }
-  }, 100);
-}
-function stopTimer() { clearInterval(S.timer); S.timer = null; }
-function pauseTimer() { if (S.timer) { stopTimer(); S.paused = true; } }
-function resumeTimer() { if (S.paused && !S.locked) { S.paused = false; runTimer(); } }
-
-function answer(id) {
-  if (S.locked) return;
-  S.locked = true;
-  const secsLeft = S.timer ? Math.max(0, S.remain / 1000) : 0;
-  stopTimer();
-  const st = STEPS[S.stepIdx], q = st.qs[S.qIdx];
-  const ok = id === q.a;
-  const team = S.teams[S.turn];
-  const pts = ok ? 100 + Math.round(secsLeft * 5) : 0;
-  if (ok) { team.score += pts; S.stats[st.key].ok++; }
-
-  document.querySelectorAll("#answers .jar").forEach(b => {
-    b.disabled = true;
-    if (b.dataset.id === q.a) b.classList.add("right");
-    else if (b.dataset.id === id) b.classList.add("wrong");
+  // volver arriba
+  var top=document.getElementById('toTop');
+  top.hidden=false;
+  top.addEventListener('click',function(){
+    var rm=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+    window.scrollTo({top:0,behavior:rm?'auto':'smooth'});
   });
 
-  const item = $("item");
-  if (ok) {
-    if (st.scene === "board") { $("knife").classList.add("chop"); item.classList.add("sliced"); sfx.chop(); setTimeout(sfx.ok, 350); }
-    else if (st.scene === "pan") { item.classList.add("flip"); $("panWrap").classList.add("sizzle"); sfx.ok(); }
-    chefFace("happy", "bounce");
-    say(pick(["¡Perfecto!", "¡Qué rico!", "¡Así se hace!", "¡Mejor que yo!"]));
-  } else {
-    sfx.ko();
-    chefFace("sad", "shake");
-    say("¡No pasa nada! Mamá Max lo arregla.");
+  // carrusel de relaciones
+  var tr=document.getElementById('carT'), cn=document.getElementById('carN');
+  if(tr){
+    var cards=[].slice.call(tr.children);
+    function idx(){var x=tr.scrollLeft,best=0,d=1e9;cards.forEach(function(c,j){var dd=Math.abs(c.offsetLeft-tr.offsetLeft-x);if(dd<d){d=dd;best=j}});return best}
+    function upd(){cn.textContent=(idx()+1)+' / '+cards.length}
+    tr.addEventListener('scroll',function(){window.requestAnimationFrame(upd)},{passive:true});
+    document.querySelectorAll('#car [data-d]').forEach(function(b){b.addEventListener('click',function(){
+      var j=Math.max(0,Math.min(cards.length-1,idx()+(+b.dataset.d)));
+      tr.scrollTo({left:cards[j].offsetLeft-tr.offsetLeft,behavior:'smooth'});
+    })});
+    upd();
   }
-  const right = st.opts.find(o => o.id === q.a);
-  const chosen = st.opts.find(o => o.id === id);
-  setTimeout(() => {
-    openCard(`
-      <h2 class="${ok ? "ok" : "ko"}">${ok ? pick(["¡Perfecto!", "¡Delicioso!", "¡Al punto!"]) : id === null ? "¡Se acabó el tiempo!" : "¡Uy, se quemó!"}</h2>
-      ${S.teams.length > 1 ? `<p class="points">${team.name}: ${ok ? "+" + pts : "+0"} puntos</p>` : ok ? `<p class="points">+${pts} puntos</p>` : ""}
-      <p class="answer-line">${q.emo} ${q.t} → <span style="color:var(--mint)">${right.lbl}</span>${!ok && chosen ? ` <span style="color:var(--tomato)">(no ${chosen.lbl})</span>` : ""}</p>
-      <p>${q.e}</p>
-      ${q.d ? `<div class="debate"><b>Para debatir</b>${q.d}</div>` : ""}`,
-      () => {
-        nextTurn();
-        S.qIdx++;
-        if (S.qIdx >= st.qs.length) nextStep(); else ask();
-      });
-  }, ok ? 800 : 650);
-}
-
-/* Final */
-function finish() {
-  stopTimer();
-  const scored = STEPS.filter(s => s.opts);
-  const ok = scored.reduce((a, s) => a + S.stats[s.key].ok, 0);
-  const total = scored.reduce((a, s) => a + S.stats[s.key].total, 0);
-  const p = ok / total;
-  const medal = p >= .9 ? { t: "¡Mejor que Mamá Max!", m: "ORO", c: "#F7B928" } : p >= .65 ? { t: "¡Muy rico!", m: "PLATA", c: "#D9DEE4" } : { t: "¡Sigue practicando!", m: "BRONCE", c: "#D99A5B" };
-  sfx.fanfare(); chefFace(p >= .65 ? "happy" : "wow", "bounce"); say(medal.t);
-  const rank = S.teams.slice().sort((a, b) => b.score - a.score);
-  openCard(`
-    <div class="medal" style="--mcol:${medal.c}">${medal.m}</div>
-    <h2 style="text-align:center">${medal.t}</h2>
-    <p style="text-align:center" class="answer-line">La clase acertó ${ok} de ${total} situaciones.</p>
-    <div class="step-stars">${scored.map(s => `<div><span>${s.label} · ${s.name}</span>${starsHTML(starsFor(s.key))}</div>`).join("")}</div>
-    ${S.teams.length > 1 ? `<ol class="rank">${rank.map((t, i) => `<li><span>${i + 1}.</span><span style="display:flex;gap:8px;align-items:center"><span class="dot" style="width:14px;height:14px;border-radius:50%;border:2px solid var(--cocoa);background:${t.col}"></span>${t.name}</span><span>${t.score}</span></li>`).join("")}</ol>` : `<p class="points" style="text-align:center">${S.teams[0].score} puntos</p>`}
-    <div class="debate"><b>Cierre del taller</b>Pastillas para no engordar, carne con oro, dulces virales… ¿Por qué creéis que en la gastronomía abundan tanto los pseudo-satisfactores y los destructores? ¿Qué papel tienen la publicidad y las redes sociales?</div>`,
-    () => { show("scrIntro"); chefFace("happy"); }, "Volver al menú");
-}
-
-/* Teclado */
-document.addEventListener("keydown", e => {
-  if (!$("overlay").hidden) {
-    if (e.key === "Enter" && $("cardNext") && document.activeElement !== $("cardNext")) { e.preventDefault(); $("cardNext").click(); }
-    return;
+})();
+(function(){
+  var el=document.getElementById('barcode'); if(!el) return;
+  var seed="THEGROCERYREPORT0138141526", w=[1,2,1,3,1,1,2,1,2,3], html="";
+  for(var i=0;i<78;i++){
+    var c=seed.charCodeAt(i%seed.length)+i*7;
+    html+='<i style="width:'+w[c%10]+'px"></i><i class="g" style="width:'+w[(c>>2)%4+1]+'px"></i>';
   }
-  if ($("scrPlay").hidden || !S || S.locked) return;
-  const st = STEPS[S.stepIdx];
-  if (!st) return;
-  const n = parseInt(e.key, 10);
-  if (st.theory) { if (e.key === "Enter") { e.preventDefault(); nextStep(); } return; }
-  if (st.game) {
-    if (!S.g || S.g.done) return;
-    if (n >= 1 && n <= S.teams.length) award(n - 1);
-    else if (e.key === "0") award(null);
-    else if (e.key === "p" || e.key === "P" || e.key === "ArrowRight") nextClue();
-    return;
-  }
-  if (n >= 1 && n <= st.opts.length) answer(st.opts[n - 1].id);
-});
+  el.innerHTML=html;
 })();
 </script>
 
+<div class="mb-tip" id="mbTip" hidden></div>
+<script>
+(function(){
+const svg=document.getElementById('mbG'); if(!svg) return;
+const DATA = {"nodes":[{"n":"PATATA","s":21,"c":"4","x":12,"y":22},{"n":"SALTEADO VERD. ASADA","s":18,"c":"2","x":10,"y":54},{"n":"LECHE DESN. PROT 1L","s":20,"c":"3","x":28,"y":35},{"n":"JAMON S. EXTRA FINO","s":21,"c":"1","x":34,"y":-59},{"n":"BURGER M VACUN 500G","s":16,"c":"3","x":-14,"y":-14},{"n":"ARROZ INTEGRAL","s":14,"c":"2","x":-18,"y":80},{"n":"AGUACATE BANDEJA","s":13,"c":"3","x":-27,"y":26},{"n":"BURRATA","s":15,"c":"1","x":29,"y":-76},{"n":"CALABACIN VERDE","s":13,"c":"4","x":87,"y":59},{"n":"12 HUEVOS GRANDES-L","s":13,"c":"2","x":19,"y":90},{"n":"ATUN CLARO NATURAL","s":12,"c":"2","x":0,"y":86},{"n":"NOODLES","s":11,"c":"4","x":49,"y":72},{"n":"PINTEGRAL TRIGO100%","s":13,"c":"3","x":-34,"y":51},{"n":"ACEITUNA R/ANCHOA UD","s":11,"c":"2","x":-14,"y":54},{"n":"ACEITUNA SUAVE P3","s":12,"c":"3","x":-27,"y":-28},{"n":"T POLLO NATURAL","s":10,"c":"1","x":87,"y":-23},{"n":"CUAJADA","s":12,"c":"4","x":49,"y":56},{"n":"PECHUGA PAVO FILETE","s":8,"c":"1","x":44,"y":-5},{"n":"PECHUGA DE POLLO 92%","s":8,"c":"3","x":-9,"y":12},{"n":"YOGUR SABOR COCO","s":8,"c":"4","x":67,"y":52},{"n":"PLATANO","s":13,"c":"2","x":24,"y":110},{"n":"LOMO SALMON NORUEGO","s":10,"c":"2","x":-41,"y":112},{"n":"MANGO","s":10,"c":"1","x":43,"y":-86},{"n":"CEBOLLA CONG ZIP","s":8,"c":"1","x":27,"y":-22},{"n":"GARBANZO PEDROSILLAN","s":7,"c":"6","x":-52,"y":22},{"n":"TOM.RECETA ARTESANA","s":9,"c":"1","x":75,"y":-41},{"n":"LACON CORTADO A MANO","s":9,"c":"3","x":10,"y":-2},{"n":"CALAMAR PEQUEÑO","s":7,"c":"3","x":-4,"y":-46},{"n":"ANACARDOS FRITOS","s":10,"c":"2","x":-23,"y":102},{"n":"LONGANIZA POLLO","s":7,"c":"2","x":71,"y":77},{"n":"DUO FRUTA","s":7,"c":"1","x":51,"y":-39},{"n":"FILETE MERLUZA CABO","s":6,"c":"5","x":86,"y":4},{"n":"SOLOMILLO PAVO","s":10,"c":"2","x":-52,"y":127},{"n":"T. 100% INTEGRALES","s":6,"c":"6","x":-70,"y":-11},{"n":"BROCOLI","s":8,"c":"2","x":-59,"y":85},{"n":"GALL DIGESTIVE AVENA","s":7,"c":"4","x":38,"y":106},{"n":"ATUN","s":7,"c":"2","x":-4,"y":105},{"n":"PIMIENTO CONGELADO","s":6,"c":"5","x":86,"y":31},{"n":"QUESO DADOS ENSALADA","s":7,"c":"4","x":39,"y":93},{"n":"QUESO FRESCO S/GRASA","s":5,"c":"3","x":5,"y":-23},{"n":"DUO CANONIGOS RUCULA","s":6,"c":"1","x":41,"y":-107},{"n":"ISOTONICA LIMON","s":6,"c":"1","x":81,"y":-81},{"n":"ROLLO HOGAR DOBLE","s":6,"c":"2","x":-31,"y":74},{"n":"CONTRAMUSLO DESHUESA","s":6,"c":"5","x":65,"y":0},{"n":"H. SEMILLAS 12%","s":6,"c":"6","x":-35,"y":6},{"n":"BATATA GRANEL","s":5,"c":"2","x":-51,"y":52},{"n":"MANTECADAS S/LACTOSA","s":7,"c":"1","x":63,"y":-93},{"n":"SETA SHIITAKE","s":5,"c":"1","x":59,"y":-68},{"n":"QUESO RALLADO PIZZA","s":7,"c":"5","x":105,"y":32},{"n":"TOMATE FRITO A.OLIVA","s":5,"c":"4","x":62,"y":101},{"n":"CALABAZA TROZOS","s":4,"c":"4","x":92,"y":104},{"n":"ACEITUNA R/ANCHOA P3","s":7,"c":"1","x":31,"y":-128},{"n":"6 HUEVOS GRANDES-L","s":4,"c":"6","x":-94,"y":3},{"n":"PECHUGA PAVO 92%","s":8,"c":"1","x":22,"y":-98},{"n":"GRIEGO LIGERO NAT","s":6,"c":"6","x":-51,"y":-15},{"n":"CARACOLA PASAS 10%","s":5,"c":"5","x":67,"y":-18},{"n":"72% ALMENDRA S/AZ","s":5,"c":"3","x":-40,"y":33},{"n":"QUESO COTTAGE","s":5,"c":"3","x":-50,"y":69},{"n":"ACEITE VIRGEN EX","s":6,"c":"2","x":-30,"y":134},{"n":"PATATAS EXTRACRUNCH","s":5,"c":"1","x":22,"y":-124},{"n":"PATATAS PANADERA","s":3,"c":"4","x":78,"y":131},{"n":"EMPANADILLAS ATUN","s":4,"c":"1","x":77,"y":-98},{"n":"RELLENO KEBAB POLLO","s":3,"c":"1","x":98,"y":-103},{"n":"ARANDANO 225 GR","s":3,"c":"5","x":122,"y":16},{"n":"T.CHERRY 500 GR","s":3,"c":"1","x":46,"y":-134},{"n":"ACEITE OLIVA 0'4","s":3,"c":"2","x":-40,"y":159}],"edges":[[0,1,14,4.56],[0,2,13,3.81],[1,2,14,4.78],[0,4,12,4.39],[1,4,11,4.7],[2,4,10,3.84],[3,4,8,2.93],[0,5,8,3.35],[1,5,11,5.37],[2,5,11,4.83],[0,6,8,3.6],[1,6,8,4.21],[2,6,8,3.78],[4,6,9,5.32],[0,7,8,3.12],[3,7,11,4.3],[4,7,8,4.1],[0,8,7,3.15],[1,8,8,4.21],[2,8,9,4.26],[0,9,8,3.6],[1,9,8,4.21],[2,9,7,3.31],[0,10,10,4.88],[1,10,12,6.83],[2,10,8,4.1],[4,10,8,5.12],[5,10,7,5.12],[0,11,8,4.26],[1,11,8,4.97],[2,11,8,4.47],[8,11,6,5.16],[10,11,6,5.59],[1,12,7,3.68],[2,12,9,4.26],[4,12,7,4.14],[6,12,8,5.82],[0,13,9,4.79],[1,13,9,5.59],[2,13,7,3.91],[4,13,7,4.89],[5,13,6,4.79],[10,13,6,5.59],[0,14,8,3.9],[1,14,6,3.42],[2,14,6,3.08],[4,14,7,4.48],[0,16,7,3.42],[1,16,6,3.42],[2,16,7,3.59],[8,16,6,4.73],[11,16,7,6.52],[0,15,7,4.1],[1,15,5,3.42],[2,15,6,3.69],[3,15,5,2.93],[4,15,5,3.84],[7,15,6,4.92],[8,15,5,4.73],[11,15,5,5.59],[15,16,5,5.12],[0,17,5,3.66],[1,17,7,5.98],[2,17,7,5.38],[3,17,5,3.66],[4,17,5,4.8],[8,17,4,4.73],[9,17,4,4.73],[11,17,5,6.99],[12,17,4,4.73],[16,17,4,5.12],[0,18,5,3.66],[1,18,7,5.98],[2,18,6,4.61],[3,18,4,2.93],[4,18,5,4.8],[5,18,5,5.49],[6,18,5,5.91],[8,18,4,4.73],[9,18,4,4.73],[10,18,4,5.12],[11,18,4,5.59],[12,18,6,7.1],[13,18,5,6.99],[14,18,5,6.41],[16,18,4,5.12],[17,18,4,7.69],[1,20,7,3.68],[5,20,7,4.73],[10,20,6,4.73],[0,19,7,5.12],[1,19,7,5.98],[2,19,7,5.38],[3,19,4,2.93],[4,19,4,3.84],[5,19,4,4.39],[6,19,4,4.73],[8,19,6,7.1],[9,19,4,4.73],[10,19,4,5.12],[11,19,5,6.99],[16,19,4,5.12],[17,19,4,7.69],[0,21,6,3.51],[1,21,6,4.1],[2,21,6,3.69],[5,21,5,4.39],[6,21,5,4.73],[9,21,5,4.73],[10,21,5,5.12],[3,22,6,3.51],[4,22,6,4.61],[7,22,7,5.74],[0,23,7,5.12],[1,23,6,5.12],[2,23,7,5.38],[3,23,4,2.93],[4,23,6,5.77],[6,23,4,4.73],[7,23,5,5.12],[10,23,4,5.12],[11,23,4,5.59],[13,23,4,5.59],[16,23,4,5.12],[15,23,4,6.15],[17,23,4,7.69],[0,24,5,4.18],[1,24,6,5.86],[2,24,7,6.15],[4,24,4,4.39],[5,24,5,6.28],[10,24,5,7.32],[11,24,4,6.39],[14,24,4,5.86],[18,24,4,8.79],[0,25,5,3.25],[1,25,5,3.8],[2,25,5,3.42],[3,25,5,3.25],[4,25,5,4.27],[7,25,6,5.47],[15,25,6,8.2],[17,25,4,6.83],[23,25,4,6.83],[0,26,6,3.9],[1,26,7,5.31],[2,26,6,4.1],[10,26,5,5.69],[14,26,5,5.69],[23,26,4,6.83],[0,27,5,4.18],[1,27,4,3.9],[2,27,5,4.39],[4,27,4,4.39],[7,27,4,4.69],[14,27,4,5.86],[18,27,4,8.79],[0,28,6,3.51],[1,28,6,4.1],[2,28,5,3.08],[13,28,5,5.59],[0,29,5,4.18],[1,29,7,6.83],[2,29,5,4.39],[5,29,4,5.02],[8,29,4,5.41],[9,29,4,5.41],[10,29,6,8.79],[11,29,5,7.99],[13,29,4,6.39],[20,29,4,5.41],[19,29,4,8.79],[25,29,4,7.81],[1,30,5,4.88],[2,30,6,5.27],[3,30,4,3.35],[4,30,4,4.39],[6,30,4,5.41],[7,30,4,4.69],[8,30,4,5.41],[17,30,4,8.79],[0,31,4,3.9],[1,31,5,5.69],[2,31,5,5.12],[3,31,5,4.88],[4,31,3,3.84],[5,31,4,5.86],[6,31,4,6.31],[7,31,4,5.47],[8,31,3,4.73],[13,31,3,5.59],[15,31,3,6.15],[19,31,3,7.69],[22,31,3,6.15],[23,31,3,7.69],[24,31,3,8.79],[26,31,3,6.83],[30,31,3,8.79],[1,32,5,3.42],[10,32,5,5.12],[21,32,5,6.15],[0,33,5,4.88],[1,33,4,4.56],[2,33,4,4.1],[3,33,3,2.93],[4,33,5,6.41],[6,33,3,4.73],[10,33,3,5.12],[13,33,3,5.59],[17,33,3,7.69],[23,33,3,7.69],[24,33,3,8.79],[0,34,4,2.93],[1,34,5,4.27],[2,34,5,3.84],[4,34,4,3.84],[5,34,4,4.39],[6,34,4,4.73],[10,34,4,5.12],[12,34,4,4.73],[21,34,4,6.15],[32,34,4,6.15],[0,35,4,3.35],[1,35,4,3.9],[2,35,5,4.39],[8,35,5,6.76],[9,35,4,5.41],[11,35,4,6.39],[16,35,4,5.86],[28,35,4,7.03],[1,36,5,4.88],[2,36,4,3.51],[5,36,5,6.28],[0,37,3,2.93],[1,37,6,6.83],[2,37,4,4.1],[3,37,5,4.88],[5,37,4,5.86],[7,37,3,4.1],[10,37,4,6.83],[11,37,3,5.59],[13,37,3,5.59],[15,37,3,6.15],[17,37,3,7.69],[18,37,3,7.69],[20,37,3,4.73],[24,37,3,8.79],[25,37,3,6.83],[29,37,4,11.71],[31,37,4,13.67],[0,38,6,5.02],[2,38,5,4.39],[6,38,4,5.41],[8,38,4,5.41],[9,38,4,5.41],[11,38,4,6.39],[12,38,4,5.41],[16,38,4,5.86],[0,39,3,3.51],[1,39,5,6.83],[2,39,4,4.92],[3,39,3,3.51],[4,39,4,6.15],[5,39,3,5.27],[6,39,4,7.57],[12,39,3,5.68],[14,39,3,6.15],[17,39,3,9.22],[18,39,4,12.3],[19,39,3,9.22],[22,39,3,7.38],[26,39,3,8.2],[30,39,3,10.54],[1,40,3,3.42],[3,40,5,4.88],[4,40,3,3.84],[7,40,4,5.47],[17,40,3,7.69],[22,40,4,8.2],[25,40,3,6.83],[2,41,4,4.1],[3,41,4,3.9],[4,41,3,3.84],[9,41,3,4.73],[22,41,3,6.15],[30,41,3,8.79],[0,42,4,3.9],[1,42,4,4.56],[2,42,4,4.1],[3,42,3,2.93],[4,42,4,5.12],[5,42,4,5.86],[9,42,3,4.73],[10,42,3,5.12],[13,42,4,7.45],[28,42,3,6.15],[0,43,5,4.88],[1,43,4,4.56],[2,43,3,3.08],[3,43,4,3.9],[4,43,3,3.84],[6,43,3,4.73],[7,43,3,4.1],[8,43,3,4.73],[11,43,3,5.59],[13,43,3,5.59],[14,43,4,6.83],[16,43,3,5.12],[15,43,3,6.15],[19,43,3,7.69],[26,43,3,6.83],[31,43,3,10.25],[0,44,5,4.88],[1,44,4,4.56],[2,44,4,4.1],[3,44,3,2.93],[4,44,3,3.84],[7,44,3,4.1],[10,44,3,5.12],[11,44,3,5.59],[13,44,4,7.45],[16,44,3,5.12],[19,44,3,7.69],[23,44,3,7.69],[24,44,3,8.79],[26,44,3,6.83],[28,44,3,6.15],[33,44,3,10.25],[0,45,3,3.51],[1,45,4,5.47],[2,45,5,6.15],[4,45,4,6.15],[6,45,3,5.68],[9,45,3,5.68],[13,45,3,6.71],[16,45,3,6.15],[18,45,3,9.22],[24,45,3,10.54],[34,45,3,9.22],[0,46,4,3.35],[3,46,5,4.18],[7,46,5,5.86],[41,46,3,8.79],[0,47,4,4.69],[1,47,3,4.1],[2,47,4,4.92],[3,47,4,4.69],[4,47,3,4.61],[7,47,4,6.56],[15,47,3,7.38],[17,47,3,9.22],[23,47,3,9.22],[25,47,4,10.93],[27,47,3,10.54],[30,47,3,10.54],[46,47,3,10.54],[1,48,5,4.88],[2,48,5,4.39],[31,48,3,8.79],[37,48,3,8.79],[0,49,4,4.69],[1,49,4,5.47],[2,49,4,4.92],[4,49,3,4.61],[8,49,3,5.68],[10,49,3,6.15],[11,49,4,8.95],[12,49,3,5.68],[13,49,3,6.71],[16,49,5,10.25],[17,49,3,9.22],[18,49,3,9.22],[19,49,3,9.22],[38,49,3,10.54],[3,51,5,4.18],[7,51,5,5.86],[40,51,3,8.79],[19,50,4,15.38],[49,50,3,18.45],[24,52,4,17.57],[33,52,3,15.38],[3,53,4,2.93],[0,54,3,2.93],[1,54,3,3.42],[2,54,3,3.08],[3,54,3,2.93],[4,54,4,5.12],[5,54,3,4.39],[6,54,3,4.73],[7,54,3,4.1],[13,54,4,7.45],[33,54,3,10.25],[0,55,4,4.69],[1,55,3,4.1],[3,55,4,4.69],[13,55,3,6.71],[15,55,3,7.38],[43,55,3,12.3],[0,56,3,3.51],[1,56,4,5.47],[2,56,4,4.92],[4,56,3,4.61],[5,56,4,7.03],[6,56,3,5.68],[12,56,3,5.68],[14,56,3,6.15],[26,56,3,8.2],[0,57,3,3.51],[1,57,4,5.47],[2,57,4,4.92],[4,57,5,7.69],[5,57,4,7.03],[6,57,3,5.68],[10,57,3,6.15],[12,57,3,5.68],[34,57,3,9.22],[0,58,3,2.93],[1,58,3,3.42],[3,58,3,2.93],[9,58,4,6.31],[10,58,3,5.12],[13,58,3,5.59],[21,58,3,6.15],[28,58,3,6.15],[32,58,3,6.15],[3,59,4,4.69],[7,59,3,4.92],[51,59,3,10.54],[49,60,3,24.6],[41,62,3,20.5],[47,61,3,18.45],[31,63,3,20.5],[37,63,3,20.5],[40,64,3,20.5],[58,65,3,20.5]]};
+const T=123;
+const nf=(v,d=1)=>v.toLocaleString('es-ES',{minimumFractionDigits:d,maximumFractionDigits:d});
+const nodes=DATA.nodes, edges=DATA.edges.map(([a,b,s,l])=>({a,b,s,l}));
+nodes.forEach(n=>{n.label=n.n;n.nb=[]});
+edges.forEach(e=>{nodes[e.a].nb.push(e);nodes[e.b].nb.push(e)});
+const W=520,H=540,P=26,NS='http://www.w3.org/2000/svg';
+const xs=nodes.map(n=>n.x), ys=nodes.map(n=>-n.y);
+const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+const k=Math.min((W-2*P-120)/(x1-x0),(H-2*P)/(y1-y0));
+const ox=(W-(x1-x0)*k)/2, oy=(H-(y1-y0)*k)/2;
+nodes.forEach(n=>{n.px=ox+(n.x-x0)*k;n.py=oy+(-n.y-y0)*k;n.r=2.2+Math.sqrt(n.s)*1.55});
+const gE=document.createElementNS(NS,'g'), gN=document.createElementNS(NS,'g'); svg.append(gE,gN);
+const maxL=Math.max(...edges.map(e=>e.l));
+edges.forEach(e=>{const p=document.createElementNS(NS,'line'),A=nodes[e.a],B=nodes[e.b];
+  p.setAttribute('x1',A.px);p.setAttribute('y1',A.py);p.setAttribute('x2',B.px);p.setAttribute('y2',B.py);
+  p.setAttribute('class','mb-edge');p.setAttribute('stroke-width',(0.4+1.6*(e.l-1)/(maxL-1)).toFixed(2));
+  e.base=0.12+0.38*(e.l-1)/(maxL-1);p.style.opacity=e.base;e.el=p;gE.appendChild(p)});
+let pinned=null,minLift=1,group=null;
+[...nodes.keys()].sort((i,j)=>nodes[i].s-nodes[j].s).forEach(i=>{const n=nodes[i];
+  const g=document.createElementNS(NS,'g');g.setAttribute('class','mb-node c'+n.c);g.setAttribute('tabindex','0');
+  g.setAttribute('role','button');g.setAttribute('aria-label',n.label+', '+n.s+' tickets');
+  const c=document.createElementNS(NS,'circle');c.setAttribute('cx',n.px);c.setAttribute('cy',n.py);c.setAttribute('r',n.r);
+  const t=document.createElementNS(NS,'text');t.setAttribute('x',n.px+n.r+3);t.setAttribute('y',n.py+3);t.textContent=n.label;
+  if(n.px>W-110){t.setAttribute('x',n.px-n.r-3);t.setAttribute('text-anchor','end')}
+  g.append(c,t);gN.appendChild(g);n.g=g;n.t=t;n.always=false;
+  g.addEventListener('mouseenter',ev=>{focusNode(i);showTip(ev,n)});
+  g.addEventListener('mousemove',moveTip);
+  g.addEventListener('mouseleave',()=>{hideTip();pinned===null?reset():focusNode(pinned)});
+  g.addEventListener('click',ev=>{ev.stopPropagation();pinned=pinned===i?null:i;pinned===null?reset():focusNode(i)});
+  g.addEventListener('focus',()=>focusNode(i));
+  g.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();pinned=i;focusNode(i)}});
+});
+svg.addEventListener('click',()=>{pinned=null;reset()});
+let labelsDone=false;
+function placeLabels(){ if(labelsDone) return; const boxes=[];
+  [...nodes].sort((a,b)=>b.s-a.s).forEach(n=>{if(n.s<9)return;let bb;try{bb=n.t.getBBox()}catch(e){return}
+    if(!bb.width)return; const b=[bb.x-2,bb.y-2,bb.x+bb.width+2,bb.y+bb.height+2];
+    const hit=boxes.some(o=>!(b[2]<o[0]||b[0]>o[2]||b[3]<o[1]||b[1]>o[3]))||nodes.some(m=>m!==n&&m.px+m.r>b[0]&&m.px-m.r<b[2]&&m.py+m.r>b[1]&&m.py-m.r<b[3]);
+    if(!hit){boxes.push(b);n.always=true}});
+  labelsDone=nodes.some(n=>n.always); }
+const vis=e=>e.l>=minLift, other=(e,i)=>e.a===i?e.b:e.a, conf=(a,e)=>e.s/nodes[a].s*100;
+const gOk=e=>group===null||(nodes[e.a].c===group&&nodes[e.b].c===group);
+function focusNode(i){const n=nodes[i],nb=new Set([i]);n.nb.filter(vis).forEach(e=>nb.add(other(e,i)));
+  edges.forEach(e=>{const on=(e.a===i||e.b===i)&&vis(e);e.el.style.opacity=on?0.9:0.03;e.el.style.stroke=on?'var(--g'+n.c+')':''});
+  nodes.forEach((m,j)=>{m.g.classList.toggle('mb-dim',!nb.has(j));m.t.classList.toggle('mb-hide',!nb.has(j))});
+  renderNode(i)}
+function reset(){placeLabels();
+  edges.forEach(e=>{e.el.style.stroke='';e.el.style.opacity=vis(e)&&gOk(e)?e.base:0});
+  nodes.forEach(m=>{const ok=group===null||m.c===group;m.g.classList.toggle('mb-dim',!ok);m.t.classList.toggle('mb-hide',!(m.always&&ok)&&!(group!==null&&ok))});
+  renderTop()}
+const $=id=>document.getElementById(id), dE=$('mbEyebrow'),dT=$('mbTitle'),dS=$('mbSub'),dL=$('mbList'),dK=$('mbKey');
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function li(h){const l=document.createElement('li');l.innerHTML=h;return l}
+function renderTop(){const pool=edges.filter(e=>e.s>=6&&vis(e)&&gOk(e)).sort((x,y)=>y.l-x.l).slice(0,6);
+  dE.textContent=group?'Comunidad '+group:'Parejas más fuertes';dE.style.color=group?'var(--g'+group+')':'';
+  dT.textContent=group?'Lo que se compra junto en esta comunidad':'Lo que casi siempre va en la misma cesta';
+  dS.textContent='Ordenadas por lift, con al menos 6 tickets en común'+(minLift>1?' y lift ≥ '+nf(minLift):'')+'.';
+  dL.replaceChildren(...(pool.length?pool.map(e=>{const A=nodes[e.a],B=nodes[e.b];
+    return li('<span class="p"><b>'+esc(A.label)+'</b> + <b>'+esc(B.label)+'</b></span><span class="x">×'+nf(e.l,2)+'</span><span class="m">'+e.s+' tickets juntos · '+nf(e.s/T*100)+' % de las compras</span>')}):[li('<span class="p">Ninguna pareja cumple el filtro.</span>')]));
+  const top=pool[0];
+  if(top){const A=nodes[top.a],B=nodes[top.b],ca=conf(top.a,top),cb=conf(top.b,top),hi=ca>=cb?A:B,lo=ca>=cb?B:A;
+    dK.hidden=false;dK.style.borderColor='var(--g'+(group||A.c)+')';dK.innerHTML='<b style="color:var(--g'+(group||A.c)+')">'+nf(Math.max(ca,cb),0)+' %</b>de las veces que se compra '+esc(hi.label.toLowerCase())+' se lleva también '+esc(lo.label.toLowerCase())+'.'}else dK.hidden=true}
+function renderNode(i){const n=nodes[i];
+  const rel=n.nb.filter(vis).map(e=>({o:nodes[other(e,i)],e,c:conf(i,e)})).sort((x,y)=>y.e.l-x.e.l);
+  dE.textContent='Comunidad '+n.c;dE.style.color='var(--g'+n.c+')';dT.textContent=n.label;
+  dS.textContent='Aparece en '+n.s+' de 123 tickets ('+nf(n.s/T*100)+' %). Se asocia con '+rel.length+' producto'+(rel.length===1?'':'s')+'.';
+  dL.replaceChildren(...rel.slice(0,7).map(r=>li('<span class="p">→ <b>'+esc(r.o.label)+'</b></span><span class="x">×'+nf(r.e.l,2)+'</span><span class="m">confianza '+nf(r.c,0)+' % · '+r.e.s+' tickets juntos</span>')));
+  if(rel.length>7)dL.appendChild(li('<span class="m">y '+(rel.length-7)+' más</span>'));
+  dK.hidden=true}
+const tip=$('mbTip');
+function showTip(ev,n){tip.innerHTML='<b>'+esc(n.label)+'</b>'+n.s+' tickets · '+n.nb.filter(vis).length+' asociaciones';tip.hidden=false;moveTip(ev)}
+function moveTip(ev){const x=Math.min(ev.clientX+14,window.innerWidth-tip.offsetWidth-12);tip.style.left=x+'px';tip.style.top=(ev.clientY+14)+'px'}
+function hideTip(){tip.hidden=true}
+const lg=$('mbLegend');
+if(lg)['1','2','3','4','5','6'].forEach(c=>{const mem=nodes.filter(n=>n.c===c).sort((a,b)=>b.s-a.s);
+  const b=document.createElement('button');b.className='mb-chip';b.type='button';b.setAttribute('aria-pressed','false');
+  b.innerHTML='<svg viewBox="0 0 10 10" class="mb-node c'+c+'" aria-hidden="true"><circle cx="5" cy="5" r="4"></circle></svg>'+c+' · '+esc(mem[0].label);
+  b.addEventListener('click',()=>{group=group===c?null:c;pinned=null;lg.querySelectorAll('.mb-chip').forEach(x=>x.setAttribute('aria-pressed',String(x===b&&group!==null)));reset()});
+  lg.appendChild(b)});
+const lift=$('mbLift'),lo=$('mbLiftOut');
+lift.addEventListener('input',()=>{minLift=+lift.value;lo.textContent=nf(minLift);pinned===null?reset():focusNode(pinned)});
+const best=edges.filter(e=>e.s>=6).reduce((m,e)=>e.l>m.l?e:m);
+reset();
+// las etiquetas se miden cuando la pestaña es visible
+window.addEventListener('hashchange',()=>{if(!labelsDone)setTimeout(()=>{if(pinned===null)reset()},0)});
+document.addEventListener('click',ev=>{if(ev.target.closest('.tab,.pager button')&&!labelsDone)setTimeout(()=>{if(pinned===null)reset()},0)});
+})();
+</script>
+
+<script>
+/* eventos del market basket */
+(function(){
+  var l=document.getElementById('mbLift'); if(l) l.addEventListener('change',function(){rgEvent('mba_filtro_lift',{lift_minimo:+l.value})});
+  document.addEventListener('click',function(e){
+    var c=e.target.closest('.mb-chip'); if(c){rgEvent('mba_comunidad',{comunidad:c.textContent.trim().slice(0,1)});return}
+    var n=e.target.closest('.mb-node[role="button"]'); if(n){rgEvent('mba_producto',{producto:(n.getAttribute('aria-label')||'').split(',')[0]})}
+  });
+})();
+</script>
 </body>
 </html>
