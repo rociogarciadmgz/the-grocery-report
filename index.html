@@ -33,7 +33,7 @@ function gtag(){dataLayer.push(arguments);}
 <meta name="claude:viewport-fit-sides" content="cover">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Roboto+Mono:wght@400;600&family=IBM+Plex+Mono:wght@600&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Merriweather:wght@700&family=Roboto+Mono:wght@400;600&family=IBM+Plex+Mono:wght@600&family=JetBrains+Mono:wght@800&display=swap">
 <style>
 /* Layout: un único ticket térmico largo sobre la mesa de caja; secciones = departamentos del ticket */
 :root{
@@ -85,7 +85,7 @@ body{
 
 /* tipografía */
 h1,h2,h3{font-family:var(--f-head);font-weight:700;text-wrap:balance;margin:0;color:var(--ink)}
-h1{font-size:clamp(38px,10vw,58px);line-height:1;letter-spacing:-.02em}
+h1{font-family:"JetBrains Mono","Courier New",monospace;font-weight:800;font-size:clamp(26px,7.6vw,56px);line-height:1.05;letter-spacing:-.02em}
 h2{font-family:var(--f-label);font-weight:600;font-size:14px;letter-spacing:.12em;text-transform:uppercase;line-height:1.4;padding:7px 0;border-top:3px dotted var(--ink);border-bottom:3px dotted var(--ink)}
 h3{font-family:var(--f-label);font-weight:600;font-size:13px;letter-spacing:.1em;text-transform:uppercase;line-height:1.4;margin-top:8px}
 p{margin:0}
@@ -103,7 +103,7 @@ section{display:flex;flex-direction:column;gap:16px;padding-block:28px}
 .head{display:flex;flex-direction:column;align-items:center;gap:12px;text-align:center;padding-bottom:24px}
 .logo{font-family:var(--f-label);font-weight:600;font-size:30px;line-height:1;letter-spacing:-.02em;color:var(--ink)}
 .logo .r{color:var(--brand)}
-.logo .d{margin-left:-.3em}
+.logo .d{margin-left:-.18em}
 .meta{display:grid;grid-template-columns:1fr auto;gap:2px 16px;font-size:12.5px;width:100%;text-align:left;text-transform:uppercase}
 .meta span:nth-child(even){text-align:right;font-family:var(--f-label);font-weight:600}
 
@@ -500,6 +500,7 @@ section > h2:not(:first-child),section > h3,.more-wrap > h2,.more-wrap > h3,.mb,
         <li>Enero y julio están incompletos (del 17 de enero al 15 de julio): mejor comparar por semanas que por meses.</li>
         <li>La semana 1 es la primera registrada, no la del año, y cada semana empieza en sábado.</li>
         <li>Solo incluye compras en supermercados y en la frutería.</li>
+        <li>Un mismo producto puede comprarse por unidades o en paquete (por ejemplo, huevos de 6 o de 12), así que la cantidad comprada no siempre es comparable entre compras.</li>
         <li>Las categorías las asignó la IA y están revisadas, pero puede quedar algún producto mal clasificado.</li>
         <li>La versión pública no tiene filtros, para mantener la confidencialidad de lo que compra una familia.</li>
       </ul>
@@ -659,6 +660,7 @@ section > h2:not(:first-child),section > h3,.more-wrap > h2,.more-wrap > h3,.mb,
           <li>Los datos son de una sola familia y de 26 semanas, por lo que los resultados no se pueden generalizar.</li>
           <li>Enero y julio están incompletos, así que la comparación por meses no es del todo fiable.</li>
           <li>La categorización la hacía la IA y, aunque la he revisado, puede haber algún producto mal clasificado.</li>
+          <li>Hay productos que se compran unas veces por unidades y otras en paquete, por lo que las cantidades de un mismo producto no siempre son comparables.</li>
           <li>Solo se han registrado las compras en supermercados y en la frutería, por lo que no está todo el gasto en alimentación de una familia (por ejemplo, comidas fuera o pedidos a domicilio).</li>
         </ul>
       </div>
